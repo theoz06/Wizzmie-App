@@ -60,8 +60,9 @@ public class UserServiceImpl {
 	}
 
 	public String delete(Integer id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'delete'");
+		User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User Not Found!"));
+		userRepository.delete(user);
+		return ("User Deleted!");
 	}
 
     
