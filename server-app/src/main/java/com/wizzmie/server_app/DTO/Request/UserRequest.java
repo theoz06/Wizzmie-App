@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class UserRequest {
     private String name;
     private String nik;
-    private 
+    private Integer role;
 }
