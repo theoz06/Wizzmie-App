@@ -48,9 +48,8 @@ public class UserServiceImpl {
 
 	
 	public User update(Integer id, UserRequest userRequest) {
-		User user = UserRepository.findById(id).orElseThrow(()-> new RuntimeException("User Not Found!"));
+		User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User Not Found!"));
 
-		User user = new User();
 		user.setName(userRequest.getName());
 		user.setNik(userRequest.getNik());
 
