@@ -1,6 +1,4 @@
-package com.wizzmie.server_app.DTO.Request;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+package com.wizzmie.server_app.DTO.Respon;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
+public class UserResponse {
+    private Integer id;
     private String name;
     private String nik;
-
-    @JsonProperty("role_id")
-    private Integer role;
+    private  RoleResponse role;
 }

@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import com.wizzmie.server_app.Entity.Menu;
 
 public interface MenuRepository extends JpaRepository<Menu, Integer>{
-    @Query("SELECT m FROM menu m WHERE m.name = ?1")
+    @Query("SELECT m FROM Menu m WHERE m.name = ?1")
     Optional<Menu> findByName(String name);
-    
 }

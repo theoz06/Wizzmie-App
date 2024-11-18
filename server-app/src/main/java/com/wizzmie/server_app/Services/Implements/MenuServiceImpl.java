@@ -36,7 +36,7 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
         throw new UnsupportedOperationException("Unimplemented method 'CreateMenu'");
     }
 
-    //Not Use
+    //Not Use 
     @Override 
     public Menu update(Integer id, Menu entity) {
         // TODO Auto-generated method stub

@@ -2,11 +2,17 @@ package com.wizzmie.server_app.Services.Implements;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.wizzmie.server_app.DTO.Request.UserRequest;
+import com.wizzmie.server_app.DTO.Respon.RoleResponse;
+import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.Role;
 import com.wizzmie.server_app.Entity.User;
 import com.wizzmie.server_app.Repository.RoleRepository;
@@ -24,8 +30,13 @@ public class UserServiceImpl {
 
 
 
-	public List<User> getAll() {
-		return userRepository.findAll();
+	public List<UserResponse> getAll() {
+		List<User> users = userRepository.findAll();
+		return users.stream().map(
+			(user) -> new UserResponse(user.getId(), user.getName(), user.getNik(), 
+					  new RoleResponse(user.getRole().getId(), user.getRole().getDescription())))
+					  .collect(Collectors.toList());
+
 	}
 
 	
@@ -60,7 +71,7 @@ public class UserServiceImpl {
 	}
 
 	public String delete(Integer id) {
-		User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User Not Found!"));
+		User user = userRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"User Not Found!"));
 		userRepository.delete(user);
 		return ("User Deleted!");
 	}

@@ -36,11 +36,11 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
         try {
             List<Menu> menus = menuServiceImpl.getAll();
             if(menus.isEmpty()){
-                return new ResponseEntity("There is no Menu created", HttpStatus.OK);
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(menus,HttpStatus.OK);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(new ArrayList<>() ,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>() , e.getStatus());
         }
     }
 
