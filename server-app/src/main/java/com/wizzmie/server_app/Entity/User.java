@@ -15,6 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 
+import com.wizzmie.server_app.Services.EnumRole;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,6 +42,15 @@ public class User {
     // )
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private EnumRole role;
+
+    
+    public EnumRole getRole() {
+        return role;
+    }
+
+    public void setRole(EnumRole role) {
+        this.role = role;  // Set role directly as EnumRole
+    }
 
 }

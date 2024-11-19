@@ -14,6 +14,7 @@ import com.wizzmie.server_app.DTO.Respon.RoleResponse;
 import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.User;
 import com.wizzmie.server_app.Repository.UserRepository;
+import com.wizzmie.server_app.Services.EnumRole;
 
 
 
@@ -31,7 +32,7 @@ public class UserServiceImpl {
                 user.getId(),
                 user.getName(),
                 user.getNik(),
-                user.getRole().getUsersRole()  // Accessing the role name using getUsersRole method
+                user.getRole().getUsersRole() 
             )
         ).collect(Collectors.toList());
 
@@ -63,7 +64,7 @@ public class UserServiceImpl {
 		user.setName(userRequest.getName());
 		user.setNik(userRequest.getNik());
 
-		Role role = roleRepository.findById(userRequest.getRole()).orElseThrow(()-> new RuntimeException("Role Not Found"));
+		EnumRole role = EnumRole.fromString(userRequest.getRole());
 		user.setRole(role);
 
 		return userRepository.save(user);
