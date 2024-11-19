@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.wizzmie.server_app.DTO.Request.UserRequest;
-import com.wizzmie.server_app.DTO.Respon.RoleResponse;
 import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.User;
 import com.wizzmie.server_app.Repository.UserRepository;
@@ -32,7 +31,7 @@ public class UserServiceImpl {
                 user.getId(),
                 user.getName(),
                 user.getNik(),
-                user.getRole().getUsersRole() 
+                user.getRole().getUsersRole().toUpperCase() 
             )
         ).collect(Collectors.toList());
 
@@ -64,7 +63,7 @@ public class UserServiceImpl {
 		user.setName(userRequest.getName());
 		user.setNik(userRequest.getNik());
 
-		EnumRole role = EnumRole.fromString(userRequest.getRole());
+		EnumRole role = EnumRole.fromString(userRequest.getRole().toUpperCase());
 		user.setRole(role);
 
 		return userRepository.save(user);
