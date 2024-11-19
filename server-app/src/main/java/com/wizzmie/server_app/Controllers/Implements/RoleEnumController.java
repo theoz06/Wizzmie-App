@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wizzmie.server_app.Services.EnumRole;
 
 @RestController
-@RequestMapping("api/public/role")
+@RequestMapping("/api/role")
 public class RoleEnumController {
-    
     @GetMapping
     public List<String> getRoles() {
         return Arrays.stream(EnumRole.values())

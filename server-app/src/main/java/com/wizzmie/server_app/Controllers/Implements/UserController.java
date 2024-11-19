@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wizzmie.server_app.Services.Implements.UserServiceImpl;
 
-
 @RestController
 @RequestMapping("api/admin")
 public class UserController {
