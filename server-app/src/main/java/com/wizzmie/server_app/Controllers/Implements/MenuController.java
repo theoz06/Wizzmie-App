@@ -36,11 +36,11 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
         try {
             List<Menu> menus = menuServiceImpl.getAll();
             if(menus.isEmpty()){
-                return new ResponseEntity("There is no Menu created", HttpStatus.OK);
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
             }
             return new ResponseEntity<>(menus,HttpStatus.OK);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(new ArrayList<>() ,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ArrayList<>() , e.getStatus());
         }
     }
 
@@ -80,12 +80,6 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     //Not Use
     @Override
     public ResponseEntity<Menu> create(Menu entity) {
-        // try {
-        //     menuServiceImpl.create(entity);
-        //     return new ResponseEntity<>(entity, HttpStatus.CREATED);
-        // } catch (ResponseStatusException e) {
-        //     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        // }
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
