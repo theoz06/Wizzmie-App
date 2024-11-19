@@ -13,6 +13,6 @@ public class UserRequest {
     private String name;
     private Integer nik;
 
-    @JsonProperty("role_id")
-    private Integer role;
+    // @JsonProperty("role_id")
+    private String role;
 }

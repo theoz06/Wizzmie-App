@@ -2,18 +2,27 @@ package com.wizzmie.server_app.Services;
 
 
 public enum EnumRole {
-    ADMIN("admin"),
-    KITCHEN("kitchen"),
-    PELAYAN("pelayanan"),
-    CUSTOMER("customer");
+    ADMIN("Admin"),
+    KITCHEN("Kitchen"),
+    PELAYAN("Pelayanan"),
+    CUSTOMER("Customer");
     
-    private String role;
+    private final String role;
 
-    EnumRole(String userRoles){
-        this.role = userRoles;
+    EnumRole(String usersRoles){
+        this.role = usersRoles;
     }
 
-    public String getUserRole(){
+    public String getUsersRole(){
         return role;
+    }
+
+    public static EnumRole fromString(String role) {
+        for (EnumRole r : EnumRole.values()) {
+            if (r.role.equalsIgnoreCase(role)) {
+                return r;
+            }
+        }
+        throw new IllegalArgumentException("Role not found: " + role);
     }
 }

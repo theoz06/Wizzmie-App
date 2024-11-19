@@ -12,10 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.wizzmie.server_app.DTO.Request.UserRequest;
 import com.wizzmie.server_app.DTO.Respon.RoleResponse;
 import com.wizzmie.server_app.DTO.Respon.UserResponse;
-import com.wizzmie.server_app.Entity.Role;
 import com.wizzmie.server_app.Entity.User;
-import com.wizzmie.server_app.Repository.RoleRepository;
 import com.wizzmie.server_app.Repository.UserRepository;
+
 
 
 @Service
@@ -24,17 +23,17 @@ public class UserServiceImpl {
 	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private RoleRepository roleRepository;
-
-
 
 	public List<UserResponse> getAll() {
 		List<User> users = userRepository.findAll();
 		return users.stream().map(
-			(user) -> new UserResponse(user.getId(), user.getName(), user.getNik(), 
-					  new RoleResponse(user.getRole().getId(), user.getRole().getDescription())))
-					  .collect(Collectors.toList());
+            (user) -> new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getNik(),
+                user.getRole().getUsersRole()  // Accessing the role name using getUsersRole method
+            )
+        ).collect(Collectors.toList());
 
 	}
 
@@ -51,7 +50,7 @@ public class UserServiceImpl {
 		user.setName(userRequest.getName());
 		user.setNik(generatedNik);
 
-		Role role = roleRepository.findById(userRequest.getRole()).orElseThrow(()-> new RuntimeException("Role Not Found"));
+		EnumRole role = EnumRole.fromString(userRequest.getRole());
 		user.setRole(role);
 
 		return userRepository.save(user);
