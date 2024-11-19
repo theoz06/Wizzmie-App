@@ -40,6 +40,7 @@ public class UserServiceImpl {
 
 	
 	public User create(UserRequest userRequest ) {
+		Integer generatedNik = generateEmployeeNik();
 		Optional<User> users = userRepository.findByNik(userRequest.getNik());
 		
 		if(users.isPresent()){
@@ -48,7 +49,7 @@ public class UserServiceImpl {
 
 		User user = new User();
 		user.setName(userRequest.getName());
-		user.setNik(userRequest.getNik());
+		user.setNik(generatedNik);
 
 		Role role = roleRepository.findById(userRequest.getRole()).orElseThrow(()-> new RuntimeException("Role Not Found"));
 		user.setRole(role);
@@ -73,6 +74,14 @@ public class UserServiceImpl {
 		User user = userRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"User Not Found!"));
 		userRepository.delete(user);
 		return ("User Deleted!");
+	}
+
+	private Integer generateEmployeeNik(){
+		Integer nik;
+		do{
+			nik = (int) ((Math.random() * 999999) + 1000);
+		}while(userRepository.findByNik(nik).equals(nik));
+		return nik;
 	}
 
     

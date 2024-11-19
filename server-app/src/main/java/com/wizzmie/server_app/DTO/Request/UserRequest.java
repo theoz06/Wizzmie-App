@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserRequest {
     private String name;
-    private String nik;
+    private Integer nik;
 
     @JsonProperty("role_id")
     private Integer role;
