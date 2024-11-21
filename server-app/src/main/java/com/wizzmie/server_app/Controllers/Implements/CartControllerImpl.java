@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("api/cart")
+@RequestMapping("api/orderpage/table/{tableNumber}/cart")
 public class CartControllerImpl {
     
     private CartServiceImpl cartServiceImpl;
@@ -30,8 +31,8 @@ public class CartControllerImpl {
         this.cartServiceImpl = cartServiceImpl;
     }
 
-    @GetMapping
-    public ResponseEntity<Cart> getCart(HttpSession session) {
+    @GetMapping()
+    public ResponseEntity<Cart> getCart(@PathVariable Integer tableNumber, HttpSession session) {
         try {
             Cart cart = cartServiceImpl.getCart(session);
 
@@ -46,9 +47,9 @@ public class CartControllerImpl {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addToCart(HttpSession session, @RequestBody CartItem item) {
+    public ResponseEntity<String> addToCart(@PathVariable Integer tableNumber, HttpSession session, @RequestBody CartItem item) {
         try {
-            cartServiceImpl.addToCart(session, item);
+            cartServiceImpl.addToCart(tableNumber, session, item);
             return new ResponseEntity<>("Item added to cart", HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getReason(), e.getStatus());
@@ -57,7 +58,7 @@ public class CartControllerImpl {
     }
 
     @DeleteMapping("/remove/{menuId}")
-    public ResponseEntity<String> removeFromCart(HttpSession session, @RequestParam Integer menuId) {
+    public ResponseEntity<String> removeFromCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @RequestParam Integer menuId) {
         try {
             cartServiceImpl.removeFromCart(session, menuId);
             return new ResponseEntity<>("Item removed from cart", HttpStatus.OK);
@@ -67,7 +68,7 @@ public class CartControllerImpl {
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<String> clearCart(HttpSession session) {
+    public ResponseEntity<String> clearCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session) {
         try {
             cartServiceImpl.clearCart(session);
             return new ResponseEntity<>("Cart cleared", HttpStatus.OK);
