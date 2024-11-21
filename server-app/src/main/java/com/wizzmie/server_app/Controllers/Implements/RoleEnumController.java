@@ -16,7 +16,8 @@ public class RoleEnumController {
     @GetMapping
     public List<String> getRoles() {
         return Arrays.stream(EnumRole.values())
-                     .map(EnumRole::getUsersRole) // Bisa `name()` untuk nilai mentah
+                     .filter(role -> !"Customer".equalsIgnoreCase(role.getUsersRole()))
+                     .map(EnumRole::getUsersRole) 
                      .collect(Collectors.toList());
     }
 }
