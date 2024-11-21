@@ -28,6 +28,6 @@ public class OrderItem {
     private Orders order;
 
     @ManyToOne
-    @JoinColumn(name = "menu_id", referencedColumnName = "id, nullable = false")
+    @JoinColumn(name = "menu_id", referencedColumnName = "id", nullable = false)
     private Menu menu;
 }
