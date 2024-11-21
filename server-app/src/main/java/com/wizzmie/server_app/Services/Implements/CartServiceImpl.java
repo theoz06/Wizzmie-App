@@ -20,7 +20,12 @@ public class CartServiceImpl {
         return cart;
     }
 
-    public void addToCart(HttpSession session, CartItem cartItem){
+    public void addToCart(Integer tableNumber,HttpSession session, CartItem cartItem){
+
+        if (tableNumber == null ) {
+            throw new RuntimeException("Table number or customer ID is not set in the session.");
+        }
+
         Cart cart = getCart(session);
 
         CartItem existingItem = cart.getCartItems().stream()
@@ -30,9 +35,10 @@ public class CartServiceImpl {
 
         if(existingItem != null){
             existingItem.setQuantity(existingItem.getQuantity() + cartItem.getQuantity());
+        }else{
+            cart.setTableNumber(tableNumber);
+            cart.addCartItem(cartItem);
         }
-
-        cart.addCartItem(cartItem);
         session.setAttribute(CART_SESSION_KEY, cart);
     }
 
