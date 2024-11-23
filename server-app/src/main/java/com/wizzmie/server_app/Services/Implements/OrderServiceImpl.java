@@ -1,6 +1,7 @@
 package com.wizzmie.server_app.Services.Implements;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
@@ -79,5 +80,10 @@ public class OrderServiceImpl {
         session.removeAttribute("CART");
 
         return order;
+    }
+
+    public List<Orders[]> getPaidOrders(){
+        List<Orders[]> order = orderRepository.findByStatusPaid(true);
+       return order;
     }
 }

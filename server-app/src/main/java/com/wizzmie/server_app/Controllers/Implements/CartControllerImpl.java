@@ -46,10 +46,10 @@ public class CartControllerImpl {
 
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addToCart(@PathVariable Integer tableNumber, HttpSession session, @RequestBody CartItem item) {
+    @PostMapping("/customer/{customerId}/add")
+    public ResponseEntity<String> addToCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @RequestBody CartItem item) {
         try {
-            cartServiceImpl.addToCart(tableNumber, session, item);
+            cartServiceImpl.addToCart(tableNumber,customerId, session, item);
             return new ResponseEntity<>("Item added to cart", HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getReason(), e.getStatus());

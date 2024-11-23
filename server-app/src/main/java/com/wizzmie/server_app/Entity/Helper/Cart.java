@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Cart {
+
     private Integer CustomerId;
     private Integer tableNumber;
     private List<CartItem> cartItems = new ArrayList<>();
