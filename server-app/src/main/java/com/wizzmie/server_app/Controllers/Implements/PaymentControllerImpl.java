@@ -1,7 +1,9 @@
 package com.wizzmie.server_app.Controllers.Implements;
 
+
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
 import com.wizzmie.server_app.Services.Implements.PaymentServiceImpl;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 
 @RestController
@@ -21,6 +23,7 @@ public class PaymentControllerImpl {
 
     @Autowired
     private PaymentServiceImpl paymentServiceImpl;
+
 
     @PostMapping("generate-token/order/{orderId}")
     public ResponseEntity<String> generateTokenPayment(@PathVariable Integer orderId){
@@ -33,22 +36,37 @@ public class PaymentControllerImpl {
         }
     }
 
-    @PostMapping("callback")
-    public ResponseEntity<String> handlePaymentCallback(@RequestBody Map<String, Object> payload){
+    @GetMapping("check-status/{orderId}")
+    public ResponseEntity<String> handlePaymentCallback(@PathVariable Integer orderId){
         
         try {
-            if (!payload.containsKey("order_id") || !payload.containsKey("transaction_status")) {
-                throw new RuntimeException("Invalid payload: Missing order_id or payment_successfully");
-            }
+            paymentServiceImpl.HandlePaymentCallback(orderId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
-            Integer orderId = Integer.parseInt(payload.get("order_id").toString());
-            String transactionStatus = (String) payload.get("transaction_status");
+    @PostMapping("order/{orderId}/qris")
+    public ResponseEntity<JSONObject> generateQRIS(@PathVariable Integer orderId) {
+        try {
+            JSONObject result = paymentServiceImpl.createPayment(orderId);
+            return new ResponseEntity<>(result, HttpStatus.CREATED);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-            paymentServiceImpl.HandlePaymentCallback(orderId, transactionStatus);
+    @GetMapping("/{transactionId}/status")
+    public ResponseEntity<String> handlerPaymentStatus(@PathVariable Integer orderId){
+        try {
+            paymentServiceImpl.handlerPaymentStatus(orderId);
             return new ResponseEntity<>("Payment callback successfully", HttpStatus.OK);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    
 
 }
