@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class UserResponse {
     private Integer id;
     private String name;
-    private Integer nik;
+    private String nik;
     private  String role;
 }
