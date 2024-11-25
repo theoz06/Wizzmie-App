@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.wizzmie.server_app.DTO.Respon.OrderActiveKitchenResponse;
 import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Services.Implements.OrderServiceImpl;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 @RestController
@@ -26,9 +28,9 @@ public class OrderController {
     private OrderServiceImpl orderServiceImpl; 
 
     @GetMapping
-    public ResponseEntity<List<Orders[]>> getPaidOrders(){
+    public ResponseEntity<List<Orders>> getPaidOrders(){
         try {
-            List<Orders[]> orders = orderServiceImpl.getPaidOrders();
+            List<Orders> orders = orderServiceImpl.getPaidOrders();
             if(orders.isEmpty()){
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -49,6 +51,23 @@ public class OrderController {
             return new ResponseEntity<>("Order Failed!", e.getStatus());
         }
     }
+
+    @GetMapping("active-orders/kitchen")
+    public ResponseEntity<List<Orders>> getActiveOrdersKitchen() {
+        try{
+            List<Orders> orders = orderServiceImpl.getOrdersWithStatusAsPrepared();
+            
+            if (orders.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }else{
+                return new ResponseEntity<>(orders, HttpStatus.OK);
+            }
+        }catch(ResponseStatusException e){
+            return new ResponseEntity<>(e.getStatus());
+        }
+        
+    }
+    
 
 
 }
