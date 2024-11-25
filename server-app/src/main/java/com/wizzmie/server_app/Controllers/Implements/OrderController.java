@@ -18,7 +18,6 @@ import com.wizzmie.server_app.Services.Implements.OrderServiceImpl;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -45,7 +44,7 @@ public class OrderController {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping("/customer/create-order")
     public ResponseEntity<String> createOrder(HttpSession session){
         try {
             orderServiceImpl.createOrder(session);
