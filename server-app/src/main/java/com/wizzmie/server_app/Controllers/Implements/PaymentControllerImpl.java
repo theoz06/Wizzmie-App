@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
-@RequestMapping("api/payments/")
+@RequestMapping("api/customer/payments/")
 public class PaymentControllerImpl {
 
     @Autowired
