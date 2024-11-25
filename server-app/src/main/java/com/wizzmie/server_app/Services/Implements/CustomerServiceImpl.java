@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Repository.CustomerRepository;
-import com.wizzmie.server_app.Repository.UserRepository;
 import com.wizzmie.server_app.Services.EnumRole;
 
 @Service
