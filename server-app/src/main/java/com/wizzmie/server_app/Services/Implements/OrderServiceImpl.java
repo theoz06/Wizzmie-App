@@ -93,5 +93,52 @@ public class OrderServiceImpl {
         return orders;
     }
 
+    public List<Orders> getReadyToServeOrders(){
+        List<Orders> orders = orderRepository.findByOrderStatusId(3);
+        return orders;
+    }
+
+    public String updateOrderStatus(Integer orderId){
+        
+        Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+        
+        Status currentStatus = order.getOrderStatus();
+        if (currentStatus == null || currentStatus.getId() == null) {
+            throw new IllegalArgumentException("Current status or status ID is null for order ID: " + orderId);
+        }
+
+        
+        switch (currentStatus.getId()) {
+            case 2:
+                updateStatus(order, 3);
+                break;
+            case 3:
+                updateStatus(order, 4);
+                break;
+        
+            default:
+                throw new IllegalArgumentException(
+                    "Invalid status transition for order ID: " + orderId
+            );
+        }
+
+        return "Order Status Updated to: " + order.getOrderStatus().getDescription();
+    
+    }
+
+    private void updateStatus(Orders order, Integer newStatusId){
+       
+        Status newStatus = statusRepository.findById(newStatusId).orElseThrow(()-> new RuntimeException("Status Not Found"));
+        order.setOrderStatus(newStatus);
+        orderRepository.save(order);
+    }
+
+    // private String updateStatusAsServed(Integer orderId){
+    //     Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+    //     Status newStatus = statusRepository.findById(4).orElseThrow(()-> new RuntimeException("Status Not Found"));
+    //     order.setOrderStatus(newStatus);
+    //     orderRepository.save(order);
+    //     return ("Order Status Updated! as : " + newStatus.getDescription());
+    // }
     
 }
