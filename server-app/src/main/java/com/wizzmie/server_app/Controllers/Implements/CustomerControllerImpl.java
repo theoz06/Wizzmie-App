@@ -12,7 +12,7 @@ import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Services.Implements.CustomerServiceImpl;
 
 @RestController
-@RequestMapping("api/public/customer")
+@RequestMapping("api/customer")
 public class CustomerControllerImpl {
     private CustomerServiceImpl customerServiceImpl;
 
