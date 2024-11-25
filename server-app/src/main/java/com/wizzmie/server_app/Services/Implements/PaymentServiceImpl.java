@@ -4,13 +4,13 @@ import com.midtrans.httpclient.TransactionApi;
 import com.midtrans.httpclient.CoreApi;
 import com.midtrans.httpclient.SnapApi;
 import com.midtrans.httpclient.error.MidtransError;
-import com.mysql.cj.util.Base64Decoder;
 import com.wizzmie.server_app.Config.MidtransConfig;
 import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Entity.Status;
 import com.wizzmie.server_app.Repository.OrderItemRepository;
 import com.wizzmie.server_app.Repository.OrderRepository;
 import com.wizzmie.server_app.Repository.StatusRepository;
+
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -24,6 +24,7 @@ import java.net.URL;
 
 import javax.transaction.Transactional;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ public class PaymentServiceImpl {
     private List<String> listedPayment;                                      
 
     //Generate Snap Token
+    //Not Use
     public String generateSnapToken(Integer orderId){
         Orders order = orderRepository.findById(orderId)
                        .orElseThrow(()-> new RuntimeException("Order Not Found"));
@@ -87,68 +89,80 @@ public class PaymentServiceImpl {
     
     //Tanpa Midtrans Java SDK
     @Transactional
-    public void HandlePaymentCallback(Integer orderId){
+    public Map<String, Object> HandlePaymentCallback(Integer orderId){
 
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+            // Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
         
             String auth = Base64.getEncoder().encodeToString((midtransConfig.getServerKey() + ":").getBytes());
     
             //connet to Htpp
             HttpURLConnection conn = (HttpURLConnection) new URL(midtransConfig.getStatusUrl()+ orderId + "/status").openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Authorization", "Basic " + auth);
+            conn.setRequestProperty("Authorization", ("Basic " + auth));
             conn.setRequestProperty("Accept", "application/json");
     
             //Read Respon
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder response = new StringBuilder();
+            StringBuilder jsonResponse = new StringBuilder();
             String inputLine;
     
             while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-                
-            
+                jsonResponse.append(inputLine);   
+            }
+
+            if (jsonResponse.length() == 0) {
+                throw new RuntimeException("Empty response from payment gateway");
             }
             
-            JSONObject jsonResponse = new JSONObject(response.toString());
-            String transactionStatus = jsonResponse.getString("transaction_status");
+            JSONObject json = new JSONObject(jsonResponse.toString());
+            
+
+            if (!json.has("transaction_status")){
+                throw new RuntimeException("Transaction status not found");
+            }
+
+            String transactionStatus = json.getString("transaction_status");
     
             switch (transactionStatus) {
                 case "settlement":
-                    order.setPaid(true);
-                    Status updateStatusOrder = statusRepository.findById(2)
-                                               .orElseThrow(() -> new RuntimeException("Status not found"));
-                    order.setOrderStatus(updateStatusOrder);
-        
-                    orderRepository.save(order);
+                    handlerSuccsesPayment(orderId);
+                    response.put("status_code", 200);
+                    response.put("transaction_status", transactionStatus);
+                    response.put("message", "payment successfully");
                     break;
                 case "pending":
-                    // Pembayaran masih pending
-                    order.setPaid(false);
-                    order.setOrderStatus(statusRepository.findById(1)
-                        .orElseThrow(() -> new RuntimeException("Status not found")));
+                    response.put("status_code", 200);
+                    response.put("transaction_status", transactionStatus);
+                    response.put("message", "payment on proccess");
                     break;
         
                 case "cancel":
                 case "deny":
                 case "expire":
-                    // Pembayaran gagal atau dibatalkan
-                    orderItemRepository.deleteByOrderId(order.getId());
-                    orderRepository.delete(order);
+                    handlerFailedPayment(orderId);
+                    response.put("status_code", 200);
+                    response.put("transaction_status", transactionStatus);
+                    response.put("message", "payment failed!");
                     break;
                 default:
                     throw new RuntimeException("Unknown transaction status: ");
             }
-            in.close();
+            
+            response.put("empty", false);
         }catch (Exception e){
             System.err.println("Error: " + e.getMessage());
+            response.put("error_message", e.getMessage());
+            response.put("empty", false); 
         }
-
+        
+        return response;
 
     }
 
-    public JSONObject createPayment (Integer orderId){
+    public String createPayment (Integer orderId){
         try {
             Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
 
@@ -170,8 +184,25 @@ public class PaymentServiceImpl {
             chargeParams.put("customer_details", customerDetails);
             chargeParams.put("payment_type", "qris");
 
-            JSONObject result = CoreApi.chargeTransaction(chargeParams); 
-            return result;
+            JSONObject result = CoreApi.chargeTransaction(chargeParams);
+            JSONObject jsonResult = new JSONObject(result.toString());
+
+            JSONArray actionArray = jsonResult.getJSONArray("actions");
+            
+            String url = null;
+
+            for (int i = 0; i < actionArray.length(); i++){
+                JSONObject action = actionArray.getJSONObject(i);
+                if (action.getString("name").equals("generate-qr-code")){
+                    url = action.getString("url");
+                    break;
+                }
+            }
+
+            if(url !=null){
+                return url;
+            }
+            return ("QRIS URL not found");
 
         } catch (MidtransError e) {
             e.printStackTrace();
@@ -179,38 +210,66 @@ public class PaymentServiceImpl {
         }
     }
 
-    public void handlerPaymentStatus(Integer orderId){
-        try{
-            Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
-
-            JSONObject response = TransactionApi.checkTransaction(orderId.toString());
-
-            switch (response.toString()) {
+    //Check Transaction status using Midtrans CoreApi
+    public Map<String, Object> handlerPaymentStatus(Integer orderId){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Panggil API transaksi dari Midtrans
+            JSONObject midtransResponse = TransactionApi.checkTransaction(orderId.toString());
+    
+            // Ambil status transaksi
+            String transactionStatus = midtransResponse.getString("transaction_status");
+    
+            // Logika berdasarkan status transaksi
+            switch (transactionStatus) {
                 case "settlement":
-                    order.setPaid(true);
+                    handlerSuccsesPayment(orderId); // Tangani pembayaran berhasil
+                    response.put("status_code", 200);
+                    response.put("transaction_status", transactionStatus);
+                    response.put("message", "Payment successful.");
+                    break;
+    
+                case "pending":
+                    response.put("status_code", 200);
+                    response.put("transaction_status", transactionStatus);
+                    response.put("message", "Payment is in process.");
+                    break;
+    
+                case "cancel":
+                case "deny":
+                case "expire":
+                    handlerFailedPayment(orderId); // Tangani pembayaran gagal
+                    response.put("status_code", 200);
+                    response.put("transaction_status", transactionStatus);
+                    response.put("message", "Payment failed!");
+                    break;
+    
+                default:
+                    throw new RuntimeException("Unknown transaction status: " + transactionStatus);
+            }
+        } catch (MidtransError e) {
+            e.printStackTrace();
+            response.put("status_code", 500);
+            response.put("transaction_status", "error");
+            response.put("message", "Error occurred: " + e.getMessage());
+        } 
+        return response; 
+    }
+
+
+    private void handlerSuccsesPayment(Integer orderId){
+        Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+        order.setPaid(true);
                     Status updateStatusOrder = statusRepository.findById(2)
                                                .orElseThrow(() -> new RuntimeException("Status not found"));
                     order.setOrderStatus(updateStatusOrder);
         
                     orderRepository.save(order);
-                    break;
-                case "pending":
-                    // Pembayaran masih pending
-                    throw new RuntimeException("Pending");
-        
-                case "cancel":
-                case "deny":
-                case "expire":
-                    // Pembayaran gagal atau dibatalkan
-                    orderItemRepository.deleteByOrderId(order.getId());
-                    orderRepository.delete(order);
-                    break;
-                default:
-                    throw new RuntimeException("Unknown transaction status: ");
-            }
-        }catch(MidtransError e){
-            e.printStackTrace();
-        }
     }
 
+    private void handlerFailedPayment(Integer orderId){
+        Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+        orderItemRepository.deleteByOrderId(order.getId());
+        orderRepository.delete(order);
+    }
 }
