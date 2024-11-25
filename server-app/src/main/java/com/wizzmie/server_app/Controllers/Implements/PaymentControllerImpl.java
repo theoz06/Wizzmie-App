@@ -1,9 +1,9 @@
 package com.wizzmie.server_app.Controllers.Implements;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,36 +37,38 @@ public class PaymentControllerImpl {
     }
 
     @GetMapping("check-status/{orderId}")
-    public ResponseEntity<String> handlePaymentCallback(@PathVariable Integer orderId){
+    public ResponseEntity<Map<String, Object>> handlePaymentCallback(@PathVariable Integer orderId){
         
         try {
-            paymentServiceImpl.HandlePaymentCallback(orderId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            Map<String, Object> res = paymentServiceImpl.HandlePaymentCallback(orderId);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+          Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status_code", 400);
+            errorResponse.put("message", "Bad request: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("order/{orderId}/qris")
-    public ResponseEntity<JSONObject> generateQRIS(@PathVariable Integer orderId) {
+    public ResponseEntity<String> generateQRIS(@PathVariable Integer orderId) {
         try {
-            JSONObject result = paymentServiceImpl.createPayment(orderId);
+            String result = paymentServiceImpl.createPayment(orderId);
             return new ResponseEntity<>(result, HttpStatus.CREATED);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/{transactionId}/status")
-    public ResponseEntity<String> handlerPaymentStatus(@PathVariable Integer orderId){
+    @GetMapping("/{orderId}/status")
+    public ResponseEntity<Map<String, Object>> handlerPaymentStatus(@PathVariable Integer orderId){
         try {
-            paymentServiceImpl.handlerPaymentStatus(orderId);
-            return new ResponseEntity<>("Payment callback successfully", HttpStatus.OK);
+            Map<String, Object> res = paymentServiceImpl.handlerPaymentStatus(orderId);
+            return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
     
-
 }
