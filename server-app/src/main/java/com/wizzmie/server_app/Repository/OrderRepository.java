@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.wizzmie.server_app.DTO.Respon.OrderActiveKitchenResponse;
 import com.wizzmie.server_app.Entity.Orders;
 
 public interface OrderRepository extends JpaRepository<Orders, Integer> {
@@ -13,6 +14,12 @@ public interface OrderRepository extends JpaRepository<Orders, Integer> {
            "JOIN order_item oi ON o.id = oi.order_id " +
            "WHERE o.paid = ?1", 
            nativeQuery = true)
-    List<Orders[]> findByStatusPaid(Boolean paid);
+    List<Orders> findByStatusPaid(Boolean paid);
+
+    @Query("SELECT DISTINCT o FROM orders o " +
+       "LEFT JOIN FETCH o.orderItems oi " +
+       "LEFT JOIN FETCH oi.menu " +
+       "WHERE o.orderStatus.id = ?1")
+    List<Orders> findByOrderStatusId(Integer status_id);
     
 }
