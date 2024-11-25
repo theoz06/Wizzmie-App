@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("api/orderpage/table/{tableNumber}/cart")
+@RequestMapping("api/customer/orderpage/table/{tableNumber}/cart")
 public class CartControllerImpl {
     
     private CartServiceImpl cartServiceImpl;
