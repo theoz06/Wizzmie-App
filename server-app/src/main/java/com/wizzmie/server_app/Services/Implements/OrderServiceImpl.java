@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.wizzmie.server_app.DTO.Respon.OrderActiveKitchenResponse;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Entity.OrderItem;
@@ -82,8 +84,15 @@ public class OrderServiceImpl {
         return order;
     }
 
-    public List<Orders[]> getPaidOrders(){
-        List<Orders[]> order = orderRepository.findByStatusPaid(true);
-       return order;
+    public List<Orders> getPaidOrders(){
+        List<Orders> orders = orderRepository.findByStatusPaid(true);
+       return orders;
     }
+
+    public List<Orders> getOrdersWithStatusAsPrepared(){
+        List<Orders> orders = orderRepository.findByOrderStatusId(2);
+        return orders;
+    }
+
+    
 }
