@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.wizzmie.server_app.DTO.Respon.OrderActiveKitchenResponse;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Entity.OrderItem;
