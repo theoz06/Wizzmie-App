@@ -39,8 +39,8 @@ public class UserServiceImpl {
 
 	
 	public User create(UserRequest userRequest ) {
-		Integer generatedNik = generateEmployeeNik();
-		Optional<User> users = userRepository.findByNik(userRequest.getNik());
+		String generatedNik = generateEmployeeNik();
+		Optional<User> users = userRepository.findByNik(generatedNik);
 		
 		if(users.isPresent()){
 			throw new RuntimeException("users with nik : " + userRequest.getNik() + "already exist!");
@@ -48,7 +48,7 @@ public class UserServiceImpl {
 
 		User user = new User();
 		user.setName(userRequest.getName());
-		user.setNik(generatedNik);
+		user.setNik(generatedNik.toString());
 
 		EnumRole role = EnumRole.fromString(userRequest.getRole());
 		user.setRole(role);
@@ -61,7 +61,6 @@ public class UserServiceImpl {
 		User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User Not Found!"));
 
 		user.setName(userRequest.getName());
-		user.setNik(userRequest.getNik());
 
 		EnumRole role = EnumRole.fromString(userRequest.getRole().toUpperCase());
 		user.setRole(role);
@@ -75,11 +74,11 @@ public class UserServiceImpl {
 		return ("User Deleted!");
 	}
 
-	private Integer generateEmployeeNik(){
-		Integer nik;
+	private String generateEmployeeNik(){
+		String nik;
 		do{
-			nik = (int) ((Math.random() * 999999) + 1000);
-		}while(userRepository.findByNik(nik).equals(nik));
+			nik = String.valueOf((int) ((Math.random() * 999999) + 1000));
+		}while(userRepository.findByNik(nik).isPresent());
 		return nik;
 	}
 
