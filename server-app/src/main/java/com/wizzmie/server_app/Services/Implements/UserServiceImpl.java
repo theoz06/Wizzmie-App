@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,6 +23,9 @@ public class UserServiceImpl {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 
 	public List<UserResponse> getAll() {
@@ -49,6 +53,7 @@ public class UserServiceImpl {
 		User user = new User();
 		user.setName(userRequest.getName());
 		user.setNik(generatedNik.toString());
+		user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 
 		EnumRole role = EnumRole.fromString(userRequest.getRole());
 		user.setRole(role);
