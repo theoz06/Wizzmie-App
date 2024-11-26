@@ -28,6 +28,8 @@ public class User {
 
     private String name;
     private String nik;
+    private String password;
+
 
     // @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     // @JoinTable(
