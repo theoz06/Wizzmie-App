@@ -16,7 +16,9 @@ import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Services.Implements.OrderServiceImpl;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 
@@ -42,7 +44,7 @@ public class OrderController {
     }
 
 
-    @PostMapping("/create")
+    @PostMapping("/customer/create-order")
     public ResponseEntity<String> createOrder(HttpSession session){
         try {
             orderServiceImpl.createOrder(session);
@@ -67,7 +69,32 @@ public class OrderController {
         }
         
     }
-    
 
+    @GetMapping("active-orders/pelayan")
+    public ResponseEntity<List<Orders>> getActiveOrdersPelayan() {
+        try{
+            List<Orders> readyOrders = orderServiceImpl.getReadyToServeOrders();
+            
+            if (readyOrders.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }else{
+                return new ResponseEntity<>(readyOrders, HttpStatus.OK);
+            }
+        }catch(ResponseStatusException e){
+            return new ResponseEntity<>(e.getStatus());
+        }
+        
+    }
+
+    @PostMapping("active-orders/update-status/{orderId}")
+    public ResponseEntity<String> updateOrderStatus(@PathVariable Integer orderId){
+        try {
+            String res = orderServiceImpl.updateOrderStatus(orderId);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
+    }
+    
 
 }

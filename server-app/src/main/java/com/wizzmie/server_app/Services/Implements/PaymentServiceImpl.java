@@ -27,6 +27,7 @@ import javax.transaction.Transactional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service    
@@ -43,6 +44,9 @@ public class PaymentServiceImpl {
 
     @Autowired
     private MidtransConfig midtransConfig;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
 
 
@@ -262,9 +266,12 @@ public class PaymentServiceImpl {
         order.setPaid(true);
                     Status updateStatusOrder = statusRepository.findById(2)
                                                .orElseThrow(() -> new RuntimeException("Status not found"));
-                    order.setOrderStatus(updateStatusOrder);
+        order.setOrderStatus(updateStatusOrder);
         
-                    orderRepository.save(order);
+        orderRepository.save(order);
+
+        //Send Data To Kitchen Monitor
+        messagingTemplate.convertAndSend("/kitchen/orders", order);
     }
 
     private void handlerFailedPayment(Integer orderId){
