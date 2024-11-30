@@ -12,13 +12,13 @@ const Sidebar = () => {
     { name: "Manage Menu", path: "/admin/menu-management" },
     { name: "Manage Category", path: "/admin/category-management" },
     { name: "Manage User", path: "/admin/user-management" },
-    { name: "Generate QR Code", path: "/admin/qr-code" },
+    { name: "Generate QR Code", path: "/admin/generate-qrcode" },
     { name: "Manage Order", path: "/admin/order-management" },
     { name: "Order History", path: "/admin/order-history" },
   ];
 
   return (
-    <div className="bg-[#754985] text-white sidebar w-64 flex flex-col box-">
+    <div className="bg-[#754985] text-white h-scree sidebar w-64 flex flex-col ">
       <ul className="flex flex-col space-y-0">
       {menuItems.map((item, index) => (
           <li key={index}>
