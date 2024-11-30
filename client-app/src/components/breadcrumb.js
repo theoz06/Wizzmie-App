@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { ImHome } from "react-icons/im";
 
 const Breadcrumb = () => {
   const router = useRouter();
@@ -8,13 +9,17 @@ const Breadcrumb = () => {
   const pathParts = router.asPath.split("/").filter((part) => part);
 
   return (
-    <div aria-label="breadcrumb" className="text-gray-600 text-sm mb-4">
+    <div aria-label="breadcrumb" className="text-gray-600 text-sm mb-4 ">
       <ol className="flex space-x-2">
         <li>
           <Link href="/admin/AdminHome" className="hover:text-blue-500">
-            Dashboard
+          <div className="flex items-center space-x-2">
+            <ImHome />
+            <p>Home</p>
+            <span className="mx-2">/</span>
+          </div>
           </Link>
-          <span className="mx-2">/</span>
+          
         </li>
 
         {pathParts.map((part, index) => {
