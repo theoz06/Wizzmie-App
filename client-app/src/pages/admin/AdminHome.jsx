@@ -45,7 +45,8 @@ const AdminHome = () => {
 
   return (
     <AdminLayout>
-      <div className="p-6">
+      <div className="h-screen p-6">
+      <div className="p-2 rounded-md bg-white">
         <Breadcrumb />
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
       </div>
@@ -90,6 +91,8 @@ const AdminHome = () => {
           </li>
         </ul>
       </div>
+      </div>
+
     </AdminLayout>
   );
 };

@@ -22,7 +22,7 @@ const AdminLayout = ({ children }) => {
         <Navbar />
         <div className="flex-1 flex flex-row ">
           <Sidebar />
-          <main className="flex-1 p-6 bg-[#d9d9d9]">{children}</main>
+          <main className="flex-1 p-0 bg-[#d9d9d9]">{children}</main>
         </div>
       </div>
     </>
