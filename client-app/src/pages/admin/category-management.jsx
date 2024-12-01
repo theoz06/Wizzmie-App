@@ -97,7 +97,7 @@ const ManageCategory = () => {
           </div>
           <hr></hr>
           <table className="min-w-full table-auto border-collapse bg-[#754985] text-white shadow-lg">
-            <thead className="">
+            <thead >
               <tr>
                 <th className="py-3 px-6 text-left">Description</th>
                 <th className="py-3 px-6 text-center">Actions</th>
