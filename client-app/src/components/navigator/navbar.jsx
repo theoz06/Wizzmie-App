@@ -4,8 +4,7 @@ import Link from "next/link";
 
 const Navbar = () => {
   return (
-    <div>
-      <div className="bg-[#754985] w-full text-white flex justify-between  items-center px-6 py-3">
+      <div className="bg-[#754985] text-white flex justify-between w-svw  items-center px-6 py-3">
         <Link className="flex items-center " href="/admin/AdminHome">
             <img src="/images/logo-wizzmie.webp" alt="logo" className="h-10 w-10"/>
             <div className="ml-4 text-lg font-bold">Admin Dashboard</div>
@@ -18,7 +17,6 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-    </div>
   );
 };
 

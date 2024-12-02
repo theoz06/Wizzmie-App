@@ -18,7 +18,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="bg-[#754985] text-white h-scree sidebar w-64 flex flex-col ">
+    <div className="bg-[#754985] text-white  sidebar w-64 flex flex-col ">
       <ul className="flex flex-col space-y-0">
       {menuItems.map((item, index) => (
           <li key={index}>
