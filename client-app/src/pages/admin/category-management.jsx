@@ -6,9 +6,10 @@ import { useState } from "react";
 import Modal from "@/components/modal-component";
 import ModalDelete from "@/components/modal-delete";
 import { BiCategory } from "react-icons/bi";
+import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
 
 const ManageCategory = () => {
-  const categoryData = [];
+  const {categories, loading, error, getAllCategory} = useGetAllCategory();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -48,7 +49,7 @@ const ManageCategory = () => {
     setSearchQuery(e.target.value);
   };
 
-  const filteredItem = categoryData.filter((item) =>
+  const filteredItem = categories.filter((item) =>
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -106,9 +107,25 @@ const ManageCategory = () => {
           </table>
           <div className="max-h-96 overflow-y-scroll">
             <table className="min-w-full table-auto border-collapse bg-white shadow-lg rounded-b-md">
-              {categoryData.length > 0 ? (
-                <tbody>
-                  {categoryData.map((category, index) => (
+            {loading ? (
+              <tbody>
+                <tr>
+                  <td colSpan="3" className="text-center py-4">
+                    Loading...
+                  </td>
+                </tr>
+              </tbody>
+            ): error ? (
+              <tbody>
+                <tr>
+                  <td colSpan="3" className="text-center py-4">
+                    Error : {error}
+                  </td>
+                </tr>
+              </tbody>
+            ): categories.length > 0 ? (
+              <tbody>
+                  {categories.map((category, index) => (
                     <tr
                       key={category.id}
                       className={`${
@@ -148,20 +165,20 @@ const ManageCategory = () => {
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              ) : (
-                <tbody>
+              </tbody>
+            ):(
+              <tbody>
                   <tr>
                     <td colSpan="3" className="text-center py-4">
                       No categories available.
                     </td>
                   </tr>
                 </tbody>
-              )}
-            </table>
+            )}
+          </table>
           </div>
         </div>
-        {categoryData.length > 0 ? (
+        {categories.length > 0 ? (
           <div className="flex justify-between items-center mt-4">
             <button
               onClick={handlerPrev}
