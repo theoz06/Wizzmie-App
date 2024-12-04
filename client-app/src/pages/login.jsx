@@ -2,36 +2,31 @@ import React from "react";
 import "./login.css";
 import { useState } from "react";
 import { redirect } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const {isLoading, error, login} = useAuth();
+  const router = useRouter();
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!username || !password) {
+    if (!nik || !password) {
       alert("Username or Password is empty!");
       return;
     }
-    setIsLoading(true);
 
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-    if (data.success) {
+    const success = await login(nik, password);
+    if (success) {
       alert("Login Success!");
-      redirect("/");
-    } else {
+      router.push("/admin/menu-management");
+    }else {
       alert("Login Failed!");
+      router.push("/")
     }
   };
 
@@ -49,7 +44,7 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="nik"
               className="block text-sm/6 font-medium text-white"
             >
               Username
@@ -59,7 +54,7 @@ const LoginPage = () => {
                 id="nik"
                 name="nik"
                 type="text"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setNik(e.target.value)}
                 required
                 disabled={isLoading}
                 className="block w-full rounded-md border-0 py-1.5  text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-[#e985bb]"
