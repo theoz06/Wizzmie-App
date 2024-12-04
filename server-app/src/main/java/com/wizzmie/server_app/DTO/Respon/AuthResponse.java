@@ -1,4 +1,4 @@
-package main.java.com.wizzmie.server_app.DTO.Respon;
+package com.wizzmie.server_app.DTO.Respon;
 
 public class AuthResponse {
     private String token;
