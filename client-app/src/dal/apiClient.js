@@ -15,6 +15,6 @@ apiClient.interceptors.response.use(
         const message = error.response?.data?.message || "Unknown Error!";
         return Promise.reject(new Error(message));
     }
-)k
+)
 
 export default apiClient;
