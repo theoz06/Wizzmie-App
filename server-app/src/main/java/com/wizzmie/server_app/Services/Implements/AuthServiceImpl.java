@@ -40,6 +40,8 @@ public class AuthServiceImpl {
 
 
         return new AuthResponse(token);
-    } 
+    }
+    
+    public void logout()
 
 }
