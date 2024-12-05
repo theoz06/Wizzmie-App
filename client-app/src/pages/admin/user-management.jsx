@@ -2,6 +2,7 @@ import Breadcrumb from "@/components/breadcrumb";
 import AdminLayout from "@/components/layout/AdminLayout";
 import Modal from "@/components/modal-component";
 import ModalDelete from "@/components/modal-delete";
+import withAuth from "@/hoc/protectedRoute";
 import React from "react";
 import { useState } from "react";
 import { FaEdit, FaRegUser } from "react-icons/fa";
@@ -217,7 +218,7 @@ const UserManagement = () => {
 
       {/*Modal Delete Confirmation*/}
       <ModalDelete isOpen={isModalDeleteOpen} onClose={handleModalDeleteClose} onSubmit={handleDelete}>
-        <p>Are you sure want to delete this user?"</p>
+        <p>Are you sure want to delete this user?</p>
       </ModalDelete>
       </div>
 
@@ -225,4 +226,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default withAuth(UserManagement);

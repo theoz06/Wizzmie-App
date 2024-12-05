@@ -1,5 +1,6 @@
 import Breadcrumb from "@/components/breadcrumb";
 import AdminLayout from "@/components/layout/AdminLayout";
+import withAuth from "@/hoc/protectedRoute";
 import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
@@ -185,4 +186,4 @@ const ManageOrder = () => {
   );
 };
 
-export default ManageOrder;
+export default withAuth(ManageOrder);

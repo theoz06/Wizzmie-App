@@ -3,6 +3,7 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import { TfiViewListAlt } from "react-icons/tfi";
 import React from 'react'
 import { useState } from 'react';
+import withAuth from '@/hoc/protectedRoute';
 
 
 const OrderHistory = () => {
@@ -112,4 +113,4 @@ const OrderHistory = () => {
   )
 }
 
-export default OrderHistory;
+export default withAuth(OrderHistory);

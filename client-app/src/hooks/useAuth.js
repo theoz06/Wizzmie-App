@@ -1,4 +1,5 @@
 import loginUser from '@/services/authService';
+import Cookies from 'js-cookie';
 import { useState } from 'react';
 
 
@@ -12,7 +13,7 @@ const useAuth = () => {
 
         try {
             const data = await loginUser(nik, password);
-            sessionStorage.setItem("token", data.token);
+            Cookies.set("token", data.token ,{expires: 1});
             return true;
         } catch (error) {
             setError (error.message || "An error occurred during login.");
@@ -24,4 +25,4 @@ const useAuth = () => {
     return { login, isLoading, error };
 }
 
-export default useAuth
+export default useAuth;

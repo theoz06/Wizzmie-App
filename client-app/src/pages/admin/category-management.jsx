@@ -7,6 +7,10 @@ import Modal from "@/components/modal-component";
 import ModalDelete from "@/components/modal-delete";
 import { BiCategory } from "react-icons/bi";
 import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
+import withAuth from "@/hoc/protectedRoute";
+import { FaChevronDown, FaEdit } from "react-icons/fa";
+import { FaRegTrashCan } from "react-icons/fa6";
+
 
 const ManageCategory = () => {
   const {categories, loading, error, getAllCategory} = useGetAllCategory();
@@ -280,11 +284,11 @@ const ManageCategory = () => {
           onClose={handleModalDeleteClose}
           onSubmit={handleDelete}
         >
-          <p>Are you sure want to delete this category?"</p>
+          <p>Are you sure want to delete this category?</p>
         </ModalDelete>
       </div>
     </AdminLayout>
   );
 };
 
-export default ManageCategory;
+export default withAuth(ManageCategory);

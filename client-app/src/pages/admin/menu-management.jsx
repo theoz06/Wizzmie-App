@@ -10,6 +10,9 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import Modal from "@/components/modal-component";
 import ModalDelete from "@/components/modal-delete";
 import { MdMenuBook } from "react-icons/md";
+import withAuth from "@/hoc/protectedRoute";
+
+
 
 const MenuManagement = () => {
   const menuData = [
@@ -544,4 +547,4 @@ const MenuManagement = () => {
   );
 };
 
-export default MenuManagement;
+export default withAuth(MenuManagement);

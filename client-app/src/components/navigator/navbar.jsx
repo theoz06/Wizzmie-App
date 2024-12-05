@@ -2,15 +2,20 @@ import React from "react";
 import "./navigator.css"
 import Link from "next/link";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
 
   const router = useRouter();
 
   const LogOutHandler = () => {
-    sessionStorage.removeItem("token");
-    console.log(sessionStorage.getItem("token"))
-    router.push("/login");
+    confirm("Are you sure want to logout?");
+    if(confirm = true){
+    Cookies.remove("token");
+    alert("Logout Success");
+    router.replace("/");
+    history.replaceState(null, "", "/");
+    }
   }
 
 

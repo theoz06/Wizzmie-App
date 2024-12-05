@@ -1,7 +1,6 @@
 import React from "react";
 import "./login.css";
 import { useState } from "react";
-import { redirect } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { useRouter } from "next/router";
 
