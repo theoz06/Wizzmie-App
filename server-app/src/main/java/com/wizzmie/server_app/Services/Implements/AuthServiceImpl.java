@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.wizzmie.server_app.DTO.Request.AuthRequest;
 import com.wizzmie.server_app.DTO.Respon.AuthResponse;
+import com.wizzmie.server_app.DTO.Respon.UserResponse;
+import com.wizzmie.server_app.Entity.User;
+import com.wizzmie.server_app.Repository.UserRepository;
 import com.wizzmie.server_app.utils.JwtService;
 
 
@@ -17,10 +20,13 @@ public class AuthServiceImpl {
     
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtService jwtService){
+
+    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtService jwtService, UserRepository userRepository){
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
     }
 
 
@@ -38,8 +44,20 @@ public class AuthServiceImpl {
         String role = authentication.getAuthorities().iterator().next().getAuthority();
         String token = jwtService.generateToken(nik, role);
 
+        User user = userRepository.findByNik(nik).get();
 
-        return new AuthResponse(token);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        UserResponse userResponse = new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getNik(),
+            user.getRole().getUsersRole().toUpperCase()
+        );
+
+        return new AuthResponse(token, userResponse);
     }
     
 

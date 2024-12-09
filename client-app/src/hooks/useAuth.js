@@ -14,6 +14,7 @@ const useAuth = () => {
         try {
             const data = await loginUser(nik, password);
             Cookies.set("token", data.token ,{expires: 1});
+            Cookies.set("user", JSON.stringify(data.user), {expires:1})
             return true;
         } catch (error) {
             setError (error.message || "An error occurred during login.");

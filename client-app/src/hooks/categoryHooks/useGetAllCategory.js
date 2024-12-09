@@ -12,7 +12,7 @@ const useGetAllCategory = () => {
 
     try {
       const response = await categoryService.getAllCategory();
-      getAllCategory(response);
+      setCategories(response);
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {

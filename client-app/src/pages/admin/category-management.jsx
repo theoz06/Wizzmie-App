@@ -1,5 +1,5 @@
 import AdminLayout from "@/components/layout/adminLayout";
-import React from "react";
+import React, { useEffect } from "react";
 import Breadcrumb from "@/components/breadcrumb";
 import { IoMdAdd } from "react-icons/io";
 import { useState } from "react";
@@ -10,13 +10,16 @@ import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
 import withAuth from "@/hoc/protectedRoute";
 import { FaChevronDown, FaEdit } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
+import useCreateCategory from "@/hooks/categoryHooks/useCreateCategory";
 
 
 const ManageCategory = () => {
   const {categories, loading, error, getAllCategory} = useGetAllCategory();
+  const {createCategory, isLoading: loadingCreateCategory, error: errorCreateCategory} = useCreateCategory();
+  const [categoryDescription, setCategoryDescription] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
@@ -24,8 +27,19 @@ const ManageCategory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Category Submit");
-    handleModalClose();
+
+    const categoryDetail = {
+      description : categoryDescription
+    };
+
+    const success = await createCategory(categoryDetail);
+    if (success) {
+      setCategoryDescription("");
+      handleModalClose();
+      await getAllCategory();
+    }
+    console.log("Gagal Create Category");
+
   };
 
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
@@ -51,11 +65,16 @@ const ManageCategory = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const handlerSearch = (e) => {
     setSearchQuery(e.target.value);
+    setCurrentPage(1);
   };
 
   const filteredItem = categories.filter((item) =>
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const indexOfFirstItem = currentPage * itemsPerPage;
+  const indexOfLastItem = indexOfFirstItem - itemsPerPage;
+  const currentItems = filteredItem.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlerNext = () => {
     if (currentPage < totalPage) {
@@ -127,9 +146,9 @@ const ManageCategory = () => {
                   </td>
                 </tr>
               </tbody>
-            ): categories.length > 0 ? (
+            ): filteredItem.length > 0 ? (
               <tbody>
-                  {categories.map((category, index) => (
+                  {filteredItem.map((category, index) => (
                     <tr
                       key={category.id}
                       className={`${
@@ -137,22 +156,6 @@ const ManageCategory = () => {
                       }`}
                     >
                       <td className="py-3 px-6">{category.description}</td>
-                      <td className="py-3 px-6">
-                        <div className="mt-2 grid grid-cols-1">
-                          <select
-                            id="category"
-                            name="category"
-                            className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                          >
-                            <option>Available</option>
-                            <option>Unavailable</option>
-                          </select>
-                          <FaChevronDown
-                            aria-hidden="true"
-                            className="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500 sm:size-4"
-                          />
-                        </div>
-                      </td>
                       <td className="py-3 px-6 text-center">
                         <button
                           onClick={handleModalUpdateOpen}
@@ -182,7 +185,7 @@ const ManageCategory = () => {
           </table>
           </div>
         </div>
-        {categories.length > 0 ? (
+        {filteredItem.length > 0 ? (
           <div className="flex justify-between items-center mt-4">
             <button
               onClick={handlerPrev}
@@ -220,8 +223,10 @@ const ManageCategory = () => {
           onClose={handleModalClose}
           title="Category Details"
           onSubmit={handleSubmit}
+          type="submit"
+          isLoading={loadingCreateCategory}
         >
-          <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6 p-8">
             <div>
               <div className="sm:col-span-3">
                 <label
@@ -235,6 +240,8 @@ const ManageCategory = () => {
                     id="description"
                     name="description"
                     type="text"
+                    value = {categoryDescription}
+                    onChange={(e)=> setCategoryDescription(e.target.value)}
                     required
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   />
@@ -250,6 +257,8 @@ const ManageCategory = () => {
           onClose={handleModalUpdateClose}
           title="Category Details"
           onSubmit={handleUpdateSubmit}
+          type="submit"
+          disabled={loadingCreateCategory}
         >
           <form
             onSubmit={handleUpdateSubmit}
