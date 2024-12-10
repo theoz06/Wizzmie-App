@@ -93,7 +93,7 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
             request.setPrice(price);
             request.setCategoryId(categoryId);
             request.setIsAvailable(isAvailable);
-            
+
             menuServiceImpl.UpdateMenu(id, request, image);
             return new ResponseEntity<>("Menu Update", HttpStatus.OK);
         } catch (ResponseStatusException e) {
@@ -127,15 +127,5 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
-    private String SaveImage(MultipartFile image) throws IOException{
-        String originalFileName = image.getOriginalFilename();
-        if(originalFileName == null){
-            throw new IOException("File name is Empty!");
-        }
-
-        Path path = Paths.get("/src/main/resources/static/images/" + originalFileName);
-        Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        return path.toString();
-    }
     
 }
