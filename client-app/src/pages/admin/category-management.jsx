@@ -8,22 +8,31 @@ import ModalDelete from "@/components/modal-delete";
 import { BiCategory } from "react-icons/bi";
 import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
 import withAuth from "@/hoc/protectedRoute";
-import { FaChevronDown, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import { FaRegTrashCan } from "react-icons/fa6";
 import useCreateCategory from "@/hooks/categoryHooks/useCreateCategory";
+import useUpdateCategory from "@/hooks/categoryHooks/useUpdateCategory";
+import useDeleteCategory from "@/hooks/categoryHooks/useDeleteCategory";
+
+
 
 
 const ManageCategory = () => {
-  const {categories, loading, error, getAllCategory} = useGetAllCategory();
-  const {createCategory, isLoading: loadingCreateCategory, error: errorCreateCategory} = useCreateCategory();
+  const {categories, loading, error: errorGetAllCategory, getAllCategory} = useGetAllCategory();
   const [categoryDescription, setCategoryDescription] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  
 
+  //Create Modal Handler
+  const {createCategory, isLoading: loadingCreateCategory, error: errorCreateCategory, setError: setErrorCreateCategory} = useCreateCategory();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
-  const handleModalClose = () => setIsModalOpen(false);
+  const handleModalClose = () => {
+    setCategoryDescription("");
+    setIsModalOpen(false);
+    setErrorCreateCategory(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,30 +47,81 @@ const ManageCategory = () => {
       handleModalClose();
       await getAllCategory();
     }
-    console.log("Gagal Create Category");
 
   };
 
+  //Update Modal Handler
+  const {isLoading: loadingUpdateCategory, error: errorUpdateCategory, setError: setErrorUpdateCategory, updateCategory} = useUpdateCategory();
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
-  const handleModalUpdateOpen = () => setIsModalUpdateOpen(true);
-  const handleModalUpdateClose = () => setIsModalUpdateOpen(false);
+  const handleModalUpdateOpen = (category) => {
+    setSelectedCategory(category);
+    setCategoryDescription(category.description);
+    setIsModalUpdateOpen(true);
+  }
+  const handleModalUpdateClose = () =>{ 
+    setSelectedCategory(null);
+    setCategoryDescription("");
+    setIsModalUpdateOpen(false);
+    setErrorUpdateCategory(null);
+  };
 
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
-    alert("Category Updated Submit");
-    handleModalUpdateClose();
+
+    const categoryId = selectedCategory?.id;
+  
+
+    if (!categoryId) {
+      alert("No Category Selected")
+      return
+    }else{
+      const updateData = {
+        description : categoryDescription
+      }
+
+      const success = await updateCategory(categoryId, updateData);
+      if(success){
+        setCategoryDescription("");
+        setSelectedCategory(null);
+        handleModalUpdateClose();
+        await getAllCategory();
+      }
+    }
+
   };
 
+  //Delete Modal Handler
+  const {DeleteCategory, isLoading: loadingDeleteCategory, error: errorDeleteCategory, setError: setErrorDeleteCategory} = useDeleteCategory();
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const handleModalDeleteOpen = () => setIsModalDeleteOpen(true);
-  const handleModalDeleteClose = () => setIsModalDeleteOpen(false);
+  const handleModalDeleteOpen = (category) => {
+    setSelectedCategory(category);
+    setIsModalDeleteOpen(true)
+  };
+  const handleModalDeleteClose = () => {
+    setErrorDeleteCategory(null);
+    setIsModalDeleteOpen(false)};
 
   const handleDelete = async (e) => {
     e.preventDefault();
-    alert("Category Deleted");
-    handleModalDeleteClose();
+
+    const categoryId = selectedCategory?.id;
+    if (!categoryId) {
+      alert("No Category Selected")
+      return
+    }
+    
+    const success = await DeleteCategory(categoryId);
+    if(success){
+      setSelectedCategory(null);
+      alert("Category Deleted");
+      await getAllCategory();
+      handleModalDeleteClose();
+    }
+
   };
 
+
+  //Search Handler
   const [searchQuery, setSearchQuery] = useState("");
   const handlerSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -72,9 +132,14 @@ const ManageCategory = () => {
     item.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const indexOfFirstItem = currentPage * itemsPerPage;
-  const indexOfLastItem = indexOfFirstItem - itemsPerPage;
+  
+  //Table Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 13;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItem.slice(indexOfFirstItem, indexOfLastItem);
+  console.log(currentItems);
 
   const handlerNext = () => {
     if (currentPage < totalPage) {
@@ -92,7 +157,7 @@ const ManageCategory = () => {
 
   return (
     <AdminLayout>
-      <div className="h-screen p-6">
+      <div className="h-full min-h-screen p-6">
         <div className="p-2 rounded-md bg-white">
           <Breadcrumb />
           <h1 className="text-2xl font-bold">CATEGORY</h1>
@@ -128,7 +193,7 @@ const ManageCategory = () => {
               </tr>
             </thead>
           </table>
-          <div className="max-h-96 overflow-y-scroll">
+          <div className=" h-96 overflow-y-scroll">
             <table className="min-w-full table-auto border-collapse bg-white shadow-lg rounded-b-md">
             {loading ? (
               <tbody>
@@ -138,17 +203,17 @@ const ManageCategory = () => {
                   </td>
                 </tr>
               </tbody>
-            ): error ? (
+            ): errorGetAllCategory ? (
               <tbody>
                 <tr>
                   <td colSpan="3" className="text-center py-4">
-                    Error : {error}
+                    Error : {errorGetAllCategory}
                   </td>
                 </tr>
               </tbody>
             ): filteredItem.length > 0 ? (
               <tbody>
-                  {filteredItem.map((category, index) => (
+                  {currentItems.map((category, index) => (
                     <tr
                       key={category.id}
                       className={`${
@@ -158,13 +223,13 @@ const ManageCategory = () => {
                       <td className="py-3 px-6">{category.description}</td>
                       <td className="py-3 px-6 text-center">
                         <button
-                          onClick={handleModalUpdateOpen}
+                          onClick={()=>handleModalUpdateOpen(category)}
                           className="text-blue-500 hover:text-blue-700 mr-3"
                         >
                           <FaEdit />
                         </button>
                         <button
-                          onClick={handleModalDeleteOpen}
+                          onClick={()=>handleModalDeleteOpen(category)}
                           className="text-red-500 hover:text-red-700"
                         >
                           <FaRegTrashCan />
@@ -247,6 +312,7 @@ const ManageCategory = () => {
                   />
                 </div>
               </div>
+              {errorCreateCategory && <div style={{ color: "red" }}>{errorCreateCategory}</div>}
             </div>
           </form>
         </Modal>
@@ -258,7 +324,7 @@ const ManageCategory = () => {
           title="Category Details"
           onSubmit={handleUpdateSubmit}
           type="submit"
-          disabled={loadingCreateCategory}
+          disabled={loadingUpdateCategory}
         >
           <form
             onSubmit={handleUpdateSubmit}
@@ -278,11 +344,14 @@ const ManageCategory = () => {
                     id="description"
                     name="description"
                     type="text"
+                    value={categoryDescription}
+                    onChange={(e)=> setCategoryDescription(e.target.value)}
                     required
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   />
                 </div>
               </div>
+              {errorUpdateCategory && <div style={{ color: "red" }}>{errorUpdateCategory}</div>}
             </div>
           </form>
         </Modal>

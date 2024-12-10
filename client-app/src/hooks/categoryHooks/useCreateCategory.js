@@ -16,14 +16,15 @@ const useCreateCategory = () => {
             await categoryService.createCategory(data);
             return true;
         } catch (err) {
-            setError(err.message || "An error occurred during category creation.");
+            const errorMessage = err.response?.data?.message || err.message || "An error occurred during category creation.";
+            setError(errorMessage);
             return false;
         } finally {
             setIsLoading(false);
         }
     }
 
-    return { createCategory, isLoading, error };
+    return { createCategory, isLoading, error , setError};
 }
 
 export default useCreateCategory;

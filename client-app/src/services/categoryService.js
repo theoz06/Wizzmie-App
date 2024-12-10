@@ -3,13 +3,16 @@ import apiClient from "@/dal/apiClient";
 
 const  getAllCategory= async () => {
   const response = await apiClient.get("/category/public");
-  console.log(response);
   return response.data;
 }
 
 const createCategory= async (data) => {
+  try {
     const response = await apiClient.post("/category/admin/create", data);
     return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 const updateCategory= async (id, data ) => {

@@ -2,6 +2,8 @@ package com.wizzmie.server_app.Controllers.Implements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,7 +89,7 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
 
     //Not Use
     @Override
-    public ResponseEntity<String> update(Integer id, Menu entity) {
+    public ResponseEntity<Map<String, Object>> update(Integer id, Menu entity) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
