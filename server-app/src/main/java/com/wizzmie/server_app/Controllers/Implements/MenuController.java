@@ -58,7 +58,7 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     public ResponseEntity<String> createMenu(@RequestParam("name") String name,
     @RequestParam("description") String description,
     @RequestParam("price") Double price,
-    @RequestParam("category_id") Integer category_Id,
+    @RequestParam("categoryId") Integer categoryId,
     @RequestParam("isAvailable") Boolean isAvailable,
     @RequestParam("image") MultipartFile image) {
         try {
@@ -66,16 +66,12 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
             request.setName(name);
             request.setDescription(description);
             request.setPrice(price);
-            request.setCategoryId(category_Id);
+            request.setCategoryId(categoryId);
             request.setIsAvailable(isAvailable);
             
-            String imagePath = SaveImage(image);
-            request.setImage(imagePath);
 
-            menuServiceImpl.CreateMenu(request);
+            menuServiceImpl.CreateMenu(request, image);
             return new ResponseEntity<>("Menu Created!", HttpStatus.CREATED);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Error Saving images:" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }catch(ResponseStatusException e){
             return new ResponseEntity<>(e.getReason(), e.getStatus());
         }
@@ -83,9 +79,22 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     
     @Override
     @PutMapping("/admin/update/{id}")
-    public ResponseEntity<String> updateMenu(@PathVariable("id") Integer id, @RequestBody MenuRequest request){
+    public ResponseEntity<String> updateMenu(@PathVariable("id") Integer id, @RequestParam("name") String name,
+        @RequestParam("description") String description,
+        @RequestParam("price") Double price,
+        @RequestParam("categoryId") Integer categoryId,
+        @RequestParam("isAvailable") Boolean isAvailable,
+        @RequestParam("image") MultipartFile image){
+
         try {
-            menuServiceImpl.UpdateMenu(id, request);
+            MenuRequest request = new MenuRequest();
+            request.setName(name);
+            request.setDescription(description);
+            request.setPrice(price);
+            request.setCategoryId(categoryId);
+            request.setIsAvailable(isAvailable);
+            
+            menuServiceImpl.UpdateMenu(id, request, image);
             return new ResponseEntity<>("Menu Update", HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getReason(), e.getStatus());

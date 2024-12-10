@@ -1,10 +1,12 @@
 package com.wizzmie.server_app.Services.Implements;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.wizzmie.server_app.DTO.Request.MenuRequest;
 import com.wizzmie.server_app.Entity.Category;
@@ -22,6 +24,10 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
 
     @Autowired
     private CategoryRepository categoryRepository; 
+
+    @Autowired
+    private FileUploadServiceImpl fileUploadServiceImpl;
+
 
     @Override
     public List<Menu> getAll() {
@@ -55,7 +61,7 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
 
 
     @Override
-    public Menu CreateMenu(MenuRequest request) {
+    public Menu CreateMenu(MenuRequest request, MultipartFile image) {
         Menu menu = new Menu();
 
         Optional<Menu> savedMenu = menuRepository.findByName(request.getName());
@@ -63,13 +69,20 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
             throw new RuntimeException("Menu with name : " + request.getName() + "already exist!");
         }
 
+
         menu.setName(request.getName());
         menu.setDescription(request.getDescription());
-        menu.setImage(request.getImage());
         menu.setPrice(request.getPrice());
         menu.setIsAvailable(request.getIsAvailable());
 
-
+        if (image != null && !image.isEmpty()) {
+            try {
+                String fileName = fileUploadServiceImpl.saveImage(image);
+                menu.setImage(fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Error saving image: " + e.getMessage());
+            }
+        }
         Category category = categoryRepository.findById(request.getCategoryId())
                             .orElseThrow(()-> new RuntimeException("Id Not Found!"));
 
@@ -81,13 +94,20 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
 
 
     @Override
-    public Menu UpdateMenu(Integer id, MenuRequest request) {
+    public Menu UpdateMenu(Integer id, MenuRequest request, MultipartFile image) {
         Menu menu = menuRepository.findById(id).orElseThrow(()-> new RuntimeException("Menu Not Found"));
         
         menu.setName(request.getName());
         menu.setDescription(request.getDescription());
-        menu.setImage(request.getImage());
         menu.setPrice(request.getPrice());
+
+        if(image != null && !image.isEmpty()){
+            try {
+                fileUploadServiceImpl.updateImage(image, id);
+            } catch (IOException e) {
+                throw new RuntimeException("Error updating image: " + e.getMessage());
+            }
+        }
 
         Category category = categoryRepository.findById(request.getCategoryId())
                             .orElseThrow(()-> new RuntimeException("Category Not Found"));
