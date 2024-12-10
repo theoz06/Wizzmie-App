@@ -23,7 +23,6 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         const message = error.response?.data?.message || error.message || "Unknown Error!";
-        console.error(message); 
         const errorMessage = message || "Unknown error occurred.";
         return Promise.reject(new Error(errorMessage));
     }

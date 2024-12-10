@@ -3,6 +3,11 @@ package com.wizzmie.server_app.Controllers.Implements;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 
 
 import org.springframework.http.HttpStatus;
@@ -14,8 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import java.io.IOException;
+
+
 
 import com.wizzmie.server_app.Controllers.GenericController;
 import com.wizzmie.server_app.Controllers.OptionalGenericController;
@@ -37,10 +47,7 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     public ResponseEntity<List<Menu>> getAll() {
         try {
             List<Menu> menus = menuServiceImpl.getAll();
-            if(menus.isEmpty()){
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(menus,HttpStatus.OK);
+            return new ResponseEntity<>(menus, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(new ArrayList<>() , e.getStatus());
         }
@@ -48,11 +55,28 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
 
     @Override
     @PostMapping("/admin/create")
-    public ResponseEntity<String> createMenu(@RequestBody MenuRequest request) {
+    public ResponseEntity<String> createMenu(@RequestParam("name") String name,
+    @RequestParam("description") String description,
+    @RequestParam("price") Double price,
+    @RequestParam("category_id") Integer category_Id,
+    @RequestParam("isAvailable") Boolean isAvailable,
+    @RequestParam("image") MultipartFile image) {
         try {
+            MenuRequest request = new MenuRequest();
+            request.setName(name);
+            request.setDescription(description);
+            request.setPrice(price);
+            request.setCategoryId(category_Id);
+            request.setIsAvailable(isAvailable);
+            
+            String imagePath = SaveImage(image);
+            request.setImage(imagePath);
+
             menuServiceImpl.CreateMenu(request);
             return new ResponseEntity<>("Menu Created!", HttpStatus.CREATED);
-        } catch (ResponseStatusException e) {
+        } catch (IOException e) {
+            return new ResponseEntity<>("Error Saving images:" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch(ResponseStatusException e){
             return new ResponseEntity<>(e.getReason(), e.getStatus());
         }
     }
@@ -92,6 +116,17 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     public ResponseEntity<Map<String, Object>> update(Integer id, Menu entity) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update'");
+    }
+
+    private String SaveImage(MultipartFile image) throws IOException{
+        String originalFileName = image.getOriginalFilename();
+        if(originalFileName == null){
+            throw new IOException("File name is Empty!");
+        }
+
+        Path path = Paths.get("/src/main/resources/static/images/" + originalFileName);
+        Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        return path.toString();
     }
     
 }

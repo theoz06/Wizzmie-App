@@ -15,6 +15,7 @@ public class MenuRequest {
     private String description;
     private Double price;
     private String image;
+    private Boolean isAvailable;
 
     @JsonProperty("category_id")
     private Integer categoryId;

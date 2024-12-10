@@ -25,6 +25,8 @@ public class Menu {
     private String description;
     private Double price;
     private String image;
+    private Boolean isAvailable;
+
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)

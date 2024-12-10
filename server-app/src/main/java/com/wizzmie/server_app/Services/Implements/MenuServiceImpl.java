@@ -67,6 +67,8 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
         menu.setDescription(request.getDescription());
         menu.setImage(request.getImage());
         menu.setPrice(request.getPrice());
+        menu.setIsAvailable(request.getIsAvailable());
+
 
         Category category = categoryRepository.findById(request.getCategoryId())
                             .orElseThrow(()-> new RuntimeException("Id Not Found!"));
