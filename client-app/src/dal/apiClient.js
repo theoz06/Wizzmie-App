@@ -1,6 +1,5 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-import { config } from "process";
 
 const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000/api',
@@ -14,6 +13,11 @@ apiClient.interceptors.request.use((config)=>{
     if(token){
         config.headers.Authorization = `Bearer ${token}`;
     }
+
+    if(config.data instanceof FormData) {
+        config.headers["Content-Type"] = "multipart/form-data";
+    }
+
     return config;
 })
 
@@ -26,6 +30,8 @@ apiClient.interceptors.response.use(
         const errorMessage = message || "Unknown error occurred.";
         return Promise.reject(new Error(errorMessage));
     }
+
+
 )
 
 export default apiClient;
