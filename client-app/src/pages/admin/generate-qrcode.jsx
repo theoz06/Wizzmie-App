@@ -15,6 +15,13 @@ const GenerateQrCode = () => {
   const generatorQrCode = async (e) => {
     e.preventDefault();
 
+    if(number <= 0 || !number){
+      alert("Invalid Number");
+      setGeneratedQrCode(null);
+      setNumber("");
+      return
+    }
+
     const url = `${baseUrl}/${number}`;
     setGeneratedQrCode(url)
   };
@@ -27,6 +34,8 @@ const GenerateQrCode = () => {
     link.download = `table-${number}.png`;
     link.click();
 
+    setGeneratedQrCode(null);
+    setNumber("");
 
   }
 
