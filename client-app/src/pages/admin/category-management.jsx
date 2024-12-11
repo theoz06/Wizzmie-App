@@ -162,14 +162,7 @@ const ManageCategory = () => {
           <Breadcrumb />
           <h1 className="text-2xl font-bold">CATEGORY</h1>
         </div>
-        <div className="my-4 flex justify-between items-center">
-          <input
-            type="text"
-            placeholder="Search by description..."
-            value={searchQuery}
-            onChange={handlerSearch}
-            className="px-4 py-2 border rounded-lg w-full max-w-sm"
-          />
+        <div className="my-4 flex justify-end space-x-2 pt-10">
           <button
             onClick={handleModalOpen}
             className="px-4 py-2 flex items-center space-x-2 rounded-lg bg-[#754985] text-white"
@@ -180,9 +173,18 @@ const ManageCategory = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex items-center space-x-2">
+          <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex justify-between items-center space-x-2">
+            <div className="flex items-center space-x-2">
             <BiCategory />
             <p>Category List</p>
+            </div>
+            <input
+            type="text"
+            placeholder="Search by description..."
+            value={searchQuery}
+            onChange={handlerSearch}
+            className="px-4 py-2 border rounded-lg w-full max-w-sm"
+          />
           </div>
           <hr></hr>
           <table className="min-w-full table-auto border-collapse bg-[#754985] text-white shadow-lg">

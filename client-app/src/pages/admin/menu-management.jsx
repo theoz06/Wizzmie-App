@@ -15,6 +15,8 @@ import useCreateMenu from "@/hooks/menuHooks/useCreateMenu";
 import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
 import useUpdateMenuAvailability from "@/hooks/menuHooks/useUpdateMenuAvailability";
 import useUpdateMenu from "@/hooks/menuHooks/useUpdateMenu";
+import useDeleteMenu from "@/hooks/menuHooks/useDeleteMenu";
+
 
 
 
@@ -171,12 +173,42 @@ const MenuManagement = () => {
   };
 
 
-
+  // Handler Delete Menu
+  const {deleteMenu, isLoading: loadingDeleteMenu, error: errorDeleteMenu, setError: setErrorDeleteMenu} = useDeleteMenu();
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const handleModalDeleteOpen = (menu) => {
+    setSelectedMenu(menu);
+    setIsModalDeleteOpen(true);
+  }; 
+
+  const handleModalDeleteClose = () => {
+    setSelectedMenu(null);
+    setIsModalDeleteOpen(false);
+  }; 
+
+  const handlerDelete = async (e, id) => {
+    e.preventDefault();
+
+    const menuId = selectedMenu?.id;
+    console.log("Menu Id:" + menuId);
+
+    if(!menuId){
+      alert("No Menu Selected.");
+      return;
+    }else{
+      const success = await deleteMenu(menuId);
+      if(success){
+        handleModalDeleteClose();
+        await getAllMenu();
+      }
+    }
+  };
+
+
+  //Pagination 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   const filteredItem = menus.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -190,11 +222,6 @@ const MenuManagement = () => {
   };
 
   const totalPage = Math.ceil(filteredItem.length / itemsPerPage);
-
-  
-
-  const handleModalDeleteOpen = () => setIsModalDeleteOpen(true); // Membuka modal
-  const handleModalDeleteClose = () => setIsModalDeleteOpen(false); // Menutup modal
 
   const handlerNext = () => {
     if (currentPage < totalPage) {
@@ -210,13 +237,6 @@ const MenuManagement = () => {
 
 
 
-
-  const handlerDelete = async (e) => {
-    e.preventDefault();
-    alert("Data Deleted");
-    handleModalDeleteClose;
-  };
-
   return (
     <AdminLayout>
       <div className="h-full min-h-screen p-6">
@@ -224,14 +244,7 @@ const MenuManagement = () => {
           <Breadcrumb />
           <h1 className="text-2xl font-bold">MENU</h1>
         </div>
-        <div className="my-4 flex justify-between items-center">
-          <input
-            type="text"
-            placeholder="Search by Name..."
-            value={searchQuery}
-            onChange={handlerSearch}
-            className="px-4 py-2 border rounded-lg w-full max-w-sm"
-          />
+        <div className="my-4 flex pt-10  justify-end space-x-2">
           <button
             onClick={handleModalOpen}
             className="px-4 py-2 flex items-center space-x-2 rounded-lg bg-[#754985] text-white"
@@ -241,9 +254,18 @@ const MenuManagement = () => {
           </button>
         </div>
         <div className="overflow-x-auto">
-          <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex items-center space-x-2">
+          <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex items-center space-x-2 justify-between">
+            <div className="flex items-center space-x-2">
             <MdMenuBook />
             <p>Menus List</p>
+            </div>
+            <input
+            type="text"
+            placeholder="Search by Name..."
+            value={searchQuery}
+            onChange={handlerSearch}
+            className="px-4 py-2 border rounded-lg w-full max-w-sm"
+          />
           </div>
           <hr></hr>
           <table className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg">
@@ -314,7 +336,7 @@ const MenuManagement = () => {
                           <FaEdit />
                         </button>
                         <button
-                          onClick={handleModalDeleteOpen}
+                          onClick={()=>handleModalDeleteOpen(menu)}
                           className="text-red-500 hover:text-red-700"
                         >
                           <FaRegTrashCan />
@@ -326,7 +348,7 @@ const MenuManagement = () => {
               ) : (
                 <tbody>
                   <tr>
-                    <td colSpan="3" className="text-center py-4">
+                    <td colSpan="7" className="text-center py-4 bg-white text-gray-900">
                       No menus available.
                     </td>
                   </tr>
