@@ -1,16 +1,34 @@
 import AdminLayout from "@/components/layout/AdminLayout";
-import React from "react";
+import React, { useRef, useState } from "react";
 import Breadcrumb from "@/components/breadcrumb";
 import { FaImage } from "react-icons/fa";
+import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 
 
 const GenerateQrCode = () => {
+  const [number, setNumber] = useState("");
+  const [generatedQrCode, setGeneratedQrCode] = useState(null);
+  const qrCodeRef = useRef();
 
-    const generatedQrCode=[];
+  const baseUrl = "www.google.com";
+
   const generatorQrCode = async (e) => {
     e.preventDefault();
-    alert("QR Code Generated");
+
+    const url = `${baseUrl}/${number}`;
+    setGeneratedQrCode(url)
   };
+
+  const qRCodeDownloader = async (e) => {
+    const canvas = qrCodeRef.current.querySelector("canvas");
+    const image = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `table-${number}.png`;
+    link.click();
+
+
+  }
 
   return (
     <AdminLayout>
@@ -27,7 +45,11 @@ const GenerateQrCode = () => {
               </label>
               <div className="mt-3">
                 <input
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-2 -outline-offset-2 outline-gray-300 placeholder:text-gray-400 focus:outline-3 focus:-outline-offset-3 focus:outline-indigo-600 sm:text-2xl"
+                  value={number}
+                  onChange= {(e) => setNumber(e.target.value)}
+                  required
+                  type="number"
+                  className="block w-full  rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-2 -outline-offset-2 outline-gray-300 placeholder:text-gray-400 focus:outline-3 focus:-outline-offset-3 focus:outline-indigo-600 sm:text-2xl"
                   placeholder="Enter number..."
                 />
               </div>
@@ -41,10 +63,17 @@ const GenerateQrCode = () => {
             </button>
           </div>
           <div className=" h-80 w-80 outline outline-0.5 -outline-offset-1 outline-gray-300 shadow-lg rounded-md">
-           <FaImage className="h-full w-full opacity-5"/>
+          {generatedQrCode == null ? (
+            <FaImage className="h-full w-full opacity-5"/>
+          ): (
+            <div ref={qrCodeRef}>
+            <QRCodeCanvas value={generatedQrCode} size={320} level="H" bgColor="#ffffff" fgColor="#000000" imageSettings={{src:'/images/Logo-wizzmie.webp', x:undefined, y:undefined, height:100, width:100, opacity:1, excavate:true}}/>
+            </div>
+          )}
+           
           </div>
           <div className="mt-6">
-            <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-11 px-4 rounded">Download QR Code</button>
+            <button type="button" onClick={qRCodeDownloader} className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-11 px-4 rounded">Download QR Code</button>
           </div>
         </div>
       </div>

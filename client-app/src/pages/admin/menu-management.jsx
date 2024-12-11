@@ -264,7 +264,7 @@ const MenuManagement = () => {
             placeholder="Search by Name..."
             value={searchQuery}
             onChange={handlerSearch}
-            className="px-4 py-2 border rounded-lg w-full max-w-sm"
+            className="px-4 py-2 text-gray-900 border rounded-lg w-full max-w-sm"
           />
           </div>
           <hr></hr>

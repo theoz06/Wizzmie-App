@@ -183,7 +183,7 @@ const ManageCategory = () => {
             placeholder="Search by description..."
             value={searchQuery}
             onChange={handlerSearch}
-            className="px-4 py-2 border rounded-lg w-full max-w-sm"
+            className="px-4 py-2 text-gray-900 border rounded-lg w-full max-w-sm"
           />
           </div>
           <hr></hr>
@@ -194,9 +194,6 @@ const ManageCategory = () => {
                 <th className="py-3 px-6 text-center">Actions</th>
               </tr>
             </thead>
-          </table>
-          <div className=" h-96 overflow-y-scroll">
-            <table className="min-w-full table-auto border-collapse bg-white shadow-lg rounded-b-md">
             {loading ? (
               <tbody>
                 <tr>
@@ -214,7 +211,7 @@ const ManageCategory = () => {
                 </tr>
               </tbody>
             ): filteredItem.length > 0 ? (
-              <tbody>
+              <tbody className="text-gray-900">
                   {currentItems.map((category, index) => (
                     <tr
                       key={category.id}
@@ -241,16 +238,16 @@ const ManageCategory = () => {
                   ))}
               </tbody>
             ):(
-              <tbody>
+              <tbody className="text-gray-900">
                   <tr>
-                    <td colSpan="3" className="text-center py-4">
+                    <td colSpan="3" className="text-center bg-white py-4">
                       No categories available.
                     </td>
                   </tr>
                 </tbody>
             )}
           </table>
-          </div>
+
         </div>
         {filteredItem.length > 0 ? (
           <div className="flex justify-between items-center mt-4">

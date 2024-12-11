@@ -46,12 +46,7 @@ const UserManagement = () => {
         <h1 className="text-2xl font-bold">USER</h1>
       </div>
 
-      <div className="my-4 flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search by name..."
-          className="px-4 py-2 border rounded-lg w-full max-w-sm"
-        />
+      <div className="my-4 flex justify-end pt-10 items-center">
         <button
           onClick={handlerModalCreateOpen}
           className="px-4 py-2 flex items-center space-x-2 rounded-lg bg-[#754985] text-white"
@@ -61,9 +56,16 @@ const UserManagement = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex items-center space-x-2">
+        <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex justify-between items-center space-x-2">
+          <div className="flex items-center space-x-2">
           <FaRegUser/>
           <p>Users List</p>
+          </div>
+          <input
+          type="text"
+          placeholder="Search by name..."
+          className="px-4 py-2 text-gray-900 border rounded-lg w-full max-w-sm"
+        />
         </div>
         <hr></hr>
         <table className="min-w-full table-auto  border-collapse bg-[#754985] text-white shadow-lg">
@@ -76,10 +78,7 @@ const UserManagement = () => {
               <th className="py-3 px-6 text-center">Actions</th>
             </tr>
           </thead>
-        </table>
-        <div className="max-h-96 overflow-y-scroll">
-          <table className="min-w-full table-auto border-collapse bg-white shadow-lg rounded-b-md">
-            {userData.length > 0 ? (
+          {userData.length > 0 ? (
               <tbody>
                 <tr
                   key={user.id}
@@ -102,14 +101,13 @@ const UserManagement = () => {
             ) : (
               <tbody>
                 <tr>
-                  <td colSpan="5" className="text-center py-4">
+                  <td colSpan="5" className="text-center bg-white text-gray-900 py-4">
                     No users created yet.
                   </td>
                 </tr>
               </tbody>
             )}
-          </table>
-        </div>
+        </table>
       </div>
 
       {/*Modal Add User*/}
