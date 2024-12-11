@@ -52,7 +52,7 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     public ResponseEntity<String> createMenu(@RequestParam("name") String name,
     @RequestParam("description") String description,
     @RequestParam("price") Double price,
-    @RequestParam("categoryId") Integer categoryId,
+    @RequestParam("category_id") Integer categoryId,
     @RequestParam("isAvailable") Boolean isAvailable,
     @RequestParam("image") MultipartFile image) {
         try {

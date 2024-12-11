@@ -20,7 +20,7 @@ const MenuManagement = () => {
     name: "",
     description: "",
     price: "",
-    category: "",
+    categoryId: "",
     image: null,
     isAvailable: true,
   })
@@ -65,12 +65,15 @@ const MenuManagement = () => {
     menuDetails.append("name", menuData.name);
     menuDetails.append("description", menuData.description);
     menuDetails.append("price", menuData.price);
-    menuDetails.append("categoryId", menuData.category);
+    menuDetails.append("category_id", menuData.categoryId);
     menuDetails.append("isAvailable", menuData.isAvailable);
     
-    if(menuData.image){
+    if(menuData.image instanceof File){
       menuDetails.append("image", menuData.image);
     }
+
+    console.log(menuDetails);
+    console.log(menuData.image)
 
 
     const success = await createMenu(menuDetails);
@@ -110,12 +113,6 @@ const MenuManagement = () => {
 
   const handleModalDeleteOpen = () => setIsModalDeleteOpen(true); // Membuka modal
   const handleModalDeleteClose = () => setIsModalDeleteOpen(false); // Menutup modal
-
-  const handleAddMenu = (e) => {
-    e.preventDefault();
-    console.log("New Menu:", newMenu); // Replace with API call to save new menu
-    handleModalClose();
-  };
 
   const handlerNext = () => {
     if (currentPage < totalPage) {
@@ -301,7 +298,7 @@ const MenuManagement = () => {
           title="Menu Details"
           onSubmit={handleSubmit}
         >
-          <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8" enctype="multipart/form-data">
+          <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8" encType="multipart/form-data">
             <div>
               <div className="sm:col-span-3">
                 <label
@@ -312,7 +309,7 @@ const MenuManagement = () => {
                 </label>
                 <div className="mt-2">
                   <input
-                    id="menu-name"
+                    id="name"
                     name="name"
                     value={menuData.name}
                     type="text"
@@ -333,9 +330,9 @@ const MenuManagement = () => {
               </label>
               <div className="mt-2 grid grid-cols-1">
                 <select
-                  id="category"
-                  name="category"
-                  value={menuData.category}
+                  id="categoryId"
+                  name="categoryId"
+                  value={menuData.categoryId}
                   onChange={handlerInput}
                   className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 >
