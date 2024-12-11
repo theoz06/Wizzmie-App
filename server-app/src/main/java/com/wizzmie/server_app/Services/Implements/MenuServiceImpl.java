@@ -42,6 +42,12 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
 
         Menu menu = menuRepository.findById(id)
                     .orElseThrow(()-> new RuntimeException("Menu doesn't exist!"));
+        
+        try{
+            fileUploadServiceImpl.deleteImage(menu.getImage());
+        }catch(IOException e){
+            throw new RuntimeException("Error deleting image: " + e.getMessage());
+        }
         menuRepository.delete(menu);
         return ("Menu Deleted!");
     }

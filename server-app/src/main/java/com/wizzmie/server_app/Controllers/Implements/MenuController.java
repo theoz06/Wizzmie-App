@@ -76,10 +76,10 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     @Override
     @PutMapping("/admin/update/{id}")
     public ResponseEntity<String> updateMenu(@PathVariable("id") Integer id, @RequestParam("name") String name,
-        @RequestParam("description") String description,
-        @RequestParam("price") Double price,
-        @RequestParam("category_id") Integer categoryId,
-        @RequestParam("isAvailable") Boolean isAvailable,
+        @RequestParam(value="description", required = false) String description,
+        @RequestParam(value="price", required = false) Double price,
+        @RequestParam(value="category_id", required = false) Integer categoryId,
+        @RequestParam(value="isAvailable", required = false) Boolean isAvailable,
         @RequestParam(value="image", required = false) MultipartFile image){
 
         try {
