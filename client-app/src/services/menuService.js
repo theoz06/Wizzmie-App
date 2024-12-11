@@ -21,4 +21,32 @@ const createMenu = async (data) => {
     }
 }
 
-export default {getAllMenu, createMenu};
+const updateMenu = async (id, data) => {
+    try {
+        const response = await apiClient.put(`menu/admin/update/${id}`, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const updateMenuAvailability = async (id, data) => {
+    try {
+        const response = await apiClient.put(`menu/admin/update-availability/${id}`, data);
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const deleteMenu = async (id)=> {
+    try {
+        const response = await apiClient.delete(`menu/admin/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        
+    }
+}
+
+export default {getAllMenu, createMenu, updateMenuAvailability, updateMenu, deleteMenu};

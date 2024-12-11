@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wizzmie.server_app.DTO.Request.MenuRequest;
@@ -17,6 +18,7 @@ import com.wizzmie.server_app.Services.GenericService;
 import com.wizzmie.server_app.Services.OptionalGenericService;
 
 @Service
+@Transactional
 public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalGenericService<Menu, Integer> {
 
     @Autowired
@@ -34,20 +36,6 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
         return menuRepository.findAll();
     }
 
-
-    //Not Use
-    @Override
-    public Menu create(Menu entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'CreateMenu'");
-    }
-
-    //Not Use 
-    @Override 
-    public Menu update(Integer id, Menu entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'Update'");
-    }
 
     @Override
     public String delete(Integer id) {
@@ -100,6 +88,7 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
         menu.setName(request.getName());
         menu.setDescription(request.getDescription());
         menu.setPrice(request.getPrice());
+        menu.setIsAvailable(request.getIsAvailable());
 
         if(image != null && !image.isEmpty()){
             try {
@@ -116,5 +105,43 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
 
         return menuRepository.save(menu);
     }
+
+
+    public void updateAvailablelity(Integer id, Boolean isAvailable){
+       
+        if(isAvailable == null){
+            throw new IllegalArgumentException("Availablelity cannot be null");
+        }
+
+        Integer updateRow = menuRepository.updateMenuAvailablelity(isAvailable, id);
+
+        if(updateRow == 0){
+            throw new RuntimeException("Menu Not Found");
+        }
+    } 
+
+
+        /******************************************************************************************************* */
+        //Not Use
+        @Override
+        public Menu create(Menu entity) {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'CreateMenu'");
+        }
+    
+        
+        //Not Use
+        @Override 
+        public Menu update(Integer id, Menu entity) {
+            Menu menu = menuRepository.findById(id).orElseThrow(()-> new RuntimeException("Menu Not Found"));
+            
+            if (entity.getIsAvailable() == null){
+                throw new IllegalArgumentException("Availablelity cannot be null");
+            }
+    
+            menu.setIsAvailable(entity.getIsAvailable());
+            
+            return menuRepository.save(menu);
+        }
     
 }

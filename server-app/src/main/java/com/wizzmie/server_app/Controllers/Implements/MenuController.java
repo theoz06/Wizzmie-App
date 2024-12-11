@@ -28,6 +28,8 @@ import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Services.Implements.MenuServiceImpl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @AllArgsConstructor
@@ -76,9 +78,9 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     public ResponseEntity<String> updateMenu(@PathVariable("id") Integer id, @RequestParam("name") String name,
         @RequestParam("description") String description,
         @RequestParam("price") Double price,
-        @RequestParam("categoryId") Integer categoryId,
+        @RequestParam("category_id") Integer categoryId,
         @RequestParam("isAvailable") Boolean isAvailable,
-        @RequestParam("image") MultipartFile image){
+        @RequestParam(value="image", required = false) MultipartFile image){
 
         try {
             MenuRequest request = new MenuRequest();
@@ -105,6 +107,20 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
             return new ResponseEntity<>(e.getReason(), e.getStatus());
         }
     }
+
+    @PutMapping("admin/update-availability/{id}")
+    public ResponseEntity<String> updateAvailablelity(@PathVariable Integer id, @RequestBody Map<String, Boolean> request ){
+        try {
+            Boolean isAvailable = request.get("isAvailable");
+            menuServiceImpl.updateAvailablelity(id, isAvailable);
+
+            return new ResponseEntity<>("Update Status Success!", HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>("Update Status Failed!, Message :"+ e.getReason(), e.getStatus());
+        }
+    }
+
+    
 
     //Not Use
     @Override

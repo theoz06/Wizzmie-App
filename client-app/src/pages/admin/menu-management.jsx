@@ -13,16 +13,23 @@ import withAuth from "@/hoc/protectedRoute";
 import useGetAllMenu from "@/hooks/menuHooks/useGetAllMenu";
 import useCreateMenu from "@/hooks/menuHooks/useCreateMenu";
 import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
+import useUpdateMenuAvailability from "@/hooks/menuHooks/useUpdateMenuAvailability";
+import useUpdateMenu from "@/hooks/menuHooks/useUpdateMenu";
+
+
+
+
 
 
 const MenuManagement = () => {
+  const [selectedMenu, setSelectedMenu] = useState(null);
   const [menuData, setMenuData] = useState({
     name: "",
     description: "",
     price: "",
     categoryId: "",
     image: null,
-    isAvailable: true,
+    isAvailable: "true",
   })
 
 
@@ -49,7 +56,7 @@ const MenuManagement = () => {
   };
 
   const handlerInput = (e) => {
-    const { name, value , type} = e.target;
+    const { name, value , type, files} = e.target;
     
     setMenuData((prevData) =>({
       ...prevData,
@@ -72,10 +79,6 @@ const MenuManagement = () => {
       menuDetails.append("image", menuData.image);
     }
 
-    console.log(menuDetails);
-    console.log(menuData.image)
-
-
     const success = await createMenu(menuDetails);
     if (success) {
       handleModalClose();
@@ -83,11 +86,93 @@ const MenuManagement = () => {
     }
   };
   
+  // Handler Update Availablelity Menu
+  const {updateAvailability, isLoading: loadingUpdateAvailability, error: errorUpdateAvailability} = useUpdateMenuAvailability();
+
+  const handlerUpdateAvailability = async (id, isAvailable) => {
+
+    const newAvailability = {isAvailable}
+
+    const success = await updateAvailability(id, newAvailability);
+    if(success){
+      await getAllMenu();
+    }
+  }
+
+  const handlerAvailabilityChange = (e, menuId) => {
+    const isAvailable = e.target.value === "true";
+    handlerUpdateAvailability(menuId, isAvailable)
+  }
 
 
+
+  // Handler Modal Update
+  const {updateMenu, isLoading: loadingUpdateMenu, error: errorUpdateMenu, setError: setErrorUpdateMenu} = useUpdateMenu();
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
+  const handleModalUpdateClose = () => {
+    setSelectedMenu(null);
+    setMenuData({
+      name: "",
+      description: "",
+      price: "",
+      categoryId: "",
+      image: null,
+      isAvailable: "true",
+    })
+    setIsModalUpdateOpen(false); 
+  };
+
+  const handleModalUpdateOpen = (menu) => {
+    console.log("menu: " + menu);
+    setSelectedMenu(menu);
+    setMenuData({
+      name: menu.name,
+      description: menu.description,
+      price: menu.price,
+      categoryId: menu.category?.id,
+      image: menu.image,
+      isAvailable: menu.isAvailable ? "true" : "false",
+    });
+    setIsModalUpdateOpen(true);
+  }; 
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    
+    const menuId = selectedMenu?.id;
+
+    console.log("menu id: " + menuId);
+
+    if(!menuId){
+      alert("No Menu Selected")
+      return
+    }else{
+      const newMenuDetails = new FormData();
+      newMenuDetails.append("name", menuData.name);
+      newMenuDetails.append("description", menuData.description);
+      newMenuDetails.append("price", menuData.price);
+      newMenuDetails.append("category_id", menuData.categoryId);
+      newMenuDetails.append("isAvailable", menuData.isAvailable);
+      
+
+      if(menuData.image instanceof File){
+        newMenuDetails.append("image", menuData.image);
+      }
+
+      console.log("Menu ID:", menuId);
+
+      const success = await updateMenu(menuId, newMenuDetails);
+      if(success){
+        handleModalUpdateClose();
+        await getAllMenu();
+      }
+    }
+    
+  };
+
+
+
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const handleModalUpdateOpen = () => setIsModalUpdateOpen(true); // Membuka modal
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -106,10 +191,7 @@ const MenuManagement = () => {
 
   const totalPage = Math.ceil(filteredItem.length / itemsPerPage);
 
-  const handleModalUpdateClose = () => {
-    setIsModalUpdateOpen(false); // Menutup modal
-    // setNewMenu({ name: "", price: "", category: "" }); // Reset form
-  };
+  
 
   const handleModalDeleteOpen = () => setIsModalDeleteOpen(true); // Membuka modal
   const handleModalDeleteClose = () => setIsModalDeleteOpen(false); // Menutup modal
@@ -127,11 +209,7 @@ const MenuManagement = () => {
   };
 
 
-  const handleUpdateSubmit = async (e) => {
-    e.preventDefault();
-    alert("Data Updated Submit");
-    handleModalUpdateClose();
-  };
+
 
   const handlerDelete = async (e) => {
     e.preventDefault();
@@ -169,7 +247,7 @@ const MenuManagement = () => {
           </div>
           <hr></hr>
           <table className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg">
-            <thead className="">
+            <thead className="sticky">
               <tr>
                 <th className="py-3 pl-4 text-left">NO</th>
                 <th className="py-3 px-6 text-left">Name</th>
@@ -180,10 +258,7 @@ const MenuManagement = () => {
                 <th className="py-3 px-6 text-center">Actions</th>
               </tr>
             </thead>
-          </table>
-          <div className="max-h-96 overflow-y-scroll">
-            <table className="min-w-full table-auto border-collapse bg-white shadow-lg rounded-b-md">
-              {loadingGetAllMenu ? (
+            {loadingGetAllMenu ? (
                 <tbody>
                   <tr>
                     <td colSpan="3" className="text-center py-4">
@@ -200,7 +275,7 @@ const MenuManagement = () => {
                   </tr>
                 </tbody>
               ) : filteredItem.length > 0 ? (
-                <tbody>
+                <tbody className="text-gray-900">
                   {currentItems.map((menu, index) => (
                     <tr
                       key={menu.id}
@@ -216,12 +291,14 @@ const MenuManagement = () => {
                       <td className="py-3 px-6">
                         <div className="mt-2 grid grid-cols-1">
                           <select
-                            id="category"
-                            name="category"
+                            id="availability"
+                            name="isAvailable"
+                            value={menu.isAvailable ? "true" : "false"}
+                            onChange={(e) => handlerAvailabilityChange(e, menu.id)}
                             className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                           >
-                            <option>Available</option>
-                            <option>Unavailable</option>
+                            <option value="true">Available</option>
+                            <option value="false">Unavailable</option>
                           </select>
                           <FaChevronDown
                             aria-hidden="true"
@@ -231,7 +308,7 @@ const MenuManagement = () => {
                       </td>
                       <td className="py-3 px-6 text-center">
                         <button
-                          onClick={handleModalUpdateOpen}
+                          onClick={()=>handleModalUpdateOpen(menu)}
                           className="text-blue-500 hover:text-blue-700 mr-3"
                         >
                           <FaEdit />
@@ -255,8 +332,7 @@ const MenuManagement = () => {
                   </tr>
                 </tbody>
               )}
-            </table>
-          </div>
+          </table>
         </div>
         {filteredItem.length > 0 ? (
           <div className="flex justify-between items-center mt-4">
@@ -459,13 +535,14 @@ const MenuManagement = () => {
         <Modal
           isOpen={isModalUpdateOpen}
           onClose={handleModalUpdateClose}
-          title="Menu Details"
+          title="Update Menu Details"
           onSubmit={handleUpdateSubmit}
         >
           <form
             onSubmit={handleUpdateSubmit}
-            method="POST"
+            method="PUT"
             className="space-y-6 p-8"
+            encType="multipart/form-data"
           >
             <div>
               <div className="sm:col-span-3">
@@ -478,7 +555,9 @@ const MenuManagement = () => {
                 <div className="mt-2">
                   <input
                     id="menu-name"
-                    name="menu-name"
+                    name="name"
+                    value={menuData.name}
+                    onChange={handlerInput}
                     type="text"
                     required
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
@@ -489,7 +568,7 @@ const MenuManagement = () => {
 
             <div className="sm:col-span-3">
               <label
-                htmlFor="country"
+                htmlFor="category"
                 className="block text-sm/6 font-medium text-gray-900"
               >
                 Category
@@ -498,15 +577,16 @@ const MenuManagement = () => {
                 <select
                   id="category"
                   name="category"
+                  value={menuData.categoryId}
+                  onChange={handlerInput}
                   className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 >
-                  <option>Sushi</option>
-                  <option>Rice</option>
-                  <option>Mie</option>
-                  <option>Coffee</option>
-                  <option>Frape</option>
-                  <option>Non Coffee</option>
-                  <option>Gelato</option>
+                  <option value= "" selected disabled>
+                    {menuData.categoryId ? categories.find((category)=> category.id === menuData.categoryId)?.description : "Select Category"}
+                  </option>
+                  {categories.map((category)=>(
+                    <option value={category.id} key={category.id}>{category.description}</option>
+                  ))}
                 </select>
                 <FaChevronDown
                   aria-hidden="true"
@@ -527,9 +607,10 @@ const MenuManagement = () => {
                   <textarea
                     id="description"
                     name="description"
+                    value={menuData.description}
+                    onChange={handlerInput}
                     rows={3}
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                    defaultValue={""}
                   />
                 </div>
                 <p className="mt-3 text-sm/6 text-gray-600">
@@ -549,7 +630,9 @@ const MenuManagement = () => {
                   <input
                     id="price"
                     name="price"
-                    type="text"
+                    type="number"
+                    value={menuData.price}
+                    onChange={handlerInput}
                     required
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   />
@@ -558,13 +641,13 @@ const MenuManagement = () => {
             </div>
             <div className="col-span-full">
               <label
-                htmlFor="photo"
+                htmlFor="image"
                 className="block text-sm/6 font-medium text-gray-900"
               >
                 Image
               </label>
               <div className="mt-2 flex items-center gap-x-3">
-                <input type="file" />
+                <input type="file" name="image" onChange={handlerInput} accept="image/*"/>
                 <IoFastFoodOutline
                   aria-hidden="true"
                   className="size-12 text-gray-300"
@@ -579,9 +662,11 @@ const MenuManagement = () => {
               <div className="mt-1 space-y-1 flex justify-between items-center  ">
                 <div className="flex items-center gap-x-3">
                   <input
-                    defaultChecked
                     id="availaible"
-                    name="availaible"
+                    name="isAvailable"
+                    value="true"
+                    checked={menuData.isAvailable === "true"}
+                    onChange={handlerInput}
                     type="radio"
                     className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden"
                   />
@@ -595,8 +680,11 @@ const MenuManagement = () => {
                 <div className="flex items-center gap-x-3">
                   <input
                     id="not-available"
-                    name="not-available"
+                    name="isAvailable"
                     type="radio"
+                    value="false"
+                    checked={menuData.isAvailable === "false"}
+                    onChange={handlerInput}
                     className="relative size-4 appearance-none rounded-full border border-gray-300 bg-white before:absolute before:inset-1 before:rounded-full before:bg-white checked:border-indigo-600 checked:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:border-gray-300 disabled:bg-gray-100 disabled:before:bg-gray-400 forced-colors:appearance-auto forced-colors:before:hidden [&:not(:checked)]:before:hidden"
                   />
                   <label
