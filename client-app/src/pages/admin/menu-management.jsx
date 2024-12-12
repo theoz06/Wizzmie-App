@@ -143,8 +143,6 @@ const MenuManagement = () => {
     
     const menuId = selectedMenu?.id;
 
-    console.log("menu id: " + menuId);
-
     if(!menuId){
       alert("No Menu Selected")
       return
@@ -160,8 +158,6 @@ const MenuManagement = () => {
       if(menuData.image instanceof File){
         newMenuDetails.append("image", menuData.image);
       }
-
-      console.log("Menu ID:", menuId);
 
       const success = await updateMenu(menuId, newMenuDetails);
       if(success){
