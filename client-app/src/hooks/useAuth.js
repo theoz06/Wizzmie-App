@@ -16,14 +16,16 @@ const useAuth = () => {
             Cookies.set("token", data.token ,{expires: 1});
             Cookies.set("user", JSON.stringify(data.user), {expires:1})
             return true;
-        } catch (error) {
-            setError (error.message || "An error occurred during login.");
+        } catch (err) {
+            const errorMessage = err?.response?.data?.message || err?.response?.data?.error|| err.message || "An error occurred during login.";
+            console.log("error : " + errorMessage);
+            setError(errorMessage);
             return false;
         } finally {
             setIsLoading(false)
         }
     }
-    return { login, isLoading, error };
+    return { login, isLoading, error, setError};
 }
 
 export default useAuth;

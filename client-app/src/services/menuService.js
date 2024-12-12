@@ -5,7 +5,6 @@ import apiClient from "@/dal/apiClient";
 const getAllMenu = async () => {
     try {
         const response = await apiClient.get("menu/public");
-        console.log(response.data);
         return response.data;
     } catch (error) {
         throw error;
@@ -45,7 +44,7 @@ const deleteMenu = async (id)=> {
         const response = await apiClient.delete(`menu/admin/delete/${id}`);
         return response.data;
     } catch (error) {
-        
+        throw error;
     }
 }
 

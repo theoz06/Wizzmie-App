@@ -10,7 +10,6 @@ const loginUser = async (nik, password) => {
 
         return response.data;
     } catch (error) {
-        console.error("Login error :", error)
         throw error;
     }
 }

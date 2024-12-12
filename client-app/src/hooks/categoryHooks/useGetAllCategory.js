@@ -20,6 +20,9 @@ const useGetAllCategory = () => {
     }
   };
 
+  console.log(categories);
+
+
   useEffect(()=> {
     getAllCategory();
   }, []);

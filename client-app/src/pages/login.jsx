@@ -7,26 +7,28 @@ import { useRouter } from "next/router";
 const LoginPage = () => {
   const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
-  const {isLoading, error, login} = useAuth();
+  const [errorEmptyField, setErrorEmptyField] = useState(null)
+  const {isLoading, error, setError, login} = useAuth();
   const router = useRouter();
   
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
     if (!nik || !password) {
-      alert("Username or Password is empty!");
+      setErrorEmptyField("Username or Password is empty!");
       return;
     }
 
+    setErrorEmptyField(null);
+
     const success = await login(nik, password);
+    
     if (success) {
-      alert("Login Success!");
       router.push("/admin/menu-management");
-    }else {
-      alert("Login Failed!");
-      router.push("/")
     }
+    console.log(error)
   };
 
   return (
@@ -54,12 +56,13 @@ const LoginPage = () => {
                 name="nik"
                 type="text"
                 onChange={(e) => setNik(e.target.value)}
-                required
+                
                 disabled={isLoading}
                 className="block w-full rounded-md border-0 py-1.5  text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-[#e985bb]"
               />
             </div>
           </div>
+          
 
           <div>
             <div className="flex items-center justify-between">
@@ -76,18 +79,20 @@ const LoginPage = () => {
                 name="password"
                 type="password"
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 disabled={isLoading}
                 className="block w-full rounded-md border-0 py-1.5  text-grey-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-inset focus:ring-[#e985bb]"
               />
             </div>
+            {errorEmptyField && <p className="text-red-600 text-23 pt-2">{errorEmptyField}</p>}
           </div>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <div>
             <button
               disabled={isLoading}
               type="submit"
-              className="flex w-full justify-center rounded-md bg-[#754985] px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-[#754985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className=" flex w-full justify-center rounded-md bg-[#754985] px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-[#754985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               {isLoading ? (
                 <svg
