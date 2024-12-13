@@ -1,14 +1,18 @@
 import Breadcrumb from "@/components/breadcrumb";
 import AdminLayout from "@/components/layout/AdminLayout";
 import withAuth from "@/hoc/protectedRoute";
+import useGetAllOrders from "@/hooks/orderHooks/useGetAllOrders";
+import { useState } from "react";
 import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 
 const ManageOrder = () => {
   const tabs = ["Prepared", "Ready", "Served"];
-  const [activeTab, setActiveTab] = React.useState(tabs[0]);
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+
+  //Pagination
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const handlerNext = () => {
@@ -23,17 +27,8 @@ const ManageOrder = () => {
     }
   };
 
-  const [ordersData, setOrdersData] = React.useState ([
-    { id: 1, customer: "John Doe", table: 5, total: 50000, status: "Prepared" },
-    { id: 2, customer: "Jane Smith", table: 3, total: 30000, status: "Ready" },
-    {
-      id: 3,
-      customer: "Sam Wilson",
-      table: 1,
-      total: 400000,
-      status: "Served",
-    },
-  ]);
+  //Get All Paid Orders
+  const {transformeData: ordersData, isLoading: loadingGetOrders, error: errorGetOrders, getAllOrders} = useGetAllOrders();
 
   const filteredByStatus = ordersData.filter(
     (order) => order.status === activeTab

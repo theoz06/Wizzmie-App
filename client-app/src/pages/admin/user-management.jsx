@@ -12,6 +12,7 @@ import useCreateUser from "@/hooks/userHooks/useCreateUser";
 import { FaChevronDown } from "react-icons/fa";
 import useGetRoles from "@/hooks/userHooks/useGetRoles";
 import useUpdateUser from "@/hooks/userHooks/useUpdateUser";
+import useDeleteUser from "@/hooks/userHooks/useDeleteUser";
 
 
 
@@ -158,11 +159,35 @@ const UserManagement = () => {
     };
   };
 
+
+  //Handler Delete User
+  const {deleteUser, isLoading: loadingDeleteUsers, error: errorDeleteUsers} = useDeleteUser();
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const handleModalDeleteOpen = () => setIsModalDeleteOpen(true);
-  const handleModalDeleteClose = () => setIsModalDeleteOpen(false);
-  const handleDelete = async (e) => {
+  const handleModalDeleteOpen = (user) => {
+    setSelectedUser(user);
+    setIsModalDeleteOpen(true);
+  };
+
+  const handleModalDeleteClose = () => {
+    setSelectedUser(null);
+    setIsModalDeleteOpen(false);
+  };
+
+  const handlerDelete = async (e) => {
     e.preventDefault();
+
+    const userId = selectedUser?.id;
+    if(!userId){
+      alert("No User Selected");
+      return
+    }
+
+    const success = await deleteUser(userId);
+    if(success){
+      handleModalDeleteClose();
+      await getAllUsers();
+    }
+
     alert("Data Deleted");
     handleModalDeleteClose();
   };
@@ -248,7 +273,7 @@ const UserManagement = () => {
                       <button type="button" onClick={()=>handleModalUpdateOpen(user)} className="text-blue-500 hover:text-blue-700 mr-3">
                         <FaEdit />
                       </button>
-                      <button className="text-red-500 hover:text-red-700">
+                      <button type="button" onClick={()=>handleModalDeleteOpen(user)} className="text-red-500 hover:text-red-700">
                         <FaRegTrashCan />
                       </button>
                     </td>
@@ -449,7 +474,7 @@ const UserManagement = () => {
         <ModalDelete
           isOpen={isModalDeleteOpen}
           onClose={handleModalDeleteClose}
-          onSubmit={handleDelete}
+          onSubmit={handlerDelete}
         >
           <p>Are you sure want to delete this user?</p>
         </ModalDelete>

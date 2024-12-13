@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("api/customer/orderpage/table/{tableNumber}/cart")
+@RequestMapping("api/customer/orderpage/table/{tableNumber}/customer/{customerId}")
 public class CartControllerImpl {
     
     private CartServiceImpl cartServiceImpl;
@@ -31,7 +31,7 @@ public class CartControllerImpl {
         this.cartServiceImpl = cartServiceImpl;
     }
 
-    @GetMapping()
+    @GetMapping("/cart")
     public ResponseEntity<Cart> getCart(@PathVariable Integer tableNumber, HttpSession session) {
         try {
             Cart cart = cartServiceImpl.getCart(session);
@@ -46,7 +46,7 @@ public class CartControllerImpl {
 
     }
 
-    @PostMapping("/customer/{customerId}/add")
+    @PostMapping("/cart/add")
     public ResponseEntity<String> addToCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @RequestBody CartItem item) {
         try {
             cartServiceImpl.addToCart(tableNumber,customerId, session, item);
@@ -57,7 +57,7 @@ public class CartControllerImpl {
         
     }
 
-    @DeleteMapping("/remove/{menuId}")
+    @DeleteMapping("/cart/remove/{menuId}")
     public ResponseEntity<String> removeFromCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @RequestParam Integer menuId) {
         try {
             cartServiceImpl.removeFromCart(session, menuId);
@@ -67,7 +67,7 @@ public class CartControllerImpl {
         }
     }
 
-    @DeleteMapping("/clear")
+    @DeleteMapping("/cart/clear")
     public ResponseEntity<String> clearCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session) {
         try {
             cartServiceImpl.clearCart(session);

@@ -182,7 +182,7 @@ const MenuManagement = () => {
     setIsModalDeleteOpen(false);
   }; 
 
-  const handlerDelete = async (e, id) => {
+  const handlerDelete = async (e) => {
     e.preventDefault();
 
     const menuId = selectedMenu?.id;
@@ -438,7 +438,6 @@ const MenuManagement = () => {
                       </option>
                     )
                   })}
-                  <option value={1}>Rice</option>
                 </select>
                 <FaChevronDown
                   aria-hidden="true"

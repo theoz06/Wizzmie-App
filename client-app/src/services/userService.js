@@ -29,4 +29,19 @@ const updateUser = async (id, data) => {
     }
 }
 
-export default {getAllUser, createUser, updateUser};
+const deleteUser = async (id) => {
+    try{
+        const response = await apiClient.delete(`/admin/user/delete/${id}`);
+        return response.data;
+    }catch(error){
+        throw error;
+    }
+}
+
+// eslint-disable-next-line import/no-anonymous-default-export
+export default {
+    getAllUser, 
+    createUser, 
+    updateUser, 
+    deleteUser
+};
