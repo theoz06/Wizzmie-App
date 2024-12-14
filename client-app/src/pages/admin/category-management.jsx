@@ -172,7 +172,7 @@ const ManageCategory = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto h-[480px] bg-white">
           <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex justify-between items-center space-x-2">
             <div className="flex items-center space-x-2">
             <BiCategory />
@@ -360,6 +360,7 @@ const ManageCategory = () => {
           isOpen={isModalDeleteOpen}
           onClose={handleModalDeleteClose}
           onSubmit={handleDelete}
+          action="Delete"
         >
           <p>Are you sure want to delete this category?</p>
         </ModalDelete>

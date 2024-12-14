@@ -272,6 +272,7 @@ public class PaymentServiceImpl {
 
         //Send Data To Kitchen Monitor
         messagingTemplate.convertAndSend("/kitchen/orders", order);
+        messagingTemplate.convertAndSend("/admin/orders", order);
     }
 
     private void handlerFailedPayment(Integer orderId){

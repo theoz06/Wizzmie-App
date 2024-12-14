@@ -1,19 +1,49 @@
 import Breadcrumb from "@/components/breadcrumb";
 import AdminLayout from "@/components/layout/AdminLayout";
+import ModalDelete from "@/components/modal-delete";
 import withAuth from "@/hoc/protectedRoute";
 import useGetAllOrders from "@/hooks/orderHooks/useGetAllOrders";
 import { useState } from "react";
 import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
+import useUpdateOrderStatus from "@/hooks/orderHooks/useUpdateOrderStatus";
 
 const ManageOrder = () => {
-  const tabs = ["Prepared", "Ready", "Served"];
+  const tabs = ["Prepared", "Ready To Serve", "Served"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
+    //Get All Paid Orders
+    const {
+      transformeData: ordersData,
+      isLoading: loadingGetOrders,
+      error: errorGetOrders,
+      getAllOrders,
+    } = useGetAllOrders();
+
+    const filteredByStatus = ordersData.filter(
+      (order) => order.status === activeTab
+    );
+
   //Pagination
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const handlerSearch = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  }
+
+  const paginatedData = filteredByStatus.filter((item)=>{
+    return item.customer.toLowerCase().includes(searchQuery.toLowerCase());
+  })
+
+  const currentItems = paginatedData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
 
   const handlerNext = () => {
     if (currentPage < totalPage) {
@@ -27,30 +57,48 @@ const ManageOrder = () => {
     }
   };
 
-  //Get All Paid Orders
-  const {transformeData: ordersData, isLoading: loadingGetOrders, error: errorGetOrders, getAllOrders} = useGetAllOrders();
 
-  const filteredByStatus = ordersData.filter(
-    (order) => order.status === activeTab
-  );
+  //Update Order Status
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [
+    isModalUpdateOrderStatusConfirmOpen,
+    setIsModalUpdateOrderStatusConfirmOpen,
+  ] = useState(false);
+  const {
+    isLoading: loadingUpdateOrderStatus,
+    error: errorUpdateOrderStatus,
+    updateOrderStatus,
+  } = useUpdateOrderStatus();
+  const [message, setMessage] = useState("");
 
-  const handleStatusChange = (orderId, newStatus) => {
-    setOrdersData((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
-      console.log(ordersData);
+  const handlerOrderStatusChangeOpen = (order) => {
+    setSelectedOrder(order);
+    setIsModalUpdateOrderStatusConfirmOpen(true);
+    const newMessage = `Are you sure want to update order status from  ${
+      order.status
+    }  to  ${order?.status === "Prepared" ? "Ready" : "Served"} ?`;
+    setMessage(newMessage);
   };
 
- 
+  const handlerModalOrderStatusClose = () => {
+    setSelectedOrder(null);
+    setIsModalUpdateOrderStatusConfirmOpen(false);
+  };
+
+  const handlerOrderStatusChange = async (e) => {
+    e.preventDefault();
+
+    const orderId = selectedOrder?.id;
+
+    const success = await updateOrderStatus(orderId);
+
+    if (success) {
+      handlerModalOrderStatusClose();
+      await getAllOrders();
+    }
+  };
 
   const totalPage = Math.ceil(filteredByStatus.length / itemsPerPage);
-
-  const paginatedData = filteredByStatus.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   return (
     <AdminLayout>
@@ -60,7 +108,7 @@ const ManageOrder = () => {
           <h1 className="text-2xl font-bold">Orders</h1>
         </div>
 
-        <div className="overflow-x-auto mt-6">
+        <div className="overflow-x-auto mt-6 h-[480px] bg-white">
           <div className="bg-[#754985] text-white shadow-lg rounded-md">
             <div className="flex justify-between items-center px-4 py-3">
               <div className="flex items-center space-x-2">
@@ -69,6 +117,8 @@ const ManageOrder = () => {
               </div>
               <input
                 type="text"
+                value={searchQuery}
+                onChange={handlerSearch}
                 placeholder="Search by name..."
                 className="px-4 py-2 border rounded-lg max-w-sm text-black"
               />
@@ -107,7 +157,7 @@ const ManageOrder = () => {
               </thead>
               <tbody>
                 {paginatedData.length > 0 ? (
-                  paginatedData.map((order, index) => (
+                  currentItems.map((order, index) => (
                     <tr
                       key={order.id}
                       className={`${
@@ -122,16 +172,16 @@ const ManageOrder = () => {
                         Rp {order.total.toLocaleString("id-ID")}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            handleStatusChange(order.id, e.target.value)}
-                          className="bg-gray-100 border border-gray-300 text-gray-700 py-1 px-2 rounded"
-                        >
-                          <option value="Prepared">Prepared</option>
-                          <option value="Ready">Ready</option>
-                          <option value="Served">Served</option>
-                        </select>
+                        {order.status != "Served" ? (
+                          <button
+                            onClick={() => handlerOrderStatusChangeOpen(order)}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold h-6 px-4 rounded"
+                          >
+                            {order.status === "Prepared" ? "Ready" : "Served"}
+                          </button>
+                        ) : (
+                          order.status
+                        )}
                       </td>
                     </tr>
                   ))
@@ -149,34 +199,46 @@ const ManageOrder = () => {
             </table>
           </div>
         </div>
-        <div className="flex justify-between items-center py-4 px-4">
-          <button
-            onClick={handlerPrev}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 rounded ${
-              currentPage === 1
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-[#754985] text-white"
-            }`}
-          >
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPage}
-          </span>
-          <button
-            onClick={handlerNext}
-            disabled={currentPage === totalPage}
-            className={`px-4 py-2 rounded ${
-              currentPage === totalPage
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-[#754985] text-white"
-            }`}
-          >
-            Next
-          </button>
-        </div>
+        {filteredByStatus.length > 0 ? (
+          <div className="flex justify-between items-center py-4 px-4">
+            <button
+              onClick={handlerPrev}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded ${
+                currentPage === 1
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-[#754985] text-white"
+              }`}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPage}
+            </span>
+            <button
+              onClick={handlerNext}
+              disabled={currentPage === totalPage}
+              className={`px-4 py-2 rounded ${
+                currentPage === totalPage
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-[#754985] text-white"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        ) : (
+          <div></div>
+        )}
       </div>
+      <ModalDelete
+        isOpen={isModalUpdateOrderStatusConfirmOpen}
+        onClose={handlerModalOrderStatusClose}
+        onSubmit={handlerOrderStatusChange}
+        action= "Update"
+      >
+        {message}
+      </ModalDelete>
     </AdminLayout>
   );
 };
