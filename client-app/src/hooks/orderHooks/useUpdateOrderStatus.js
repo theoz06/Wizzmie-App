@@ -1,16 +1,23 @@
 import orderService from '@/services/orderService';
+import Cookies from 'js-cookie';
 import React, { useState } from 'react'
 
 const useUpdateOrderStatus = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const updateOrderStatus = async (orderId) => {
+  const updateOrderStatus = async (orderId, changedBy) => {
     setIsLoading(true);
     setError(null);
 
     try {
-        await orderService.updateStatusOrder(orderId);
+        const user = JSON.parse(Cookies.get("user"))
+        console.log("User Id: " + JSON.stringify(user));
+
+        const changedBy = user.id;
+        console.log("Changed By: " + changedBy);
+
+        await orderService.updateStatusOrder(orderId, changedBy);
         return true;
     } catch (err) {
         const errorMessage = err?.response?.data?.message || err.message || "Something went wrong";

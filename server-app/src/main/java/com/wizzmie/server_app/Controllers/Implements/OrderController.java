@@ -1,6 +1,7 @@
 package com.wizzmie.server_app.Controllers.Implements;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -18,6 +19,7 @@ import com.wizzmie.server_app.Services.Implements.OrderServiceImpl;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -87,9 +89,14 @@ public class OrderController {
     }
 
     @PostMapping("active-orders/update-status/{orderId}")
-    public ResponseEntity<String> updateOrderStatus(@PathVariable Integer orderId){
+    public ResponseEntity<String> updateOrderStatus(@PathVariable Integer orderId, @RequestBody Map<String, Integer> requestBody){
         try {
-            String res = orderServiceImpl.updateOrderStatus(orderId);
+            Integer changedBy = requestBody.get("changedBy");
+            if(changedBy == null){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing 'updatedByUserId' in request body");
+            }
+
+            String res = orderServiceImpl.updateOrderStatus(orderId, changedBy);
             return new ResponseEntity<>(res, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getMessage(), e.getStatus());

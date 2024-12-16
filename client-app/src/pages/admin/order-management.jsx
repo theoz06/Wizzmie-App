@@ -105,16 +105,10 @@ const ManageOrder = () => {
 
     if (success) {
       handlerModalOrderStatusClose();
+
       setNewOrder([])
       
       await getAllOrders();
-      // setNewOrder((prevOrders) => {
-      //   return prevOrders.map((order) =>
-      //     order.id === selectedOrder.id
-      //       ? { ...order, status: selectedOrder.status }
-      //       : order
-      //   );
-      // });
     }
 
     console.log("New Order After update: ", newOrder);

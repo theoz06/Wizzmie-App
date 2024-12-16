@@ -10,9 +10,12 @@ const getAllOrders = async () => {
   }
 }
 
-const updateStatusOrder = async (orderId) => {
+const updateStatusOrder = async (orderId, changedBy) => {
   try {
-    const response = await apiClient.post(`/order/active-orders/update-status/${orderId}`);
+    
+    const data = {changedBy : changedBy}
+
+    const response = await apiClient.post(`/order/active-orders/update-status/${orderId}`, data);
     return response.data;
   } catch (error) {
     throw error;

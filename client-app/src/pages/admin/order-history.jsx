@@ -4,11 +4,17 @@ import { TfiViewListAlt } from "react-icons/tfi";
 import React from 'react'
 import { useState } from 'react';
 import withAuth from '@/hoc/protectedRoute';
+import useGetOrderHistory from '@/hooks/orderHooks/useGetOrderHistory';
+
+
+
 
 
 const OrderHistory = () => {
+    const {transformeData, isLoading, error} = useGetOrderHistory();
 
-    const orderHistories = [];
+    console.log("Data", JSON.stringify(transformeData));
+
 
     const handlerSearch = (e) => {
         setSearchQuery(e.target.value);
@@ -19,7 +25,7 @@ const OrderHistory = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredItem = orderHistories.filter((item) =>
+    const filteredItem = transformeData.filter((item) =>
         item.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -75,7 +81,7 @@ const OrderHistory = () => {
                             </tr>
                         </thead>
                         <tbody>
-                        {paginatedData.length > 0 ? (
+                        {transformeData.length > 0 ? (
                             paginatedData.map((order,index) => (
                                 <tr key= {order.id} className= {`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                                     <td className='py-3 px-4 text-left'>{index + 1}</td>

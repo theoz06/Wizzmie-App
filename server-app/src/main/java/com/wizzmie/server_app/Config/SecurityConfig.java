@@ -49,6 +49,7 @@ public class SecurityConfig {
                                 .antMatchers("/api/admin/users").hasAnyAuthority("ADMIN")
                                 .antMatchers("/api/role").hasAnyAuthority("ADMIN")
                                 .antMatchers("/api/menu/public").permitAll()
+                                .antMatchers("/api/order/history").hasAnyAuthority("ADMIN")
                                 .antMatchers("/api/category/public").permitAll()
                                 .antMatchers("/api/customer/**").permitAll()
                                 .antMatchers("/api/auth/login").permitAll()

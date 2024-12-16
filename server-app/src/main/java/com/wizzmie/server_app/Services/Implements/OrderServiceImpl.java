@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
+import com.wizzmie.server_app.Entity.OrderHistory;
 import com.wizzmie.server_app.Entity.OrderItem;
 import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Entity.Status;
@@ -17,6 +18,7 @@ import com.wizzmie.server_app.Entity.Helper.Cart;
 import com.wizzmie.server_app.Entity.Helper.CartItem;
 import com.wizzmie.server_app.Repository.CustomerRepository;
 import com.wizzmie.server_app.Repository.MenuRepository;
+import com.wizzmie.server_app.Repository.OrderHistoryRepository;
 import com.wizzmie.server_app.Repository.OrderItemRepository;
 import com.wizzmie.server_app.Repository.OrderRepository;
 import com.wizzmie.server_app.Repository.StatusRepository;
@@ -30,6 +32,8 @@ public class OrderServiceImpl {
     private CustomerRepository customerRepository;
     private MenuRepository menuRepository;
     private SimpMessagingTemplate messagingTemplate;
+    private OrderHistoryRepository orderHistoryRepository;
+
 
 
 
@@ -38,7 +42,8 @@ public class OrderServiceImpl {
                             OrderItemRepository orderItemRepository, 
                             StatusRepository statusRepository, 
                             CustomerRepository customerRepository,
-                            SimpMessagingTemplate messagingTemplate){
+                            SimpMessagingTemplate messagingTemplate,
+                            OrderHistoryRepository orderHistoryRepository){
 
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
@@ -46,6 +51,7 @@ public class OrderServiceImpl {
         this.statusRepository = statusRepository;
         this.customerRepository = customerRepository;
         this.messagingTemplate = messagingTemplate;
+        this.orderHistoryRepository = orderHistoryRepository;
     }
 
 
@@ -101,7 +107,7 @@ public class OrderServiceImpl {
         return orders;
     }
 
-    public String updateOrderStatus(Integer orderId){
+    public String updateOrderStatus(Integer orderId, Integer changedBy){
         
         Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
 
@@ -110,7 +116,8 @@ public class OrderServiceImpl {
             throw new IllegalArgumentException("Current status or status ID is null for order ID: " + orderId);
         }
 
-        
+        Integer previousStatusId = currentStatus.getId();
+
         switch (currentStatus.getId()) {
             case 2:
                 updateStatus(order, 3);
@@ -131,6 +138,8 @@ public class OrderServiceImpl {
             );
         }
 
+        savedOrderHistory(order, previousStatusId, order.getOrderStatus().getId(), changedBy);
+
         return "Order Status Updated to: " + order.getOrderStatus().getDescription();
     
     }
@@ -140,6 +149,17 @@ public class OrderServiceImpl {
         Status newStatus = statusRepository.findById(newStatusId).orElseThrow(()-> new RuntimeException("Status Not Found"));
         order.setOrderStatus(newStatus);
         orderRepository.save(order);
+    }
+
+    private void savedOrderHistory(Orders order, Integer previousStatus, Integer updatedStatus, Integer updatedByUserId){
+        OrderHistory history = new OrderHistory();
+        history.setOrder(order);
+        history.setPreviousStatusId(previousStatus);
+        history.setUpdatedStatusId(updatedStatus);
+        history.setChangedBy(updatedByUserId);
+        history.setUpdateAt(LocalDateTime.now());
+
+        orderHistoryRepository.save(history);
     }
     
 }
