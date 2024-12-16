@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class OrderHistoryResponse {
     private Integer order_id;
     private String customer;
-    private String tableNumber;
-    private String totalAmount;
-    private String updatedBy;
+    private Integer tableNumber;
+    private Double totalAmount;
+    private UserDto updatedBy;
 }

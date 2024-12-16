@@ -7,15 +7,15 @@ const useGetOrderHistory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [orderHistories, setOrderHistories] = useState([]);
-  const [transformeData, setTransformedData] = useState([]);
+  const [transformeData, setTransformeData] = useState([]);
 
   const transformeOrderData = (fetchedData) => {
-    return fetchedData.map((order)=> ({
-        id: order.id,
-        customer: order.customer.name,
-        table: order.tableNumber,
-        total: order.totalAmount,
-        status: order.orderStatus.description
+    return fetchedData.map((orderHistory)=> ({
+        id: orderHistory.order_id,
+        customer: orderHistory.customer,
+        table: orderHistory.tableNumber,
+        total: orderHistory.totalAmount,
+        updatedBy: orderHistory.updatedBy.name,
     }))
   }
 
@@ -25,13 +25,11 @@ const useGetOrderHistory = () => {
 
     try {
         const response = await orderHistoryService.getOrderHistory();
-        console.log("Response from API:", response);
-        setOrderHistories(response);
 
         const transforme = transformeOrderData(response);
+        setOrderHistories(transforme);
 
-        console.log("Transformed Data:", transforme);
-        setTransformedData(transforme);
+        setTransformeData(transforme);
     } catch (err) {
         const errorMessage = err?.response?.data?.message || err.message || "Something went wrong";
         setError(errorMessage);

@@ -8,12 +8,14 @@ import javax.servlet.http.HttpSession;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Entity.OrderHistory;
 import com.wizzmie.server_app.Entity.OrderItem;
 import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Entity.Status;
+import com.wizzmie.server_app.Entity.User;
 import com.wizzmie.server_app.Entity.Helper.Cart;
 import com.wizzmie.server_app.Entity.Helper.CartItem;
 import com.wizzmie.server_app.Repository.CustomerRepository;
@@ -22,6 +24,7 @@ import com.wizzmie.server_app.Repository.OrderHistoryRepository;
 import com.wizzmie.server_app.Repository.OrderItemRepository;
 import com.wizzmie.server_app.Repository.OrderRepository;
 import com.wizzmie.server_app.Repository.StatusRepository;
+import com.wizzmie.server_app.Repository.UserRepository;
 
 @Service
 public class OrderServiceImpl {
@@ -33,6 +36,8 @@ public class OrderServiceImpl {
     private MenuRepository menuRepository;
     private SimpMessagingTemplate messagingTemplate;
     private OrderHistoryRepository orderHistoryRepository;
+    private UserRepository userRepository;
+
 
 
 
@@ -43,7 +48,9 @@ public class OrderServiceImpl {
                             StatusRepository statusRepository, 
                             CustomerRepository customerRepository,
                             SimpMessagingTemplate messagingTemplate,
-                            OrderHistoryRepository orderHistoryRepository){
+                            OrderHistoryRepository orderHistoryRepository,
+                            UserRepository userRepository
+                            ){
 
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
@@ -52,6 +59,7 @@ public class OrderServiceImpl {
         this.customerRepository = customerRepository;
         this.messagingTemplate = messagingTemplate;
         this.orderHistoryRepository = orderHistoryRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -111,6 +119,8 @@ public class OrderServiceImpl {
         
         Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
 
+        User user = userRepository.findById(changedBy).orElseThrow(() -> new RuntimeException("User Not Found"));
+
         Status currentStatus = order.getOrderStatus();
         if (currentStatus == null || currentStatus.getId() == null) {
             throw new IllegalArgumentException("Current status or status ID is null for order ID: " + orderId);
@@ -138,7 +148,7 @@ public class OrderServiceImpl {
             );
         }
 
-        savedOrderHistory(order, previousStatusId, order.getOrderStatus().getId(), changedBy);
+        savedOrderHistory(order, previousStatusId, order.getOrderStatus().getId(), user);
 
         return "Order Status Updated to: " + order.getOrderStatus().getDescription();
     
@@ -151,12 +161,12 @@ public class OrderServiceImpl {
         orderRepository.save(order);
     }
 
-    private void savedOrderHistory(Orders order, Integer previousStatus, Integer updatedStatus, Integer updatedByUserId){
+    private void savedOrderHistory(Orders order, Integer previousStatus, Integer updatedStatus, User user){
         OrderHistory history = new OrderHistory();
         history.setOrder(order);
         history.setPreviousStatusId(previousStatus);
         history.setUpdatedStatusId(updatedStatus);
-        history.setChangedBy(updatedByUserId);
+        history.setUser(user);
         history.setUpdateAt(LocalDateTime.now());
 
         orderHistoryRepository.save(history);

@@ -39,7 +39,7 @@ const ManageOrder = () => {
   //Pagination
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 7;
 
   const handlerSearch = (e) => {
     setSearchQuery(e.target.value);

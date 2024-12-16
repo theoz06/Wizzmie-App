@@ -13,7 +13,7 @@ import useGetOrderHistory from '@/hooks/orderHooks/useGetOrderHistory';
 const OrderHistory = () => {
     const {transformeData, isLoading, error} = useGetOrderHistory();
 
-    console.log("Data", JSON.stringify(transformeData));
+    console.log("Data:", transformeData);
 
 
     const handlerSearch = (e) => {
@@ -21,12 +21,12 @@ const OrderHistory = () => {
     };
     
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 7;
 
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredItem = transformeData.filter((item) =>
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+        item.customer.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handlerNext = () => {
@@ -72,12 +72,12 @@ const OrderHistory = () => {
                     <table className='w-full table-auto bg-white text-gray-800 rounded-b-md'>
                         <thead className='bg-gray-200 text-gray-600'>
                             <tr>
-                                <th className='py-3 px-4 text-left w-12'>No</th>
+                                <th className='py-3 px-4 text-left'>No</th>
                                 <th className='py-3 px-4 text-left'>Order ID</th>
                                 <th className='py-3 px-4 text-left'>Customer</th>
-                                <th className='py-3 px-4 text-center w-24'>Table</th>
-                                <th className='py-3 px-4 text-center w-32'>Amount</th>
-                                <th className='py-3 px-4 text-center w-40'>Updated By</th>
+                                <th className='py-3 px-4 text-center'>Table</th>
+                                <th className='py-3 px-4 text-center'>Amount</th>
+                                <th className='py-3 px-4 text-center '>Updated By</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,7 +89,7 @@ const OrderHistory = () => {
                                     <td className='py-3 px-4 text-left'>{order.customer}</td>
                                     <td className='py-3 px-4 text-center'>{order.table}</td>
                                     <td className='py-3 px-4 text-center'>Rp {order.total.toLocaleString('id-ID')}</td>
-                                    <td className='py-3 px-4 text-center'>{order.pelayan}</td>
+                                    <td className='py-3 px-4 text-center'>{order.updatedBy}</td>
                                 </tr>
                             ))
                         ):(

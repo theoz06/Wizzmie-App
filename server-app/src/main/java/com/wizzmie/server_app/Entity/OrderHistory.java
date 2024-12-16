@@ -10,7 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
@@ -35,8 +34,10 @@ public class OrderHistory {
     private Integer previousStatusId;
     private Integer updatedStatusId;
 
-    @Column(nullable =false)
-    private Integer changedBy;
+    @ManyToOne
+    @JoinColumn(name = "changed_by", referencedColumnName = "id", nullable = false)
+    @JsonManagedReference
+    private User user;
 
     @Column(nullable = false)
     private LocalDateTime updateAt;

@@ -313,7 +313,7 @@ const MenuManagement = () => {
                             name="isAvailable"
                             value={menu.isAvailable ? "true" : "false"}
                             onChange={(e) => handlerAvailabilityChange(e, menu.id)}
-                            className={`col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base    sm:text-sm/6 ${menu.isAvailable ? "bg-green-500 text-white focus:outline-green-100 "  : "bg-red-500 text-white focus:outline-red-100"} `}
+                            className={`col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-8 text-base   sm:text-sm/6 ${menu.isAvailable ? "bg-green-500 text-white focus:outline-green-100 "  : "bg-red-500 text-white focus:outline-red-100"} `}
                           >
                             <option value="true" >Available</option>
                             <option value="false">Unavailable</option>
