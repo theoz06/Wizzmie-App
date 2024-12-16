@@ -263,17 +263,27 @@ public class PaymentServiceImpl {
 
     private void handlerSuccsesPayment(Integer orderId){
         Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
-        order.setPaid(true);
+
+        if (order.getOrderStatus().getId().equals(1)){
+            order.setPaid(true);
                     Status updateStatusOrder = statusRepository.findById(2)
                                                .orElseThrow(() -> new RuntimeException("Status not found"));
         order.setOrderStatus(updateStatusOrder);
         
         orderRepository.save(order);
 
-        //Send Data To Kitchen Monitor
-        messagingTemplate.convertAndSend("/Pelayan/prepared-orders", order);
-        messagingTemplate.convertAndSend("/kitchen/prepared-orders", order);
-        messagingTemplate.convertAndSend("/admin/active-orders", order);
+        System.out.println("Sending WebSocket messages for order: " + orderId);
+        try {
+            messagingTemplate.convertAndSend("/admin/active-orders", order);
+            messagingTemplate.convertAndSend("/kitchen/prepared-orders", order);
+            messagingTemplate.convertAndSend("/pelayan/prepared-orders", order);
+            
+            System.out.println("WebSocket messages sent successfully");
+        } catch (Exception e) {
+            System.err.println("Error sending WebSocket messages: " + e.getMessage());
+            e.printStackTrace();
+        }
+        }
     }
 
     private void handlerFailedPayment(Integer orderId){

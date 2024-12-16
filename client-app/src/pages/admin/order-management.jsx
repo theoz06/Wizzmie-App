@@ -3,7 +3,7 @@ import AdminLayout from "@/components/layout/AdminLayout";
 import ModalDelete from "@/components/modal-delete";
 import withAuth from "@/hoc/protectedRoute";
 import useGetAllOrders from "@/hooks/orderHooks/useGetAllOrders";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
@@ -14,21 +14,27 @@ const ManageOrder = () => {
   const tabs = ["Prepared", "Ready To Serve", "Served"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-    const {newOrder} = useWebsocketOrders();
+    const {newOrder,setNewOrder} = useWebsocketOrders();
+
+    // const latestOrderId = 0;
 
     //Get All Paid Orders
-    const {
+    let {
       transformeData: ordersData,
       isLoading: loadingGetOrders,
       error: errorGetOrders,
       getAllOrders,
     } = useGetAllOrders();
 
-    const updatedOrdersData = [...ordersData, ...newOrder]
+    const updatedOrdersData = [...newOrder, ...ordersData.filter(order => !newOrder.some(newOrder => newOrder.id === order.id)) ]
 
     const filteredByStatus = updatedOrdersData.filter(
       (order) => order.status === activeTab
     );
+
+    // if (newOrder.length > 0) {
+    //   newOrderLength = newOrder[0].id
+    // }
 
   //Pagination
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,8 +105,19 @@ const ManageOrder = () => {
 
     if (success) {
       handlerModalOrderStatusClose();
+      setNewOrder([])
+      
       await getAllOrders();
+      // setNewOrder((prevOrders) => {
+      //   return prevOrders.map((order) =>
+      //     order.id === selectedOrder.id
+      //       ? { ...order, status: selectedOrder.status }
+      //       : order
+      //   );
+      // });
     }
+
+    console.log("New Order After update: ", newOrder);
   };
 
   const totalPage = Math.ceil(filteredByStatus.length / itemsPerPage);

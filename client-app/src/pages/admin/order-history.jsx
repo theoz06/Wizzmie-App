@@ -71,7 +71,7 @@ const OrderHistory = () => {
                                 <th className='py-3 px-4 text-left'>Customer</th>
                                 <th className='py-3 px-4 text-center w-24'>Table</th>
                                 <th className='py-3 px-4 text-center w-32'>Amount</th>
-                                <th className='py-3 px-4 text-center w-40'>Pelayan</th>
+                                <th className='py-3 px-4 text-center w-40'>Updated By</th>
                             </tr>
                         </thead>
                         <tbody>

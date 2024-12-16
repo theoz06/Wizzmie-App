@@ -1,10 +1,11 @@
 import WebSocketClient from "@/dal/webSocketClient";
+import Cookies from "js-cookie";
+
 
 
 class WebsocketService {
     constructor() {
-        this.client = new WebSocketClient("ws://localhost:8000/api/ws");
-        headers: { Authorization: `Bearer ${yourToken}` }
+        this.client = new WebSocketClient("http://localhost:8000/ws");
     }
 
     connect (onMessageReceived, onError) {
@@ -12,8 +13,13 @@ class WebsocketService {
             console.log("connect to websocket");
             this.client.subscribe("/admin/active-orders", (message)=> {
                 if(message.body){
-                    const data = JSON.parse(message.body);
-                    onMessageReceived(data);
+                    try {
+                        const data = JSON.parse(message.body);
+                        console.log("Parsed order data:", data);
+                        onMessageReceived(data);
+                    } catch (error) {
+                        console.error("Error parsing message:", error);
+                    }
                 }
             })
         },

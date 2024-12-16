@@ -1,12 +1,17 @@
 import { Client} from "@stomp/stompjs"
+import SockJS from "sockjs-client";
 
 class WebSocketClient {
     constructor(baseUrl) {
+        const socket = new SockJS(baseUrl);
         this.client = new Client({
-            brokerURL: baseUrl,
+           webSocketFactory: ()=> socket,
             debug: function (str) {
                 console.log(str);
             },
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000
         });
     }
 
