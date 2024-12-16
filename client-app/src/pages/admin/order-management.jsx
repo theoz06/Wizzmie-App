@@ -8,10 +8,13 @@ import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import useUpdateOrderStatus from "@/hooks/orderHooks/useUpdateOrderStatus";
+import useWebsocketOrders from "@/hooks/websocketHooks/useWebsocketOrders";
 
 const ManageOrder = () => {
   const tabs = ["Prepared", "Ready To Serve", "Served"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
+
+    const {newOrder} = useWebsocketOrders();
 
     //Get All Paid Orders
     const {
@@ -21,7 +24,9 @@ const ManageOrder = () => {
       getAllOrders,
     } = useGetAllOrders();
 
-    const filteredByStatus = ordersData.filter(
+    const updatedOrdersData = [...ordersData, ...newOrder]
+
+    const filteredByStatus = updatedOrdersData.filter(
       (order) => order.status === activeTab
     );
 
