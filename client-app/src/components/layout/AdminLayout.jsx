@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../navigator/navbar";
 import Sidebar from "../navigator/sidebar";
 import Head from "next/head";
-
+import Cookies from "js-cookie";
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -10,6 +10,16 @@ export const metadata = {
 };
 
 const AdminLayout = ({ children }) => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userCookie = Cookies.get("user");
+    if (userCookie) {
+      const parsedUser = JSON.parse(userCookie);
+      setUser(parsedUser);
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -18,12 +28,16 @@ const AdminLayout = ({ children }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div>
+      <div className="h-screen">
         <Navbar />
-        <div className="flex-1 flex flex-row ">
-          <Sidebar />
-          <main className=" w-full flex-1 p-0 bg-[#d9d9d9]">{children}</main>
-        </div>
+        {user?.role.toLowerCase() === "admin" ? (
+          <div className="flex-1 flex flex-row ">
+            <Sidebar />
+            <main className=" w-full flex-1 p-0 bg-[#d9d9d9]">{children}</main>
+          </div>
+        ) : (
+          <main className=" container w-full flex-1 p-0 bg-[#d9d9d9]">{children}</main>
+        )}
       </div>
     </>
   );

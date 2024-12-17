@@ -6,6 +6,7 @@ import { useState } from 'react';
 const useAuth = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [user, setUser] = useState(null);
     
     const login = async (nik, password) => {
         setIsLoading(true);
@@ -15,6 +16,7 @@ const useAuth = () => {
             const data = await loginUser(nik, password);
             Cookies.set("token", data.token ,{expires: 1});
             Cookies.set("user", JSON.stringify(data.user), {expires:1})
+            setUser(data.user);
             return true;
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err?.response?.data?.error|| err.message || "An error occurred during login.";
@@ -25,7 +27,7 @@ const useAuth = () => {
             setIsLoading(false)
         }
     }
-    return { login, isLoading, error, setError};
+    return { login, isLoading, error, setError, user};
 }
 
 export default useAuth;

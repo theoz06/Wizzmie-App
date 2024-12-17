@@ -30,10 +30,10 @@ const Navbar = () => {
 
 
   return (
-      <div className="bg-[#754985] text-white flex justify-between w-svw  items-center px-6 py-3">
-        <Link className="flex items-center " href="/admin/AdminHome">
+      <div className="bg-[#754985] text-white sticky top-0 flex justify-between w-svw  items-center px-6 py-3">
+        <Link className="flex items-center " href="#">
             <img src="/images/logo-wizzmie.webp" alt="logo" className="h-10 w-10"/>
-            <div className="ml-4 text-lg font-bold">Admin Dashboard</div>
+            <div className="ml-4 text-lg font-bold">{user?.role + " " + "DASHBOARD"|| "Admin Dashboard"}</div>
         </Link>
         
         <div className="flex items-center space-x-4">

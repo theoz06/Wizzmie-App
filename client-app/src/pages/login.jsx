@@ -8,7 +8,7 @@ const LoginPage = () => {
   const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
   const [errorEmptyField, setErrorEmptyField] = useState(null)
-  const {isLoading, error, setError, login} = useAuth();
+  const {isLoading, error, setError, login, user} = useAuth();
   const router = useRouter();
   
 
@@ -26,7 +26,23 @@ const LoginPage = () => {
     const success = await login(nik, password);
     
     if (success) {
-      router.push("/admin/menu-management");
+
+      const role = user?.role.toLowerCase();
+      console.log(role);
+
+      switch (role) {
+        case "admin":
+          router.push("/admin/menu-management");
+          break;
+        case "kitchen":
+          router.push("/orders-page/kitchen");
+          break;
+        case "pelayan":
+          router.push("/orders-page/pelayan");
+          break;
+        default:
+          
+      }
     }
     console.log(error)
   };
