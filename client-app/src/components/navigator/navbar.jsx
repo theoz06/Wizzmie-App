@@ -30,7 +30,7 @@ const Navbar = () => {
 
 
   return (
-      <div className="bg-[#754985] text-white sticky top-0 flex justify-between w-svw  items-center px-6 py-3">
+      <div className={` sticky top-0 flex justify-between w-svw  items-center px-6 py-3 ${ user?.role.toLowerCase() === "admin" ? `bg-[#754985] text-white` : `bg-gray-600 text-white`}` } >
         <Link className="flex items-center " href="#">
             <img src="/images/logo-wizzmie.webp" alt="logo" className="h-10 w-10"/>
             <div className="ml-4 text-lg font-bold">{user?.role + " " + "DASHBOARD"|| "Admin Dashboard"}</div>
@@ -38,7 +38,7 @@ const Navbar = () => {
         
         <div className="flex items-center space-x-4">
         <div>{user?.name || "Admin"}</div>
-          <button onClick={LogOutHandler} className="bg-[#fff] px-4 py-2 rounded hover:bg-red-600 text-black">
+          <button onClick={LogOutHandler} className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-black">
             Logout
           </button>
         </div>

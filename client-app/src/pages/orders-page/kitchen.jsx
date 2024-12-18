@@ -63,31 +63,30 @@ const KitchenPage = () => {
 
   return (
     <AdminLayout>
-      <div className="container h-[667px] max-w-screen bg-[#000] mx-auto">
-        <div className="container h-max-[660px] flex flex-wrap truncate overflow-hidden ">
+      <div className="container h-screen max-w-screen bg-[#000] mx-auto">
+        <div className="container h-max-[660px] flex  flex-wrap  items-start">
         {paginatedData.map((order, index) => (
           <div
             key={order.orderId}
             tabIndex={0}
             onKeyDown={handlerKeyDown}
-            onClick={()=> setSelectedOrderIndex(index)}
+            onClick={()=> setSelectedOrderIndex(selectedOrderIndex ? 0 : index)}
             className={`
-                min-h-[60px] 
+                container
                 text-gray-900 
-                m-3 
+                m-3
+                flex-row flex-auto
                 rounded-md 
-                shadow-lg 
-                mb-3 
                 max-w-[300px] 
                 min-w-[260px] 
-                ${selectedOrderIndex === index ? 'border-blue-400 border-4' : 'hover:border-white-900 hover:border-2'}
+                ${selectedOrderIndex === index ? 'border-blue-400 border-4 p-1 flex-none' : 'hover:border-white-900'}
               `}
           >
             <div className=" bg-gray-400 flex p-3 justify-between">
               <p>Table: {order.table}</p>
               <p>Order ID: {order.orderId}</p>
             </div>
-            <div className=" bg-gray-300 card-body text-wrap ">
+            <div className=" bg-gray-300 card-body text-wrap">
               <ul className="p-3 space-y-3">
                 {order.items.map((item, index) => (
                   <li className="space-x-3 flex" key={index}>

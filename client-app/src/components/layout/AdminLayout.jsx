@@ -33,10 +33,10 @@ const AdminLayout = ({ children }) => {
         {user?.role.toLowerCase() === "admin" ? (
           <div className="flex-1 flex flex-row ">
             <Sidebar />
-            <main className=" w-full flex-1 p-0 bg-[#d9d9d9]">{children}</main>
+            <main className="  w-full flex-1 bg-[#d9d9d9]">{children}</main>
           </div>
         ) : (
-          <main className=" container w-full flex-1 p-0 bg-[#d9d9d9]">{children}</main>
+          <main className=" container w-full flex-1 bg-[#000]">{children}</main>
         )}
       </div>
     </>
