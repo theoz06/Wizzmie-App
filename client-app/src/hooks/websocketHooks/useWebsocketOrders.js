@@ -1,5 +1,5 @@
 import WebsocketService from '@/services/webSocketService';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const useWebsocketOrders = () => {
     const [newOrder, setNewOrder] = useState([]);
@@ -11,6 +11,10 @@ const useWebsocketOrders = () => {
     table: order.tableNumber,
     total: order.totalAmount,
     status: order.orderStatus.description,
+    items: order.orderItems.map((item) => ({
+      qty: item.quantity,
+      menu: item.menu.name,
+    })),
   });
 
     useEffect(()=>{

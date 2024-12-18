@@ -275,8 +275,6 @@ public class PaymentServiceImpl {
         System.out.println("Sending WebSocket messages for order: " + orderId);
         try {
             messagingTemplate.convertAndSend("/admin/active-orders", order);
-            messagingTemplate.convertAndSend("/kitchen/prepared-orders", order);
-            messagingTemplate.convertAndSend("/pelayan/prepared-orders", order);
             
             System.out.println("WebSocket messages sent successfully");
         } catch (Exception e) {

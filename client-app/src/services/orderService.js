@@ -10,6 +10,15 @@ const getAllOrders = async () => {
   }
 }
 
+const getAllActiveOrdersKitchen = async () => {
+  try {
+    const response = await apiClient.get("/order/active-orders/kitchen");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+} 
+
 const updateStatusOrder = async (orderId, changedBy) => {
   try {
     
@@ -23,4 +32,4 @@ const updateStatusOrder = async (orderId, changedBy) => {
 } 
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default {getAllOrders, updateStatusOrder}
+export default {getAllOrders, updateStatusOrder, getAllActiveOrdersKitchen}

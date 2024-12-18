@@ -1,6 +1,4 @@
 import WebSocketClient from "@/dal/webSocketClient";
-import Cookies from "js-cookie";
-
 
 
 class WebsocketService {

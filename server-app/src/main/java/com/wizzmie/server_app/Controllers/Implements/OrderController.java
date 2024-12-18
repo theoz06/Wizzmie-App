@@ -56,7 +56,7 @@ public class OrderController {
         }
     }
 
-    @GetMapping("active-orders/kitchen")
+    @GetMapping("/active-orders/kitchen")
     public ResponseEntity<List<Orders>> getActiveOrdersKitchen() {
         try{
             List<Orders> orders = orderServiceImpl.getOrdersWithStatusAsPrepared();
@@ -72,7 +72,7 @@ public class OrderController {
         
     }
 
-    @GetMapping("active-orders/pelayan")
+    @GetMapping("/active-orders/pelayan")
     public ResponseEntity<List<Orders>> getActiveOrdersPelayan() {
         try{
             List<Orders> readyOrders = orderServiceImpl.getReadyToServeOrders();

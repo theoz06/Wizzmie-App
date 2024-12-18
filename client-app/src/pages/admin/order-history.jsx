@@ -13,9 +13,6 @@ import useGetOrderHistory from '@/hooks/orderHooks/useGetOrderHistory';
 const OrderHistory = () => {
     const {transformeData, isLoading, error} = useGetOrderHistory();
 
-    console.log("Data:", transformeData);
-
-
     const handlerSearch = (e) => {
         setSearchQuery(e.target.value);
     };
