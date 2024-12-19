@@ -124,7 +124,7 @@ const ManageOrder = () => {
           <h1 className="text-2xl font-bold">Orders</h1>
         </div>
 
-        <div className="overflow-x-auto mt-6 h-[480px] bg-white">
+        <div className="overflow-x-auto mt-6 h-[440px]">
           <div className="bg-[#754985] text-white shadow-lg rounded-md">
             <div className="flex justify-between items-center px-4 py-3">
               <div className="flex items-center space-x-2">

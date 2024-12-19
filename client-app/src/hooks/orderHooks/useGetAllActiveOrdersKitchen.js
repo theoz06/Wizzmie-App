@@ -8,7 +8,7 @@ const useGetAllActiveOrdersKitchen = () => {
 
   const transformeOrderData = (fetchedData) => {
     return fetchedData.map((order)=>({
-        orderId: order.id,
+        id: order.id,
         table: order.tableNumber,
         items:order.orderItems.map((item)=>({
             qty: item.quantity,

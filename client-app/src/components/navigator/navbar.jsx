@@ -30,7 +30,7 @@ const Navbar = () => {
 
 
   return (
-      <div className={` sticky top-0 flex justify-between w-svw  items-center px-6 py-3 ${ user?.role.toLowerCase() === "admin" ? `bg-[#754985] text-white` : `bg-gray-600 text-white`}` } >
+      <div className={` sticky top-0 flex justify-between w-svw  items-center px-6 py-3 ${ user?.role.toLowerCase() === "admin" ? `bg-[#754985] text-white` : `bg-gray-900 text-white`}` } >
         <Link className="flex items-center " href="#">
             <img src="/images/logo-wizzmie.webp" alt="logo" className="h-10 w-10"/>
             <div className="ml-4 text-lg font-bold">{user?.role + " " + "DASHBOARD"|| "Admin Dashboard"}</div>

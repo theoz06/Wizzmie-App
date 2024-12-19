@@ -172,7 +172,7 @@ const ManageCategory = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto h-[480px] bg-white">
+        <div className="overflow-x-auto h-max-[420px]">
           <div className="min-w-full table-auto bg-[#754985] text-white border-collapse shadow-lg rounded-t-md px-4 h-20 py-3 flex justify-between items-center space-x-2">
             <div className="flex items-center space-x-2">
             <BiCategory />
