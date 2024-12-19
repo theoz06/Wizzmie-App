@@ -35,8 +35,10 @@ const AdminLayout = ({ children }) => {
             <Sidebar />
             <main className="  w-full flex-1 bg-[#d9d9d9]">{children}</main>
           </div>
-        ) : (
+        ) : user?.role.toLowerCase() === "kitchen" ? (
           <main className=" container w-full flex-1 bg-[#000]">{children}</main>
+        ) : (
+          <main className="sm:container md:container text-white w-full flex-1 bg-[#000]">{children}</main>
         )}
       </div>
     </>
