@@ -5,12 +5,13 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { MdOutlineClose } from "react-icons/md";
+import Image from "next/image";
 
 const Navbar = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null); // Untuk referensi menu
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const userCookie = Cookies.get("user");
@@ -59,13 +60,13 @@ const Navbar = () => {
       }`}
     >
       <Link className="flex items-center" href="#">
-        <img src="/images/logo-wizzmie.webp" alt="logo" className="h-10 w-10" />
+        <Image width="40" height="40" src="/images/logo-wizzmie.webp" alt="logo"  />
         <div
           className={`ml-4 text-lg font-bold ${
             user?.role.toLowerCase() === "pelayan" ? "text-[14px]" : "text-lg"
           }`}
         >
-          {user?.role + " " + "DASHBOARD" || "Admin Dashboard"}
+          {user?.role.toLowerCase() != "pelayan" ? user?.role + " " + "DASHBOARD" || "Admin Dashboard" : "READY ORDERS"}
         </div>
       </Link>
 
@@ -79,12 +80,11 @@ const Navbar = () => {
             )}
           </button>
           <div
-            className={`menu right-5 mt-6 bg-gray-900 rounded-md border-2 max-w-36 min-w-28 text-right p-3 space-y-2 text-white ${
+            className={`menu right-0 mt-5 bg-gray-900 rounded-md max-w-36 min-w-28 text-right p-3 space-y-2 text-white ${
               isOpen ? "block" : "hidden"
             }`}
           >
-            <div className="menu-item">{user?.name || "Admin"}</div>
-            <hr />
+            <div className="menu-item border-b-2">{user?.name || "Admin"}</div>
             <button onClick={LogOutHandler} className="text-red-500 menu-item">
               Logout
             </button>
