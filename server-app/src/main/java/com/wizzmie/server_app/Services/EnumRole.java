@@ -4,7 +4,7 @@ package com.wizzmie.server_app.Services;
 public enum EnumRole {
     ADMIN("Admin"),
     KITCHEN("Kitchen"),
-    PELAYAN("Pelayanan"),
+    PELAYAN("Pelayan"),
     CUSTOMER("Customer");
     
     private final String role;
