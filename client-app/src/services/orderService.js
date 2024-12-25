@@ -19,6 +19,15 @@ const getAllActiveOrdersKitchen = async () => {
   }
 } 
 
+const getAllActiveOrdersPelayan = async () => {
+  try {
+    const response = await apiClient.get("/order/active-orders/pelayan");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 const updateStatusOrder = async (orderId, changedBy) => {
   try {
     

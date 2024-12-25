@@ -19,7 +19,6 @@ const useWebsocketOrders = () => {
 
     useEffect(()=>{
         const handleNewOrder = (order) => {
-            console.log("New Order: " + order);
 
             const transformedOrder = transformeOrderData(order);
 

@@ -12,7 +12,7 @@ const pelayan = () => {
             </div>
             <button type='button' onClick={()=> alert("Clicked")} className='mr-[10px] bg-indigo-600 text-white rounded-md hover:bg-indigo-700 p-3'>Check</button>
           </div>
-        </div>
+        </div> 
         
     </AdminLayout>
   )
