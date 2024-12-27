@@ -32,9 +32,6 @@ const ManageOrder = () => {
       (order) => order.status === activeTab
     );
 
-    // if (newOrder.length > 0) {
-    //   newOrderLength = newOrder[0].id
-    // }
 
   //Pagination
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,7 +103,7 @@ const ManageOrder = () => {
     if (success) {
       handlerModalOrderStatusClose();
 
-      setNewOrder([])
+      setNewOrder(prevOrders => prevOrders.filter(order => order.id !== orderId));
       
       await getAllOrders();
     }

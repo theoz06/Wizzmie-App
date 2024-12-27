@@ -3,7 +3,7 @@ import WebSocketClient from "@/dal/webSocketClient";
 
 class WebsocketService {
     constructor() {
-        this.client = new WebSocketClient("http://localhost:8000/ws");
+        this.client = new WebSocketClient(NEXT_PUBLIC_API_WS_URL);
     }
 
     connect (onMessageReceived, onError) {
@@ -19,7 +19,19 @@ class WebsocketService {
                         console.error("Error parsing message:", error);
                     }
                 }
-            })
+            });
+
+            this.client.subscribe("/pelayan/active-orders", (message) => {
+                if (message.body) {
+                    try {
+                        const data = JSON.parse(message.body);
+                        console.log("Parsed order data:", data);
+                        onMessageReceived(data);
+                    } catch (error) {
+                        console.log("Error parsing message:", error);
+                    }
+                }
+            });
         },
         onError
         );

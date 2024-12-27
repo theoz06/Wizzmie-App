@@ -133,10 +133,8 @@ public class OrderServiceImpl {
                 updateStatus(order, 3);
 
                 //Send Data To Waiters Monitor
-                messagingTemplate.convertAndSend("/server/orders", order);
+                messagingTemplate.convertAndSend("/server/ready-orders", order);
 
-                //Remove Data From Kitchen Monitor
-                messagingTemplate.convertAndSend("/kitchen/remove-order", order.getId());
                 break;
             case 3:
                 updateStatus(order, 4);
