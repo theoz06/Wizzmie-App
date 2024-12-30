@@ -1,9 +1,10 @@
 import WebSocketClient from "@/dal/webSocketClient";
+import { env } from "process";
 
 
 class WebsocketService {
     constructor() {
-        this.client = new WebSocketClient(NEXT_PUBLIC_API_WS_URL);
+        this.client = new WebSocketClient(env.NEXT_PUBLIC_API_WS_URL);
     }
 
     connect (onMessageReceived, onError) {

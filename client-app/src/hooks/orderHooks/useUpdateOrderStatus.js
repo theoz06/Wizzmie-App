@@ -6,7 +6,7 @@ const useUpdateOrderStatus = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const updateOrderStatus = async (orderId, changedBy) => {
+  const updateOrderStatus = async (orderId) => {
     setIsLoading(true);
     setError(null);
 
