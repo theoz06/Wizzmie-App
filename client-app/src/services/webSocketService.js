@@ -4,7 +4,7 @@ import { env } from "process";
 
 class WebsocketService {
     constructor() {
-        this.client = new WebSocketClient(env.NEXT_PUBLIC_API_WS_URL);
+        this.client = new WebSocketClient(process.env.NEXT_PUBLIC_API_WS_URL);
     }
 
     connect (onMessageReceived, onError) {
@@ -22,7 +22,7 @@ class WebsocketService {
                 }
             });
 
-            this.client.subscribe("/pelayan/active-orders", (message) => {
+            this.client.subscribe("/pelayan/ready-orders", (message) => {
                 if (message.body) {
                     try {
                         const data = JSON.parse(message.body);

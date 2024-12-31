@@ -45,11 +45,11 @@ const PelayanPage = () => {
           <div className='text-center text-red-500'>{error}</div>
         ) : (
           readyOrders.map((data, index)=>(
-            <div key={index} className='h-[65px] m-3 overflow-visible bg-gray-400 flex justify-between items-center text-center text-gray-900 rounded-md space-y-3'>
+            <div key={index} className='h-[65px] m-3 overflow-visible bg-gray-400 flex justify-between items-center text-center text-gray-900 rounded-md'>
               <div className='h-[80px] w-[80px] ml-[-15px] bg-gray-500 text-white rounded-full flex text-center justify-center items-center'>
                 <span className=' font-bold text-4xl'>{data.table}</span>
               </div>
-              <button type='button' onClick={()=> handleViewItems(data)} className='mr-[10px] bg-indigo-600 text-white rounded-md hover:bg-indigo-700 p-3 text-center'>View Items</button>
+              <button type='button' onClick={()=> handleViewItems(data)} className='mr-[10px] bg-indigo-600 text-white rounded-md hover:bg-indigo-700 p-3 text-center items-center'>View Items</button>
             </div>
           ))
         )}
@@ -60,7 +60,7 @@ const PelayanPage = () => {
           <div className='mt-3'>
             {selectedOrder?.items.map((item, index)=>(
               <div key={index} className='flex justify-between items-center text-gray-900'>
-              <span>{item.qty}</span>
+                <span>{item.qty}</span>
                 <span>{item.menu}</span>
               </div>
             ))}

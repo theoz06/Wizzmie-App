@@ -26,7 +26,11 @@ const ManageOrder = () => {
       getAllOrders,
     } = useGetAllOrders();
 
-    const updatedOrdersData = [...newOrder, ...ordersData.filter(order => !newOrder.some(newOrder => newOrder.id === order.id)) ]
+    const updatedOrdersData = [...newOrder, ...ordersData.map(order => {
+      const existOrder = ordersData.find(newOrder => newOrder.id === order.id)
+
+      return existOrder || order;
+    }) ]
 
     const filteredByStatus = updatedOrdersData.filter(
       (order) => order.status === activeTab

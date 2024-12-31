@@ -22,7 +22,6 @@ const getAllActiveOrdersKitchen = async () => {
 const getAllActiveOrdersPelayan = async () => {
   try {
     const response = await apiClient.get("/order/active-orders/pelayan");
-    console.log("Ready Order Data: " + JSON.stringify(response.data, null, 2));
     return response.data;
   } catch (error) {
     throw error;

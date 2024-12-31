@@ -131,13 +131,13 @@ public class OrderServiceImpl {
         switch (currentStatus.getId()) {
             case 2:
                 updateStatus(order, 3);
-
-                //Send Data To Waiters Monitor
-                messagingTemplate.convertAndSend("/server/ready-orders", order);
+                messagingTemplate.convertAndSend("/pelayan/ready-orders", order);
 
                 break;
             case 3:
                 updateStatus(order, 4);
+                messagingTemplate.convertAndSend("/admin/active-orders", order);
+
                 break;
         
             default:
