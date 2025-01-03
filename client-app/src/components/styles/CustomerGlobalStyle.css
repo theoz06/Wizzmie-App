@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+body, html{
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background-color: rgb(245 208 254);
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+form h2.label-text {
+    font-weight: 600;
+    background: #ffffff;
+}
+
+section h1 {
+    text-shadow: 
+    2px 2px 0px #ffffff,
+    -2px -2px 0px #ffffff,
+    2px -2px 0px #ffffff,
+    -2px 2px 0px #ffffff;
+}
+
+
+
