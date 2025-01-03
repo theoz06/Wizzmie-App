@@ -32,7 +32,7 @@ form h2.label-text {
     background: #ffffff;
 }
 
-section h1 {
+section h1, main h1.table-number {
     text-shadow: 
     2px 2px 0px #ffffff,
     -2px -2px 0px #ffffff,
