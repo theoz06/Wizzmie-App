@@ -11,6 +11,9 @@ body, html{
 }
 
 body{
+    scroll-behavior: smooth;
+    overflow-y: auto;
+    min-height: 100vh;
     background-color: rgb(245 208 254);
 }
 
@@ -20,6 +23,8 @@ main{
     justify-content: center;
     align-items: center;
     height: 100vh;
+    min-height: 100vh;
+    padding: 1rem;
 }
 
 form h2.label-text {
@@ -35,5 +40,18 @@ section h1 {
     -2px 2px 0px #ffffff;
 }
 
+@media (max-width: 640px) {
+    main {
+        padding: 0.5rem;
+    }
+    
+    section h1 {
+        text-shadow:
+        1px 1px 0px #ffffff,
+        -1px -1px 0px #ffffff,
+        1px -1px 0px #ffffff,
+        -1px 1px 0px #ffffff;
+    }
+}
 
 
