@@ -1,8 +1,16 @@
 import CustomerLayout from '@/components/layout/CustomerLayout';
 import Image from 'next/image';
 import React from 'react'
+import { useRouter } from 'next/router';
+
 
 const CustomerForm = () => {
+    const router = useRouter();
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        router.push('/customer/mainPage');
+    }
   return (
     <CustomerLayout>
         <section className='space-y-6 m-10 sm:m-8 md:m-14'>
@@ -56,7 +64,7 @@ const CustomerForm = () => {
                 <div className="relative mb-1 text-center">
                     <button 
                         type='button' 
-                        onClick={()=> alert("Clicked")} 
+                        onClick={handleSubmit} 
                         className="bg-[#754985] hover:bg-[#a448c6] text-white p-2 rounded-md font-semibold w-full sm:w-auto sm:px-6"
                     >
                         Submit
