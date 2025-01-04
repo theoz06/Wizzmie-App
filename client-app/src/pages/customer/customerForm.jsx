@@ -67,7 +67,7 @@ const CustomerForm = () => {
                         onClick={handleSubmit} 
                         className="bg-[#754985] hover:bg-[#a448c6] text-white p-2 rounded-md font-semibold w-full sm:w-auto sm:px-6"
                     >
-                        Submit
+                        Lanjut Memesan
                     </button>
                 </div>
             </form>
