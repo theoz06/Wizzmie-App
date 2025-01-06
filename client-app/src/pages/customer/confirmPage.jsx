@@ -5,11 +5,11 @@ import Image from "next/image";
 const ConfirmPage = () => {
   return (
     <CustomerLayout>
-      <header className="fixed left-0 top-0 w-full bg-[#EB65AE] shadow-md p-4 text-2xl text-white font-bold justify-center items-center flex">
+      <header className="fixed left-0 top-0 w-full bg-[#9c379a] shadow-md p-4 text-2xl text-white font-bold justify-center items-center flex">
         <h2>Konfirmasi</h2>
       </header>
 
-      <section className="fixed top-[56px] left-0 bottom-[64px] w-full bg-transparent text-white p-4 overflow-y-auto">
+      <section className="fixed top-[66px] left-0 bottom-[64px] w-full bg-transparent text-white p-4 overflow-y-auto">
         <div className="bg-[#EB65AE] p-4 rounded-md shadow-md font-bold">
           <h3 >Data Pembeli</h3>
           <div>
@@ -18,8 +18,8 @@ const ConfirmPage = () => {
           </div>
         </div>
 
-        <div className="bg-[#EB65AE] p-4 rounded-md shadow-md mt-4 space-y-3">
-          <h3 className="font-bold">Pesanan</h3>
+        <div className="relative bg-[#EB65AE] p-4 rounded-md shadow-md mt-4 space-y-5">
+          <h3 className="absolute top-[-12px] left-3 p-[2px] bg-[#EB65AE] border-4 border-[#D53A8E] rounded-lg font-bold">Pesanan</h3>
           <div className="container  h-20 flex justify-between items-center space-x-2 py-3 overflow-hidden">
             <div className="flex items-center space-x-2">
               <Image
@@ -90,11 +90,11 @@ const ConfirmPage = () => {
           </div>
         </div>
 
-        <div className="bg-[#EB65AE] font-bold p-4 rounded-md shadow-md mt-4">
-          <h3>Total Pembayaran</h3>
-          <div>
+        <div className="relative bg-[#EB65AE] font-bold p-4 rounded-md shadow-md mt-4">
+          <h3 className="absolute top-[-12px] left-3 p-[2px] bg-[#EB65AE] border-4 border-[#D53A8E] rounded-lg">Total Pembayaran</h3>
+          <div className="mt-3">
             <div className="flex justify-between">
-                <p>Total </p>
+                <p>Total Harga</p>
                 <p>Rp. 30.000</p>
             </div>
             <div className="flex justify-between">

@@ -13,11 +13,11 @@ const StatusPage = () => {
 
   return (
     <CustomerLayout>
-      <header className="fixed left-0 top-0 w-full bg-[#EB65AE] shadow-md p-4 text-2xl text-white font-bold justify-center items-center flex">
+      <header className="fixed left-0 top-0 w-full bg-[#9c379a] shadow-md p-4 text-2xl text-white font-bold justify-center items-center flex">
         <h2>Status Pesanan</h2>
       </header>
 
-      <section className="fixed top-[56px] left-0 bottom-0 w-full bg-transparent text-4xl p-4 overflow-y-auto">
+      <section className="fixed top-[66px] left-0 bottom-0 w-full bg-transparent text-4xl p-4 overflow-y-auto">
         <figure className="justify-center bg-[#EB65AE] p-4 rounded-md shadow-md font-bold text-gray-300">
             <div className='flex justify-center items-center space-x-3'>
             <div className={`flex space-x-3 ${status === "prepared" ? "text-white" : "text-gray-300"}`}>

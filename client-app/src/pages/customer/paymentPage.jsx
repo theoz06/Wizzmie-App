@@ -5,7 +5,7 @@ import { useState } from "react";
 import { FaRegCheckCircle } from "react-icons/fa";
 
 const PaymentPage = () => {
-  const [paid, setPaid] = useState(true);
+  const [paid, setPaid] = useState(false);
 
   return (
     <CustomerLayout>
