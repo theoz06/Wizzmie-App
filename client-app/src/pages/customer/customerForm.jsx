@@ -20,9 +20,9 @@ const CustomerForm = () => {
                     alt="Wizzmie Logo" 
                     width={100} 
                     height={100} 
-                    className='border-2 border-white rounded-full w-20 sm:w-24 md:w-28'
+                    className='border-2 border-white rounded-full h-[150px] w-[150px] sm:w-24 md:w-[150px]'
                 />
-                <h1 className='outline-text font-bold text-base sm:text-lg md:text-xl text-[#754985]'>
+                <h1 className='outline-text font-bold text-2xl sm:text-lg md:text-xl text-[#754985]'>
                     <b>Selamat Datang</b>
                 </h1>
             </figure>
