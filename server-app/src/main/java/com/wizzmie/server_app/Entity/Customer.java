@@ -8,6 +8,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import com.wizzmie.server_app.Services.EnumRole;
 
@@ -27,6 +29,10 @@ public class Customer {
 
     private String name;
     private String phone;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = true)
+    private Category category;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
