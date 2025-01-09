@@ -135,7 +135,7 @@ const ManageCategory = () => {
   
   //Table Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 13;
+  const itemsPerPage = 5;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredItem.slice(indexOfFirstItem, indexOfLastItem);

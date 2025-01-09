@@ -204,7 +204,7 @@ const MenuManagement = () => {
   //Pagination 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
   const filteredItem = menus.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -593,7 +593,7 @@ const MenuManagement = () => {
               <div className="mt-2 grid grid-cols-1">
                 <select
                   id="category"
-                  name="category"
+                  name="categoryId"
                   value={menuData.categoryId}
                   onChange={handlerInput}
                   className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
@@ -602,7 +602,7 @@ const MenuManagement = () => {
                     {menuData.categoryId ? categories.find((category)=> category.id === menuData.categoryId)?.description : "Select Category"}
                   </option>
                   {categories.map((category)=>(
-                    <option value={category.id} key={category.id}>{category.description}</option>
+                    <option value={category.id} key={category.id} >{category.description}</option>
                   ))}
                 </select>
                 <FaChevronDown

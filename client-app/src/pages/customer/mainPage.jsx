@@ -2,17 +2,26 @@ import CustomerLayout from "@/components/layout/CustomerLayout";
 import Image from "next/image";
 import React from "react";
 import { FaPlus } from "react-icons/fa";
+import Cookies from "js-cookie";
+import { useSearchParams } from "next/navigation";
+
+
 
 const MainPage = () => {
+  const cust = JSON.parse(Cookies.get("customer"));
+  const searchParams = useSearchParams();
+  const tableNumber = searchParams.get("table");
+  console.log(cust);
+
   return (
     <CustomerLayout>
       <header className="fixed top-0 z-[2] left-0 bg-[#9c379a] p-4 flex justify-between items-center w-full border-2 border-[#9c379a]">
         <div className="space-y-6">
           <h1 className=" table-number font-bold text-6xl text-[#9c379a]">
-            21
+            {tableNumber}
           </h1>
           <p className="text-white text-xl">
-            <b>Reza Rahadian</b>
+            <b>{cust?.name}</b>
           </p>
         </div>
         <Image

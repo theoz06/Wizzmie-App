@@ -3,6 +3,8 @@ import "./login.css";
 import { useState } from "react";
 import useAuth from "@/hooks/useAuth";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
+
 
 const LoginPage = () => {
   const [nik, setNik] = useState("");
@@ -27,7 +29,7 @@ const LoginPage = () => {
     
     if (success) {
 
-      const role = user?.role.toLowerCase();
+      const role = Cookies.get("user") ? JSON.parse(Cookies.get("user")).role.toLowerCase() : null;
       console.log(role);
 
       switch (role) {
@@ -44,7 +46,6 @@ const LoginPage = () => {
           
       }
     }
-    console.log(error)
   };
 
   return (
