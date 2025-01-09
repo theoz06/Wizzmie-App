@@ -57,9 +57,9 @@ const CustomerForm = () => {
 
     if (success) {
       const cust = Cookies.get("customer")
-        ? JSON.parse(Cookies.get("customer")).id
+        ? JSON.parse(Cookies.get("customer"))
         : null;
-      router.push(`/customer/mainPage?table=${tableNumber}&CustomerId=${cust}`);
+      router.push(`/customer/mainPage?table=${tableNumber}&CustomerId=${cust.id}&CustomerName=${cust.name}&CustomerPhone=${cust.phone}`);
     }
   };
   return (
@@ -133,7 +133,7 @@ const CustomerForm = () => {
                 Referensi
               </label>
               <div
-                className="options text-gray-500 space-x-2 space-y-2 w-full flex flex-wrap items-baseline"
+                className="options text-gray-500 text-sm space-x-1 space-y-1 w-full flex flex-wrap items-baseline"
                 data-group="referensi"
               >
                 {loading && <p>Loading categories...</p>}
@@ -144,7 +144,7 @@ const CustomerForm = () => {
                       key={category.id}
                       type="button"
                       onClick={() => handleReferenceClick(category.id)}
-                      className={`p-2 rounded-md border-2 ${
+                      className={`p-1 rounded-md border-2 ${
                         customerData.menuRef === category.id
                           ? "bg-[#754985] text-white border-[#754985]"
                           : "bg-white text-gray-500 border-gray-300"

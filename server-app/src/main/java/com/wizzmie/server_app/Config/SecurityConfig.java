@@ -52,6 +52,7 @@ public class SecurityConfig {
                                 .antMatchers("/api/order/history").hasAnyAuthority("ADMIN")
                                 .antMatchers("/api/category/public").permitAll()
                                 .antMatchers("/api/customer/**").permitAll()
+                                .antMatchers("/api/images/**").permitAll()
                                 .antMatchers("/api/auth/login").permitAll()
                                 .antMatchers("/api/orderpage/**").permitAll()
                                 .antMatchers("/api/order/customer/**").permitAll()
