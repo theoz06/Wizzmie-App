@@ -18,6 +18,7 @@ apiClient.interceptors.request.use((config)=>{
         config.headers["Content-Type"] = "multipart/form-data";
     }
 
+    config.withCredentials = true;
     return config;
 })
 

@@ -63,8 +63,14 @@ public class OrderServiceImpl {
     }
 
 
-    public Orders createOrder(HttpSession session){
-        Cart cart = (Cart) session.getAttribute("CART");
+    public Orders createOrder(HttpSession session, Integer tableNumber, Integer customerId){
+        if (tableNumber == null || customerId == null) {
+            throw new RuntimeException("Table number and customer ID are required.");
+        }
+
+        String sessionKey = String.format("CART_%d_%d", tableNumber, customerId);
+
+        Cart cart = (Cart) session.getAttribute(sessionKey);
         if (cart == null || cart.getCartItems().isEmpty()){
             throw new RuntimeException("Cart is Empty");
         }
@@ -95,7 +101,7 @@ public class OrderServiceImpl {
             orderItemRepository.save(orderItem);
         }
 
-        session.removeAttribute("CART");
+        session.removeAttribute(sessionKey);
 
         return order;
     }

@@ -1,32 +1,77 @@
 import CustomerLayout from "@/components/layout/CustomerLayout";
 import Image from "next/image";
-import React from "react";
+import React, { use, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FaPlus } from "react-icons/fa";
+import { BsCart3 } from "react-icons/bs";
 import { useSearchParams } from "next/navigation";
 import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
 import { useState } from "react";
 import useGetAllMenu from "@/hooks/menuHooks/useGetAllMenu";
-
-
-
+import useGetCartItems from "@/hooks/cartHooks/useGetCartItems";
+import useAddToCart from "@/hooks/cartHooks/useAddToCart";
 
 
 
 const MainPage = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = searchParams.get("table");
   const custName = searchParams.get("CustomerName");
+  const custId = searchParams.get("CustomerId");
+  const custPhone = searchParams.get("CustomerPhone");
+ 
   const url = process.env.NEXT_PUBLIC_API_BASE_URL
+  const [cartData, setCartData] = useState([]);
+  const { getCartItems} = useGetCartItems();
+  const [totalItemAdded, setTotalItemAdded] = useState(0);
+
   const {categories} = useGetAllCategory();
   const {menus} = useGetAllMenu();
-
+  
+  
 
   const tabs = ["Rekomendasi", ...categories.map((category)=>{
     return category.description;
   })];
-  console.log("tabs", tabs)
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
+  const menuRecomendation = [];
+  const menusFilteredByCategory = menus.filter(
+    (menu)=> menu.category.description === activeTab
+  );
+
+
+
+  const {addToCart} = useAddToCart();
+  const addToCartHandler = async (menu) => {
+
+    const custId = searchParams.get("CustomerId");
+
+    const items = {
+      menuId : menu.id,
+      menuName : menu.name,
+      price : menu.price,
+      imageUrl : menu.image,
+      quantity : 1
+
+    }
+
+    const success = await addToCart(tableNumber, custId, items);
+    
+    if (success) {
+      const resp = await getCartItems(tableNumber, custId);
+      setCartData(resp);
+      console.log("resp :" + JSON.stringify(resp, null, 2))
+    }
+  }
+
+  useEffect(() => {
+    if (cartData.cartItems) {
+      const total = cartData.cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      setTotalItemAdded(total);
+    }
+  }, [cartData]);
 
   return (
     <CustomerLayout>
@@ -61,9 +106,9 @@ const MainPage = () => {
           ))}
         </ul>
       </nav>
-
+      
       <section className="fixed z-[1] space-y-6 top-[200px] bottom-0 left-0 w-full p-2 overflow-y-auto">
-        {menus.map((menu, index) => (
+        {activeTab === "Rekomendasi" ? menuRecomendation : menusFilteredByCategory.map((menu, index) => (
           <div
             key={index}
             className="container pr-3  bg-[#EB65AE] rounded-l-full rounded-r-md h-20 flex justify-between items-center space-x-2 py-3 shadow-lg"
@@ -94,7 +139,7 @@ const MainPage = () => {
             <div>
               <button
                 type="button"
-                onClick={() => console.log("Button Add clicked")}
+                onClick={()=> addToCartHandler(menu)}
                 className="bg-[#C3046C] text-white p-2 rounded-full border-white border-2"
               >
                 <FaPlus />
@@ -103,6 +148,15 @@ const MainPage = () => {
           </div>
         ))}
       </section>
+      <footer className="fixed z-[1] bottom-1 left-0 max-h-20 w-full px-6 ">
+        <button type="button" onClick={async () => await getCartItems(tableNumber, custId) && router.push(`/customer/cartPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`)} className="bg-[#9c379a] text-white text-md font-bold w-full py-3 px-6 rounded-md flex justify-between items-center">
+          <p>Lihat Keranjang</p>
+          <div className="relative flex items-center">
+            <BsCart3 className="text-2xl"/>
+            <p className="absolute text-sm rounded-full bg-red-600 px-2  right-[-10px] top-[-10px] text-white">{totalItemAdded}</p>
+          </div>
+        </button>
+      </footer>
     </CustomerLayout>
   );
 };

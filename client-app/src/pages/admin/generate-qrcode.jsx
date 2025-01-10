@@ -10,7 +10,7 @@ const GenerateQrCode = () => {
   const [generatedQrCode, setGeneratedQrCode] = useState(null);
   const qrCodeRef = useRef();
 
-  const baseUrl = "www.google.com";
+  const baseUrl = "http://localhost:3000/customer/customerForm?";
 
   const generatorQrCode = async (e) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ const GenerateQrCode = () => {
       return
     }
 
-    const url = `${baseUrl}/${number}`;
+    const url = `${baseUrl}table=${number}`;
     setGeneratedQrCode(url)
   };
 

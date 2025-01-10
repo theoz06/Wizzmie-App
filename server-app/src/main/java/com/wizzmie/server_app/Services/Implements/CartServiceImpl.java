@@ -4,52 +4,65 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Service;
 
+
 import com.wizzmie.server_app.Entity.Helper.Cart;
 import com.wizzmie.server_app.Entity.Helper.CartItem;
 
 @Service
 public class CartServiceImpl {
-    private static final String CART_SESSION_KEY = "CART";
+    private static final String CART_SESSION_KEY = "CART_%d_%d";
 
-    public Cart getCart(HttpSession session){
-        Cart cart = (Cart) session.getAttribute(CART_SESSION_KEY);
-        if(cart == null){
-            cart = new Cart();
-            session.setAttribute(CART_SESSION_KEY, cart);
+    public Cart getCart(HttpSession session, Integer tableNumber, Integer customerId) {
+        if (tableNumber == null || customerId == null) {
+            throw new RuntimeException("Table number and customer ID are required.");
         }
+        
+        String sessionKey = String.format(CART_SESSION_KEY, tableNumber, customerId);
+        
+        Cart cart = (Cart) session.getAttribute(sessionKey);
+        
+        if (cart == null) {
+            cart = new Cart();
+            session.setAttribute(sessionKey, cart);
+        }
+        
         return cart;
     }
 
-    public void addToCart(Integer tableNumber, Integer customerId,HttpSession session, CartItem cartItem){
-
-        if (tableNumber == null ) {
-            throw new RuntimeException("Table number or customer ID is not set in the session.");
+    public void addToCart(Integer tableNumber, Integer customerId, HttpSession session, CartItem cartItem) {
+        if (tableNumber == null || customerId == null) {
+            throw new RuntimeException("Table number and customer ID are required.");
         }
-
-        Cart cart = getCart(session);
-
+        
+        Cart cart = getCart(session, tableNumber, customerId);
         CartItem existingItem = cart.getCartItems().stream()
-                                    .filter(item -> item.getMenuId().equals(cartItem.getMenuId()))
-                                    .findFirst()
-                                    .orElse(null);
+                .filter(item -> item.getMenuId().equals(cartItem.getMenuId()))
+                .findFirst()
+                .orElse(null);
 
-        if(existingItem != null){
+        if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + cartItem.getQuantity());
-        }else{
+        } else {
             cart.setTableNumber(tableNumber);
             cart.setCustomerId(customerId);
             cart.addCartItem(cartItem);
         }
-        session.setAttribute(CART_SESSION_KEY, cart);
+
+        String sessionKey = String.format(CART_SESSION_KEY, tableNumber, customerId);
+        session.setAttribute(sessionKey, cart);
+    
     }
 
-    public void removeFromCart(HttpSession session, Integer menuId){
-        Cart cart = getCart(session);
+    public void removeFromCart(HttpSession session, Integer tableNumber, Integer customerId, Integer menuId){
+        Cart cart = getCart(session, tableNumber, customerId);
         cart.getCartItems().removeIf(item -> item.getMenuId().equals(menuId));
-        session.setAttribute(CART_SESSION_KEY, cart);
+
+        String sessionKey = String.format(CART_SESSION_KEY, tableNumber, customerId);
+        session.setAttribute(sessionKey, cart);
     }
 
-    public void clearCart(HttpSession session){
-        session.removeAttribute(CART_SESSION_KEY);
+    public void clearCart(HttpSession session, Integer tableNumber, Integer customerId){
+        String sessionKey = String.format(CART_SESSION_KEY, tableNumber, customerId);
+        session.removeAttribute(sessionKey);
     }
 }

@@ -46,10 +46,10 @@ public class OrderController {
     }
 
 
-    @PostMapping("/customer/create-order")
-    public ResponseEntity<String> createOrder(HttpSession session){
+    @PostMapping("/customer/create-order/{tableNumber}/{customerId}")
+    public ResponseEntity<String> createOrder(HttpSession session, Integer tableNumber, Integer customerId){
         try {
-            orderServiceImpl.createOrder(session);
+            orderServiceImpl.createOrder(session, tableNumber, customerId);
             return ResponseEntity.ok("Order Created!");
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>("Order Failed!", e.getStatus());
