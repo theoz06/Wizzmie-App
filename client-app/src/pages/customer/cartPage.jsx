@@ -12,6 +12,7 @@ import {Router} from 'next/navigation';
 
 const CartPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL
+  const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = searchParams.get("table");
   const custName = searchParams.get("CustomerName");
@@ -19,26 +20,53 @@ const CartPage = () => {
   const custPhone = searchParams.get("CustomerPhone");
 
   const {cartData, getCartItems} = useGetCartItems();
+  const [localCart, setLocalCart] = useState([]);
+
 
   useEffect(() => {
     if (tableNumber && custId) {
-        getCartItems(tableNumber, custId);
+      getCartItems(tableNumber, custId);
     }
-}, [tableNumber, custId]);
+  }, [tableNumber, custId, getCartItems]);
 
-    const addQty = (e) => {
-        e.preventDefault();
-        setQty( + 1);
+  useEffect(() => {
+    if (cartData?.cartItems) {
+      setLocalCart(cartData.cartItems);
     }
-    
-    // const decQty = (e) => {
-    //     e.preventDefault();
-    //     if(qty > 0){
-    //         setQty(qty - 1);
-    //     }else{
-    //         setQty(0);
-    //     }
-    // }
+  }, [cartData]);
+
+
+  const handleQuantityChange = (index, newQuantity) => {
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      const userConfirmed = confirm("Apakah anda ingin menghapus item ini?");
+      if (userConfirmed) {
+        const updatedCart = localCart.filter((_, i) => i !== index);
+        setLocalCart(updatedCart);
+      }
+      return;
+    }
+    const updatedCart = [...localCart];
+    updatedCart[index].quantity = newQuantity;
+    setLocalCart(updatedCart);
+  };
+
+  const incrementQuantity = (index) => {
+    handleQuantityChange(index, localCart[index].quantity + 1);
+  };
+
+  const decrementQuantity = (index) => {
+    if (localCart[index].quantity > 1) {
+      handleQuantityChange(index, localCart[index].quantity - 1);
+    }else {
+      const userConfirmed = confirm("Apakah anda ingin menghapus item ini?");
+      if(userConfirmed){
+        const updatedCart = localCart.filter((_, i) => i !== index);
+        setLocalCart(updatedCart);
+      }
+    }
+  };
+
+
   return (
     <CustomerLayout>
       <header className="fixed left-0 top-0 w-full bg-[#9c379a] shadow-md px-4 pt-4  text-2xl text-white font-bold justify-center items-center flex flex-col">
@@ -61,9 +89,9 @@ const CartPage = () => {
       </header>
 
       <section className="fixed top-[66px] left-0 bottom-[64px] w-full bg-transparent text-white p-4 overflow-y-auto">
-      {cartData?.cartItems?.map((item, index) => (
-        <div className="bg-[#EB65AE] p-4 rounded-md shadow-md mt-4 space-y-5">
-          <div key={index} className="container  h-20 flex justify-between items-center space-x-2 py-3 overflow-hidden">
+      {localCart.map((item, index) => (
+        <div key={index} className="bg-[#EB65AE] p-4 rounded-md shadow-md mt-4 space-y-5">
+          <div className="container  h-20 flex justify-between items-center space-x-2 py-3 overflow-hidden">
             <div className="flex items-center space-x-2">
               <Image
                 width={100}
@@ -85,11 +113,11 @@ const CartPage = () => {
               </div>
             </div>
             <div className="flex space-x-0 justify-center items-center text-gray-600">
-              <button type='button' className='bg-[#9c379a] text-white p-1' >
+              <button type='button' className='bg-[#9c379a] text-white p-1' onClick={() => decrementQuantity(index)}>
                 <FaMinus />
               </button>
-              <input value={item.quantity} className='w-8 text-center'></input>
-              <button type='button' onClick={addQty} className='bg-[#9c379a] text-white p-1'>
+              <input value={item.quantity} className='w-8 text-center' onChange={(e) => handleQuantityChange(index, parseInt(e.target.value))}></input>
+              <button type='button' className='bg-[#9c379a] text-white p-1' onClick={() => incrementQuantity(index)}>
                 <FaPlus />
               </button>
             </div>

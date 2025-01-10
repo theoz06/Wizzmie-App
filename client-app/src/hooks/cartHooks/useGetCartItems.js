@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import cartService from "@/services/cartService";
 
 
@@ -8,10 +8,8 @@ const useGetCartItems = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const getCartItems = async (tableNumber, customerId) => {
+    const getCartItems = useCallback(async (tableNumber, customerId) => {
         setIsLoading(true);
-        setError(null);
-
         try {
             const res = await cartService.getCart(tableNumber, customerId);
             setCartData(res);
@@ -22,11 +20,8 @@ const useGetCartItems = () => {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, []) 
 
-    useEffect(() => {
-        getCartItems();
-    }, []);
 
 
     return {
