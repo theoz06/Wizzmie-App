@@ -7,6 +7,7 @@ const useGetCartItems = () => {
     const [cartData, setCartData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [totalItem, setTotalItem] = useState(0);
 
     const getCartItems = useCallback(async (tableNumber, customerId) => {
         setIsLoading(true);

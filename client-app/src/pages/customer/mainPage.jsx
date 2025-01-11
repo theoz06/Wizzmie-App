@@ -41,6 +41,19 @@ const MainPage = () => {
     (menu)=> menu.category.description === activeTab
   );
 
+  useEffect(() => {
+    const initializeCart = async () => {
+      if (tableNumber && custId) {
+        const data = await getCartItems(tableNumber, custId);
+        if (data?.cartItems) {
+          const total = data.cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+          setTotalItemAdded(total);
+        }
+      }
+    };
+
+    initializeCart();
+  }, [tableNumber, custId, getCartItems]);
 
 
   const {addToCart} = useAddToCart();
@@ -62,7 +75,6 @@ const MainPage = () => {
     if (success) {
       const resp = await getCartItems(tableNumber, custId);
       setCartData(resp);
-      console.log("resp :" + JSON.stringify(resp, null, 2))
     }
   }
 
@@ -72,6 +84,11 @@ const MainPage = () => {
       setTotalItemAdded(total);
     }
   }, [cartData]);
+
+
+  const handleCartClick = () => {
+    router.push(`/customer/cartPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`);
+  };
 
   return (
     <CustomerLayout>
@@ -148,8 +165,11 @@ const MainPage = () => {
           </div>
         ))}
       </section>
-      <footer className="fixed z-[1] bottom-1 left-0 max-h-20 w-full px-6 ">
-        <button type="button" onClick={async () => await getCartItems(tableNumber, custId) && router.push(`/customer/cartPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`)} className="bg-[#9c379a] text-white text-md font-bold w-full py-3 px-6 rounded-md flex justify-between items-center">
+      {totalItemAdded === 0 ? (
+        <></>
+      ): (
+        <footer className="fixed z-[1] bottom-1 left-0 max-h-20 w-full px-6 ">
+        <button type="button" onClick={handleCartClick} className="bg-[#9c379a] text-white text-md font-bold w-full py-3 px-6 rounded-md flex justify-between items-center">
           <p>Lihat Keranjang</p>
           <div className="relative flex items-center">
             <BsCart3 className="text-2xl"/>
@@ -157,6 +177,7 @@ const MainPage = () => {
           </div>
         </button>
       </footer>
+      )}
     </CustomerLayout>
   );
 };

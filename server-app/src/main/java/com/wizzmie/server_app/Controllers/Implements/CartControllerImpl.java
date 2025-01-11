@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -58,8 +59,18 @@ public class CartControllerImpl {
         }
     }
 
+    @PutMapping("/cart/update/{menuId}")
+    public ResponseEntity<String> updateQty(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @PathVariable Integer menuId, @RequestParam Integer newQuantity){
+        try {
+            cartServiceImpl.updateQty(session, tableNumber, customerId, menuId, newQuantity);
+            return new ResponseEntity<>("Quantity updated", HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatus());
+        }
+    }
+
     @DeleteMapping("/cart/remove/{menuId}")
-    public ResponseEntity<String> removeFromCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @RequestParam Integer menuId) {
+    public ResponseEntity<String> removeFromCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @PathVariable Integer menuId) {
         try {
             cartServiceImpl.removeFromCart(session, tableNumber, customerId, menuId);
             return new ResponseEntity<>("Item removed from cart", HttpStatus.OK);
