@@ -1,5 +1,6 @@
 package com.wizzmie.server_app.Controllers.Implements;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,12 +48,18 @@ public class OrderController {
 
 
     @PostMapping("/customer/create-order/{tableNumber}/{customerId}")
-    public ResponseEntity<String> createOrder(HttpSession session, @PathVariable Integer tableNumber, @PathVariable Integer customerId){
+    public ResponseEntity<Map<String, Object>> createOrder(HttpSession session, @PathVariable Integer tableNumber, @PathVariable Integer customerId){
         try {
-            orderServiceImpl.createOrder(session, tableNumber, customerId);
-            return ResponseEntity.ok("Order Created!");
+            Map<String, Object> res = new HashMap<>();
+            Orders orders = orderServiceImpl.createOrder(session, tableNumber, customerId);
+            res.put("orders", orders);
+            res.put("message", "Order Created");
+            return new  ResponseEntity<>(res, HttpStatus.OK);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>("Order Failed!", e.getStatus());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status_code", 400);
+            errorResponse.put("message", "Bad request: " + e.getMessage());
+            return new ResponseEntity<>(errorResponse, e.getStatus());
         }
     }
 
