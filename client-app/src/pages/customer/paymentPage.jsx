@@ -1,10 +1,21 @@
 import CustomerLayout from "@/components/layout/CustomerLayout";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import {useRouter} from "next/router" 
 import React from "react";
 import { useState } from "react";
 import { FaRegCheckCircle } from "react-icons/fa";
 
 const PaymentPage = () => {
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tableNumber = searchParams.get("table");
+  const custName = searchParams.get("CustomerName");
+  const custId = searchParams.get("CustomerId");
+  const custPhone = searchParams.get("CustomerPhone");
+  const totalAmount = searchParams.get("Tpay");
+
   const [paid, setPaid] = useState(false);
 
   return (
@@ -25,7 +36,7 @@ const PaymentPage = () => {
           </article>
           <figure className="flex flex-col items-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
             <h2 className=" font-bold text-3xl sm:text-lg md:text-xl text-gray-900">
-              Rp. 150.000
+              Rp. {Number(totalAmount).toLocaleString("id-ID")}
             </h2>
             <Image
               width={100}

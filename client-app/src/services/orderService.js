@@ -38,7 +38,21 @@ const updateStatusOrder = async (orderId, changedBy) => {
   } catch (error) {
     throw error;
   }
-} 
+}
+
+const createOrder = async (tableNumber, customerId) => {
+  try {
+    const response = await apiClient.post(`/order/customer/create-order/${tableNumber}/${customerId}`)
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default {getAllOrders, updateStatusOrder, getAllActiveOrdersKitchen, getAllActiveOrdersPelayan}
+export default {
+  getAllOrders, 
+  updateStatusOrder, 
+  getAllActiveOrdersKitchen, 
+  getAllActiveOrdersPelayan, 
+  createOrder}

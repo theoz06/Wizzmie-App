@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import useGetCartItems from "@/hooks/cartHooks/useGetCartItems";
 import { FaChevronLeft } from "react-icons/fa";
+import useCreateOrder from "@/hooks/orderHooks/useCreateOrder";
 
 const ConfirmPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -23,6 +24,7 @@ const ConfirmPage = () => {
   const [ppnAmount, setPpnAmount] = useState(0);
 
   const { getCartItems } = useGetCartItems();
+  const {isLoading, error, createOrder} = useCreateOrder;
 
   useEffect(() => {
     const initializeData = async () => {
@@ -60,8 +62,14 @@ const ConfirmPage = () => {
     router.back();
   };
 
-  const confirmHandler = () => {
-    router.push(`/customer/paymentPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`);
+  const confirmHandler = async () => {
+    try {
+      const res = await createOrder(tableNumber, custId);
+      
+    } catch (error) {
+      
+    }
+    router.push(`/customer/paymentPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}&Tpay=${totalPayment}`);
   }
 
   return (
@@ -73,9 +81,9 @@ const ConfirmPage = () => {
         <h2>Konfirmasi</h2>
       </header>
 
-      <section className="fixed top-[66px] left-0 bottom-[64px] w-full bg-transparent text-white p-4 overflow-y-auto">
+      <section className="fixed top-[75px] left-0 bottom-[64px] w-full bg-transparent text-white p-4 overflow-y-auto">
         <div className="bg-[#EB65AE] p-4 rounded-md shadow-md font-bold">
-          <h3>Data Pembeli</h3>
+          <h3 className="absolute top-[-10px] left-7 p-[3px] bg-[#EB65AE] border-4 border-[#D53A8E] rounded-lg font-bold">Data Pembeli</h3>
           <div>
             <p>No. Meja: {tableNumber}</p>
             <p>Nama: {custName}</p>
@@ -125,16 +133,16 @@ const ConfirmPage = () => {
           <div className="mt-3">
             <div className="flex justify-between">
               <p>Total Harga</p>
-              <p>Rp. {totalPrice}</p>
+              <p>Rp. {Number(totalPrice).toLocaleString("id-ID")}</p>
             </div>
             <div className="flex justify-between">
               <p>PPN 10%</p>
-              <p>Rp. {ppnAmount}</p>
+              <p>Rp. {Number(ppnAmount).toLocaleString("id-ID")}</p>
             </div>
             <hr className="text-white font-bold w-full text-2xl my-2"></hr>
             <div className="flex justify-between text-lg">
               <p>Total Pembayaran</p>
-              <p>Rp. {totalPayment}</p>
+              <p>Rp. {Number(totalPayment).toLocaleString("id-ID")}</p>
             </div>
           </div>
         </div>

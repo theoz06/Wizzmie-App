@@ -68,9 +68,7 @@ public class CartServiceImpl {
 
     public void removeFromCart(HttpSession session, Integer tableNumber, Integer customerId, Integer menuId){
         Cart cart = getCart(session, tableNumber, customerId);
-        System.out.println( "items before : " + cart.getCartItems());
         cart.getCartItems().removeIf(item -> item.getMenuId().equals(menuId));
-        System.out.println( "items : " + cart.getCartItems());
 
         String sessionKey = String.format(CART_SESSION_KEY, tableNumber, customerId);
         session.setAttribute(sessionKey, cart);

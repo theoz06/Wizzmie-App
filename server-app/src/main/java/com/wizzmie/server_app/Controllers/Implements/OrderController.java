@@ -47,7 +47,7 @@ public class OrderController {
 
 
     @PostMapping("/customer/create-order/{tableNumber}/{customerId}")
-    public ResponseEntity<String> createOrder(HttpSession session, Integer tableNumber, Integer customerId){
+    public ResponseEntity<String> createOrder(HttpSession session, @PathVariable Integer tableNumber, @PathVariable Integer customerId){
         try {
             orderServiceImpl.createOrder(session, tableNumber, customerId);
             return ResponseEntity.ok("Order Created!");

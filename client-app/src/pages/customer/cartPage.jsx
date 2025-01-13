@@ -102,11 +102,15 @@ const CartPage = () => {
     const updatedCart = [...localCart];
     updatedCart[index].quantity += 1;
     const newQty = updatedCart[index].quantity
+
+    const param = new FormData();
+    param.append("newQuantity", newQty);
+
     setLocalCart(updatedCart);
 
     try {
       const menuId =  updatedCart[index].menuId
-      const isUpdate = await updateCart(tableNumber, custId, menuId, {newQuantity: newQty});
+      const isUpdate = await updateCart(tableNumber, custId, menuId, param);
       if(!isUpdate){
         const revertCart = [...localCart];
         revertCart[index].quantity -= 1;
@@ -225,7 +229,7 @@ const CartPage = () => {
                   {item.menuName}
                 </h3>
                 <p className="text-gray-100 font-bold text-xs">
-                  {item.price}
+                  {Number(item.price).toLocaleString("id-ID")}
                 </p>
               </div>
             </div>

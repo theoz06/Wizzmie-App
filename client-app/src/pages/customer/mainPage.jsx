@@ -144,11 +144,11 @@ const MainPage = () => {
               <div className="space-y-1 m-2 p-2 flex-1 min-w-0">
                 <h3 className="font-bold text-md text-white whitespace-normal break-words truncate">
                   {menu.name}{" "}
-                  {menu.description === "" ? "" : "( Rp." + menu.price + ")"}
+                  {menu.description === "" ? "" : "( Rp." + Number(menu.price).toLocaleString("id-ID") + ")"}
                 </h3>
                 <p className="text-gray-100 text-xs whitespace-normal break-words">
                   <i>
-                    {menu.description === "" ? menu.price : menu.description}
+                    {menu.description === "" ? Number(menu.price).toLocaleString("id-ID") : menu.description}
                   </i>
                 </p>
               </div>
