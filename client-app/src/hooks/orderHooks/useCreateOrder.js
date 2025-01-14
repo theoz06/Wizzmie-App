@@ -10,7 +10,7 @@ const useCreateOrder = () => {
         seterror(null);
 
         try {
-            await orderService.createOrder(tableNUmber,customerId);
+            return await orderService.createOrder(tableNUmber,customerId);
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err.message || "Create order Failed."
             seterror(errorMessage);

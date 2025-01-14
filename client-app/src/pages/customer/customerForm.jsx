@@ -34,13 +34,6 @@ const CustomerForm = () => {
     }));
   };
 
-  const handleReferenceClick = (ref) => {
-    setCustomerData((prevData) => ({
-      ...prevData,
-      menuRef: ref,
-    }));
-    console.log(customerData);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,7 +136,10 @@ const CustomerForm = () => {
                     <button
                       key={category.id}
                       type="button"
-                      onClick={() => handleReferenceClick(category.id)}
+                      onClick={() => setCustomerData(prev => ({
+                        ...prev,
+                        menuRef: category.id
+                      }))}
                       className={`p-1 rounded-md border-2 ${
                         customerData.menuRef === category.id
                           ? "bg-[#754985] text-white border-[#754985]"

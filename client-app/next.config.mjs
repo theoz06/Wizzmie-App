@@ -17,6 +17,12 @@ const nextConfig = {
           port: '8000', // Sesuaikan dengan port server API Anda
           pathname: '/api/images/**', // Path sesuai dengan lokasi gambar Anda
         },
+        {
+          protocol: "https",
+          hostname: "api.sandbox.midtrans.com",
+          port: "",
+          pathname: "/v2/qris/**"
+        },
       ],
     },
   };

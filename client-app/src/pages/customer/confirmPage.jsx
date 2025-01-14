@@ -24,7 +24,7 @@ const ConfirmPage = () => {
   const [ppnAmount, setPpnAmount] = useState(0);
 
   const { getCartItems } = useGetCartItems();
-  const {isLoading, error, createOrder} = useCreateOrder;
+  const {isLoading, error, createOrder} = useCreateOrder();
 
   useEffect(() => {
     const initializeData = async () => {
@@ -65,11 +65,13 @@ const ConfirmPage = () => {
   const confirmHandler = async () => {
     try {
       const res = await createOrder(tableNumber, custId);
-      
+      if(res?.orders?.id){
+        router.push(`/customer/paymentPage?table=${res?.orders?.tableNumber}&CustomerId=${res?.orders?.customer?.id}&&orderId=${res?.orders?.id}&Tpay=${res?.orders?.totalAmount}`);
+      }
     } catch (error) {
-      
+      console.log("err: " + error)
     }
-    router.push(`/customer/paymentPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}&Tpay=${totalPayment}`);
+    
   }
 
   return (

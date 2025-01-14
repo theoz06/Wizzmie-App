@@ -175,18 +175,20 @@ public class PaymentServiceImpl {
             //Transaction
             Map<String, Object> transactionDetails = new HashMap<>();
             transactionDetails.put("order_id", order.getId().toString());
-            transactionDetails.put("gross_amount", order.getTotalAmount().toString());
-            chargeParams.put("transaction_details", transactionDetails);
+            transactionDetails.put("gross_amount", order.getTotalAmount().intValue());
+            
 
             //Customer Details
             Map<String, Object> customerDetails = new HashMap<>();
             customerDetails.put("first_name", order.getCustomer().getName().toString());
             customerDetails.put("phone", order.getCustomer().getPhone().toString());
-            chargeParams.put("customer_details", customerDetails);
+     
 
             chargeParams.put("transaction_details", transactionDetails);
             chargeParams.put("customer_details", customerDetails);
             chargeParams.put("payment_type", "qris");
+
+            System.out.println("Request to Midtrans: " + new JSONObject(chargeParams).toString());
 
             JSONObject result = CoreApi.chargeTransaction(chargeParams);
             JSONObject jsonResult = new JSONObject(result.toString());
@@ -209,6 +211,10 @@ public class PaymentServiceImpl {
             return ("QRIS URL not found");
 
         } catch (MidtransError e) {
+            System.err.println("Midtrans Error Details:");
+            System.err.println("Message: " + e.getMessage());
+            System.err.println("Status Code: " + e.getStatusCode());
+            System.err.println("Response Body: " + e.getResponseBody());
             e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -252,6 +258,7 @@ public class PaymentServiceImpl {
                     throw new RuntimeException("Unknown transaction status: " + transactionStatus);
             }
         } catch (MidtransError e) {
+            
             e.printStackTrace();
             response.put("status_code", 500);
             response.put("transaction_status", "error");
