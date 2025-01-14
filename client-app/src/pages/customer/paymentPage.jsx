@@ -50,14 +50,14 @@ const PaymentPage = () => {
           const res = await checkStatusPaid(orderId);
           console.log("res : "  + JSON.stringify(res, null,2))
           if(res){
-            if (res?.transaction_status === "settlement" && res?.status_code === "200"){
+            if (res?.transaction_status === "settlement" && res?.status_code === 200){
               setPaid(true);
-
               clearInterval(intervalId);
-            }else if(res?.transaction_status === "pending" && res?.status_code === "200"){
+            }else if(res?.transaction_status === "pending" && res?.status_code === 200){
               setPaid(false);
             }else{
               setPaid(false);
+              clearInterval(intervalId);
             }
           }
         } catch (error) {
@@ -73,7 +73,7 @@ const PaymentPage = () => {
         clearInterval(intervalId);
       }
     };
-  }, [orderId, checkStatusPaid]);
+  }, [orderId,setPaid, checkStatusPaid]);
 
   const qRCodeDownloader = (e) => {
 
@@ -87,7 +87,8 @@ const PaymentPage = () => {
   }
 
   const checkStatusOrder = () =>{
-    router.push(`/customer/statusPage?table=${tableNumber}&CustomerId=${custId}&&orderId=${orderId}`)
+
+    router.push(`/customer/statusPage?table=${tableNumber}&CustomerId=${custId}&orderId=${orderId}`)
   }
 
   return (
@@ -152,8 +153,7 @@ const PaymentPage = () => {
         <button
           type="button"
           className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4 rounded-md"
-          onClick={paid ? () => checkStatusOrder : qRCodeDownloader}
-          disabled={isLoading || !qrisUrl}
+          onClick={paid ? checkStatusOrder : qRCodeDownloader}
         >
           {paid ? "Cek Status Pesanan" : "Download QRIS"}
         </button>
