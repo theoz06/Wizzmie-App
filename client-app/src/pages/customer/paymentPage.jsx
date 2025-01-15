@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { useState } from "react";
-import { FaRegCheckCircle } from "react-icons/fa";
+import { FaRegCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react"; 
 import useCheckStatusPaid from "@/hooks/paymentHooks/useCheckStatusPaid";
 
@@ -24,76 +24,120 @@ const PaymentPage = () => {
 
   const { isLoading, error, generateQRIS } = useGenerateQris();
   const {checkStatusPaid} = useCheckStatusPaid();
-  const [paid, setPaid] = useState(false);
+  const [paid, setPaid] = useState("");
 
   useEffect(() => {
-    const generate = async () => {
-      if (orderId && !hasGenerated.current) {
-        try {
-          const data = await generateQRIS(orderId);
+    let isMounted = true;
+
+    const generateQrisCode = async () => {
+      if (!orderId || qrisUrl) return; 
+
+      try {
+        const data = await generateQRIS(orderId);
+        if (isMounted && data) {
+          console.log("Generated QRIS URL:", data);
           setQrisUrl(data);
-          hasGenerated.current = true;
-        } catch (error) {
-          console.log("Error Generate QRIS: " + error);
         }
+      } catch (error) {
+        console.error("Error Generate QRIS:", error);
       }
     };
-    generate();
-  }, [orderId, generateQRIS]);
+
+    generateQrisCode();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [orderId, generateQRIS, qrisUrl]);
+
+    useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   useEffect(()=> {
     let intervalId;
+    let isSubscribed = true;
 
     const checkStatus = async () => {
-      if (orderId) {
+      if (!qrisUrl || !orderId) return;
+
+      
         try {
           const res = await checkStatusPaid(orderId);
+          if (!isSubscribed) return;
           console.log("res : "  + JSON.stringify(res, null,2))
           if(res){
             if (res?.transaction_status === "settlement" && res?.status_code === 200){
-              setPaid(true);
+              setPaid(res?.transaction_status);
               clearInterval(intervalId);
             }else if(res?.transaction_status === "pending" && res?.status_code === 200){
-              setPaid(false);
+              setPaid(res?.transaction_status);
             }else{
-              setPaid(false);
+              setPaid(res?.transaction_status);
               clearInterval(intervalId);
+
             }
           }
         } catch (error) {
           console.log ("error :" + error);
+          if (!isSubscribed) return;
+          clearInterval(intervalId);
+          
         }
       }
-    }
 
-    intervalId = setInterval(checkStatus, 1000);
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if(qrisUrl) {
+      intervalId = setInterval(checkStatus, 1000);
       }
+    
+      return () => {
+        isSubscribed = false;
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
     };
-  }, [orderId,setPaid, checkStatusPaid]);
+  }, [qrisUrl, orderId, checkStatusPaid]);
 
   const qRCodeDownloader = (e) => {
-
-    const canvas = qrCodeRef.current.querySelector("canvas");
-    const image = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = image;
-    link.download = `QRIS-table-${tableNumber}.png`;
-    link.click();
-
-  }
+    try {
+      const canvas = qrCodeRef.current?.querySelector("canvas");
+      if (!canvas) {
+        console.error("Canvas element not found");
+        return;
+      }
+      
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `QRIS-table-${tableNumber || 'unknown'}.png`;
+      link.click();
+    } catch (error) {
+      console.error("Error downloading QR code:", error);
+    }
+  };
 
   const checkStatusOrder = () =>{
-
+    if (!orderId) return;
     router.push(`/customer/statusPage?table=${tableNumber}&CustomerId=${custId}&orderId=${orderId}`)
+  }
+
+  const backToFormPage = () => {
+    router.push(`/customer/customerForm?table=${tableNumber}`);
   }
 
   return (
     <CustomerLayout>
-      {paid ? (
+      {paid === "settlement" ? (
         <figure className="relative top-[100px] flex flex-col items-center justify-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
           <p className="absolute top-[-35px] text-5xl text-green-500 bg-white rounded-full p-2 border-b-2 border-green-500">
             <FaRegCheckCircle />
@@ -102,7 +146,7 @@ const PaymentPage = () => {
             Pembayaran Berhasil
           </h2>
         </figure>
-      ) : (
+      ) : paid === "pending" || paid === "" ? (
         <>
           <article className="space-y-4 m-5 sm:m-8 md:m-14 text-white text-sm text-center">
             <p>Silahkan lakukan pembayaran dan selesaikan proses pembayaran dalam waktu 15 menit.</p>
@@ -127,13 +171,7 @@ const PaymentPage = () => {
               </div>
 
             ) : (
-              <Image
-                width={100}
-                height={100}
-                alt="QRIS"
-                src="/Images/qrcode.png"
-                className="h-[250px] w-[250px]"
-              />
+              error
             )}
           </figure>
           <article className=" m-5 sm:m-8 md:m-14 text-white">
@@ -148,14 +186,24 @@ const PaymentPage = () => {
             </ol>
           </article>
         </>
+      ): (
+        <figure className="relative top-[100px] flex flex-col items-center justify-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
+          <p className="absolute top-[-35px] text-5xl text-red-500 bg-white rounded-full p-2 border-b-2 border-red-500">
+          <FaTimesCircle />
+          </p>
+          <h2 className=" font-bold text-2xl sm:text-lg md:text-xl text-gray-600 text-center">
+            Pembayaran Gagal
+          </h2>
+        </figure>
       )}
       <footer className="fixed z-[1] bottom-0 left-0 max-h-20 w-full ">
         <button
           type="button"
           className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4 rounded-md"
-          onClick={paid ? checkStatusOrder : qRCodeDownloader}
+          onClick={paid ==="settlement" ? checkStatusOrder : paid === "pending" ? qRCodeDownloader : backToFormPage }
+          disabled={isLoading || (!paid && !qrisUrl)}
         >
-          {paid ? "Cek Status Pesanan" : "Download QRIS"}
+          {paid === "settlement" ? "Cek Status Pesanan" : paid === "pending" ? "Download QRIS" : "Pesan Kembali"}
         </button>
       </footer>
     </CustomerLayout>

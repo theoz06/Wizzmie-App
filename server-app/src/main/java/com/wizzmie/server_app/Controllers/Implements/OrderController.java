@@ -109,6 +109,26 @@ public class OrderController {
             return new ResponseEntity<>(e.getMessage(), e.getStatus());
         }
     }
+
+    @GetMapping("/customer/{customerId}/table/{tableNumber}/orders/{orderId}/status")
+    public ResponseEntity<Map<String, Object>> getOrderStatus(@PathVariable Integer orderId , @PathVariable Integer customerId, @PathVariable Integer tableNumber){
+        try {
+            Map<String, Object> response = new HashMap<>();
+
+            Orders orders = orderServiceImpl.getOrderStatus(orderId, customerId, tableNumber);
+            response.put("Order", orders);
+            response.put("message", "Order Found!");
+            response.put("status_code", HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            errorResponse.put("status_code", e.getStatus().value());
+            errorResponse.put("error", e.getStatus().getReasonPhrase());
+            return new ResponseEntity<>(errorResponse, e.getStatus());
+        }
+    }
+
     
 
 }

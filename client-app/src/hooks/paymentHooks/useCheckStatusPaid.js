@@ -1,11 +1,12 @@
 import paymentService from "@/services/paymentService";
 import { useState } from "react"
+import { useCallback } from "react";
 
 const useCheckStatusPaid = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const checkStatusPaid = async (orderId) => {
+    const checkStatusPaid = useCallback(async (orderId) => {
         setIsLoading(true);
         setError(null);
 
@@ -16,10 +17,10 @@ const useCheckStatusPaid = () => {
             const errorMessage = err?.response?.data?.message || err?.response?.message || "Failed to get status paid."
             setError(errorMessage);
             setIsLoading(false);
-        }finally{
+        } finally {
             setIsLoading(false);
         }
-    } 
+    }, []);
 
     return {
         isLoading, error, checkStatusPaid

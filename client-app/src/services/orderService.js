@@ -49,10 +49,21 @@ const createOrder = async (tableNumber, customerId) => {
   }
 }
 
+const getOrderStatus = async (orderId, tableNumber, customerId) => {
+  try {
+    const response = await apiClient(`/order/customer/${customerId}/table/${tableNumber}/orders/${orderId}/status`);
+    return response.data;
+  } catch (error) {
+   throw error; 
+  }
+}
+
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
   getAllOrders, 
   updateStatusOrder, 
   getAllActiveOrdersKitchen, 
   getAllActiveOrdersPelayan, 
-  createOrder}
+  createOrder,
+  getOrderStatus
+}

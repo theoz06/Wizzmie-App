@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
 import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
@@ -156,6 +157,19 @@ public class OrderServiceImpl {
 
         return "Order Status Updated to: " + order.getOrderStatus().getDescription();
     
+    }
+
+    public Orders getOrderStatus(Integer orderId, Integer customerId, Integer tableNumber){
+
+        Orders orders = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order Not Found!"));
+        
+        if (orders.getCustomer().getId().equals(customerId) && orders.getTableNumber().equals(tableNumber)){
+            return orders;
+
+        }else{
+            throw new RuntimeException("Order Not Found!");
+        }
+        
     }
 
     private void updateStatus(Orders order, Integer newStatusId){

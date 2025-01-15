@@ -225,7 +225,7 @@ const CartPage = () => {
                 }}
               />
               <div className="space-y-1 m-0">
-                <h3 className="font-bold text-lg text-white">
+                <h3 className="font-bold text-md text-white">
                   {item.menuName}
                 </h3>
                 <p className="text-gray-100 font-bold text-xs">

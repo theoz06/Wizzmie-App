@@ -7,6 +7,11 @@ const useGetAllActiveOrdersKitchen = () => {
   const [activeOrders, setActiveOrders] = useState([]);
 
   const transformeOrderData = (fetchedData) => {
+    if (!Array.isArray(fetchedData)) {
+      console.warn('Received non-array data:', fetchedData);
+      return [];
+    }
+
     return fetchedData.map((order)=>({
         id: order.id,
         table: order.tableNumber,

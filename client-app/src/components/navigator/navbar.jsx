@@ -34,10 +34,8 @@ const Navbar = () => {
   const toggleMenu = (e) => {
     e.preventDefault();
     setIsOpen(!isOpen);
-    console.log(isOpen);
   };
 
-  // Tutup menu ketika klik di luar area menu
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -45,63 +43,70 @@ const Navbar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   return (
-    <div
-      className={`navbar sticky top-0 flex justify-between w-svw items-center px-6 py-3 ${
-        user?.role.toLowerCase() === "admin"
-          ? `bg-[#754985] text-white`
-          : `bg-gray-900 text-white`
-      }`}
-    >
+    <nav className={`flex h-16 items-center justify-between px-6 ${
+      user?.role.toLowerCase() === "admin"
+        ? `bg-[#754985] text-white`
+        : `bg-gray-900 text-white`
+    }`}>
       <Link className="flex items-center" href="#">
-        <Image width="40" height="40" src="/images/logo-wizzmie.webp" alt="logo"  />
-        <div
-          className={`ml-4 text-lg font-bold ${
-            user?.role.toLowerCase() === "pelayan" ? "text-[14px]" : "text-lg"
-          }`}
-        >
-          {user?.role.toLowerCase() != "pelayan" ? user?.role + " " + "DASHBOARD" || "Admin Dashboard" : "READY ORDERS"}
+        <Image 
+          width="40" 
+          height="40" 
+          src="/images/logo-wizzmie.webp" 
+          alt="logo"
+          className="w-10 h-10" // Tetapkan ukuran yang fixed
+        />
+        <div className={`ml-4 font-bold ${
+          user?.role.toLowerCase() === "pelayan" ? "text-sm" : "text-lg"
+        }`}>
+          {user?.role.toLowerCase() !== "pelayan" 
+            ? `${user?.role || 'Admin'} DASHBOARD` 
+            : "READY ORDERS"}
         </div>
       </Link>
 
       {user?.role.toLowerCase() === "pelayan" ? (
-        <div className=" block md:hidden" ref={menuRef}>
-          <button type="button" onClick={toggleMenu} className="text-white">
-            {isOpen ? (
-              <MdOutlineClose className="bg-gray-800" />
-            ) : (
-              <GiHamburgerMenu />
-            )}
-          </button>
-          <div
-            className={`menu right-0 mt-5 bg-gray-900 rounded-md max-w-36 min-w-28 text-right p-3 space-y-2 text-white ${
-              isOpen ? "block" : "hidden"
-            }`}
+        <div className="relative block md:hidden" ref={menuRef}>
+          <button 
+            type="button" 
+            onClick={toggleMenu}
+            className="p-2 hover:bg-gray-800 rounded-md"
           >
-            <div className="menu-item border-b-2">{user?.name || "Admin"}</div>
-            <button onClick={LogOutHandler} className="text-red-500 menu-item">
-              Logout
-            </button>
-          </div>
+            {isOpen ? <MdOutlineClose size={24} /> : <GiHamburgerMenu size={24} />}
+          </button>
+          
+          {isOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-lg py-1">
+              <div className="px-4 py-2 text-sm border-b border-gray-700">
+                {user?.name || "Admin"}
+              </div>
+              <button 
+                onClick={LogOutHandler}
+                className="w-full px-4 py-2 text-sm text-left text-red-500 hover:bg-gray-800"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex items-center space-x-4">
-          <div>{user?.name || "Admin"}</div>
+          <span className="font-medium">{user?.name || "Admin"}</span>
           <button
             onClick={LogOutHandler}
-            className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-black"
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
           >
             Logout
           </button>
         </div>
       )}
-    </div>
+    </nav>
   );
 };
 
