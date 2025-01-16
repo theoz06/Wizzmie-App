@@ -48,7 +48,8 @@ public class PaymentServiceImpl {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-
+    @Autowired
+    private RatingServiceImpl ratingServiceImpl;
 
 
     private String paymentType = "";
@@ -278,6 +279,8 @@ public class PaymentServiceImpl {
         order.setOrderStatus(updateStatusOrder);
         
         orderRepository.save(order);
+
+        ratingServiceImpl.updateCustomerRating(order.getCustomer().getId());
 
         System.out.println("Sending WebSocket messages for order: " + orderId);
         try {
