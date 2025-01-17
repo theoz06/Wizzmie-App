@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/layout/adminLayout";
+import AdminLayout from "@/components/layout/AdminLayout";
 import React, { useEffect } from "react";
 import Breadcrumb from "@/components/breadcrumb";
 import { IoMdAdd } from "react-icons/io";

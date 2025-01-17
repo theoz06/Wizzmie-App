@@ -1,4 +1,4 @@
-import AdminLayout from "@/components/layout/adminLayout";
+import AdminLayout from "@/components/layout/AdminLayout";
 import Breadcrumb from "@/components/breadcrumb";
 import React from "react";
 import { useState } from "react";
