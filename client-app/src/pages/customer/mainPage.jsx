@@ -13,6 +13,7 @@ import useAddToCart from "@/hooks/cartHooks/useAddToCart";
 import useGetRecommendationMenu from "@/hooks/menuHooks/useGetRecommendationMenu";
 import { useRef } from "react";
 
+
 const MainPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -150,6 +151,8 @@ const MainPage = () => {
     );
   };
 
+  
+
   return (
     <CustomerLayout>
       <header className="fixed top-0 z-[2] left-0 bg-[#9c379a] p-4 flex justify-between items-center w-full border-2 border-[#9c379a]">
@@ -192,7 +195,6 @@ const MainPage = () => {
           </ul>
         </div>
       </nav>
-
       <section className="fixed z-[1] space-y-6 top-[200px] bottom-0 left-0 w-full p-2 overflow-y-auto">
         {activeTab === "Rekomendasi"
           ? recommendation?.map((menu, index) => (
