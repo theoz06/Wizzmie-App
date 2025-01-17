@@ -26,13 +26,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         
         
-        Optional<User> user = userRepository.findByNik(nik);
+        User user = userRepository.findByNik(nik).orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
-        GrantedAuthority authority = new SimpleGrantedAuthority(user.get().getRole().getUsersRole().toUpperCase());
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getUsersRole().toUpperCase());
 
         return org.springframework.security.core.userdetails.User
-            .withUsername(user.get().getNik())
-            .password(user.get().getPassword())
+            .withUsername(user.getNik())
+            .password(user.getPassword())
             .authorities(authority)
             .build();
     }

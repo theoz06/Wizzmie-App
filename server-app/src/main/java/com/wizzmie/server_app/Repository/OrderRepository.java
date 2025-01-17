@@ -9,7 +9,7 @@ import com.wizzmie.server_app.Entity.Orders;
 
 public interface OrderRepository extends JpaRepository<Orders, Integer> {
 
-    @Query(value ="SELECT * FROM Orders o "+
+    @Query(value ="SELECT DISTINCT o.* FROM Orders o "+
            "JOIN order_item oi ON o.id = oi.order_id " +
            "WHERE o.paid = ?1", 
            nativeQuery = true)
@@ -20,5 +20,7 @@ public interface OrderRepository extends JpaRepository<Orders, Integer> {
        "LEFT JOIN FETCH oi.menu " +
        "WHERE o.orderStatus.id = ?1")
     List<Orders> findByOrderStatusId(Integer status_id);
+
+    List<Orders> findByCustomerId(Integer customerId);
     
 }

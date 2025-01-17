@@ -47,7 +47,7 @@ public class UserServiceImpl {
 		Optional<User> users = userRepository.findByNik(generatedNik);
 		
 		if(users.isPresent()){
-			throw new RuntimeException("users with nik : " + userRequest.getNik() + "already exist!");
+			throw new RuntimeException("users with nik : " + generatedNik + "already exist!");
 		}
 
 		User user = new User();

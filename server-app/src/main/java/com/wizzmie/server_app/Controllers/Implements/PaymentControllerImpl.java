@@ -60,7 +60,7 @@ public class PaymentControllerImpl {
         }
     }
 
-    @GetMapping("/{orderId}/status")
+    @GetMapping("order/{orderId}/status")
     public ResponseEntity<Map<String, Object>> handlerPaymentStatus(@PathVariable Integer orderId){
         try {
             Map<String, Object> res = paymentServiceImpl.handlerPaymentStatus(orderId);

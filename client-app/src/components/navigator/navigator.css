@@ -10,9 +10,22 @@ body{
     margin: 0;
     padding: 0;
     max-height: 100vh;
+    background-color: black;
 }
 
-
-.breadcrumb{
-    padding: -10px;
+.container:focus{
+    outline: none;
 }
+
+@media (max-width: 768px){
+    .menu {
+        position:absolute;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .navbar {
+      padding: 6px 20px;
+    }
+
+  }

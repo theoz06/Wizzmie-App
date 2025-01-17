@@ -2,6 +2,9 @@ package com.wizzmie.server_app.Controllers.Implements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,10 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+
+
 
 import com.wizzmie.server_app.Controllers.GenericController;
 import com.wizzmie.server_app.Controllers.OptionalGenericController;
@@ -22,6 +28,8 @@ import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Services.Implements.MenuServiceImpl;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @AllArgsConstructor
@@ -35,10 +43,7 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
     public ResponseEntity<List<Menu>> getAll() {
         try {
             List<Menu> menus = menuServiceImpl.getAll();
-            if(menus.isEmpty()){
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(menus,HttpStatus.OK);
+            return new ResponseEntity<>(menus, HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(new ArrayList<>() , e.getStatus());
         }
@@ -46,20 +51,46 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
 
     @Override
     @PostMapping("/admin/create")
-    public ResponseEntity<String> createMenu(@RequestBody MenuRequest request) {
+    public ResponseEntity<String> createMenu(@RequestParam("name") String name,
+    @RequestParam("description") String description,
+    @RequestParam("price") Double price,
+    @RequestParam("category_id") Integer categoryId,
+    @RequestParam("isAvailable") Boolean isAvailable,
+    @RequestParam("image") MultipartFile image) {
         try {
-            menuServiceImpl.CreateMenu(request);
+            MenuRequest request = new MenuRequest();
+            request.setName(name);
+            request.setDescription(description);
+            request.setPrice(price);
+            request.setCategoryId(categoryId);
+            request.setIsAvailable(isAvailable);
+            
+
+            menuServiceImpl.CreateMenu(request, image);
             return new ResponseEntity<>("Menu Created!", HttpStatus.CREATED);
-        } catch (ResponseStatusException e) {
+        }catch(ResponseStatusException e){
             return new ResponseEntity<>(e.getReason(), e.getStatus());
         }
     }
     
     @Override
     @PutMapping("/admin/update/{id}")
-    public ResponseEntity<String> updateMenu(@PathVariable("id") Integer id, @RequestBody MenuRequest request){
+    public ResponseEntity<String> updateMenu(@PathVariable("id") Integer id, @RequestParam("name") String name,
+        @RequestParam(value="description", required = false) String description,
+        @RequestParam(value="price", required = false) Double price,
+        @RequestParam(value="category_id", required = false) Integer categoryId,
+        @RequestParam(value="isAvailable", required = false) Boolean isAvailable,
+        @RequestParam(value="image", required = false) MultipartFile image){
+
         try {
-            menuServiceImpl.UpdateMenu(id, request);
+            MenuRequest request = new MenuRequest();
+            request.setName(name);
+            request.setDescription(description);
+            request.setPrice(price);
+            request.setCategoryId(categoryId);
+            request.setIsAvailable(isAvailable);
+
+            menuServiceImpl.UpdateMenu(id, request, image);
             return new ResponseEntity<>("Menu Update", HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getReason(), e.getStatus());
@@ -77,6 +108,20 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
         }
     }
 
+    @PutMapping("admin/update-availability/{id}")
+    public ResponseEntity<String> updateAvailablelity(@PathVariable Integer id, @RequestBody Map<String, Boolean> request ){
+        try {
+            Boolean isAvailable = request.get("isAvailable");
+            menuServiceImpl.updateAvailablelity(id, isAvailable);
+
+            return new ResponseEntity<>("Update Status Success!", HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>("Update Status Failed!, Message :"+ e.getReason(), e.getStatus());
+        }
+    }
+
+    
+
     //Not Use
     @Override
     public ResponseEntity<Menu> create(Menu entity) {
@@ -87,9 +132,10 @@ public class MenuController implements GenericController<Menu, Integer>, Optiona
 
     //Not Use
     @Override
-    public ResponseEntity<String> update(Integer id, Menu entity) {
+    public ResponseEntity<Map<String, Object>> update(Integer id, Menu entity) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
+
     
 }

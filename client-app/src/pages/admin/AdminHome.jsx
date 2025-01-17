@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { GrMoney } from "react-icons/gr";
 import { MdPeopleAlt } from "react-icons/md";
 import { IoFastFoodOutline } from "react-icons/io5";
+import withAuth from "@/hoc/protectedRoute";
 
 const AdminHome = () => {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -97,4 +98,4 @@ const AdminHome = () => {
   );
 };
 
-export default AdminHome;
+export default withAuth(AdminHome);
