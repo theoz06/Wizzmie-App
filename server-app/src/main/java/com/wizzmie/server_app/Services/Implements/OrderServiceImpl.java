@@ -5,9 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
@@ -30,19 +29,23 @@ public class OrderServiceImpl {
     private StatusRepository statusRepository;
     private CustomerRepository customerRepository;
     private MenuRepository menuRepository;
+    private SimpMessagingTemplate messagingTemplate;
+
 
 
     public OrderServiceImpl(OrderRepository orderRepository, 
                             MenuRepository menuRepository,
                             OrderItemRepository orderItemRepository, 
                             StatusRepository statusRepository, 
-                            CustomerRepository customerRepository){
+                            CustomerRepository customerRepository,
+                            SimpMessagingTemplate messagingTemplate){
 
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.statusRepository = statusRepository;
         this.customerRepository = customerRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
 
@@ -93,5 +96,50 @@ public class OrderServiceImpl {
         return orders;
     }
 
+    public List<Orders> getReadyToServeOrders(){
+        List<Orders> orders = orderRepository.findByOrderStatusId(3);
+        return orders;
+    }
+
+    public String updateOrderStatus(Integer orderId){
+        
+        Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+
+        Status currentStatus = order.getOrderStatus();
+        if (currentStatus == null || currentStatus.getId() == null) {
+            throw new IllegalArgumentException("Current status or status ID is null for order ID: " + orderId);
+        }
+
+        
+        switch (currentStatus.getId()) {
+            case 2:
+                updateStatus(order, 3);
+
+                //Send Data To Waiters Monitor
+                messagingTemplate.convertAndSend("/server/orders", order);
+
+                //Remove Data From Kitchen Monitor
+                messagingTemplate.convertAndSend("/kitchen/remove-order", order.getId());
+                break;
+            case 3:
+                updateStatus(order, 4);
+                break;
+        
+            default:
+                throw new IllegalArgumentException(
+                    "Invalid status transition for order ID: " + orderId
+            );
+        }
+
+        return "Order Status Updated to: " + order.getOrderStatus().getDescription();
+    
+    }
+
+    private void updateStatus(Orders order, Integer newStatusId){
+       
+        Status newStatus = statusRepository.findById(newStatusId).orElseThrow(()-> new RuntimeException("Status Not Found"));
+        order.setOrderStatus(newStatus);
+        orderRepository.save(order);
+    }
     
 }

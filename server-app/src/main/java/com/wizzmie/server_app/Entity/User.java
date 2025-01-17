@@ -27,7 +27,9 @@ public class User {
     private Integer id;
 
     private String name;
-    private Integer nik;
+    private String nik;
+    private String password;
+
 
     // @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     // @JoinTable(

@@ -1,6 +1,9 @@
 package com.wizzmie.server_app.Controllers.Implements;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,12 +46,19 @@ public class CategoryControllerImpl implements GenericController<Category, Integ
 
     @Override
     @PutMapping("/admin/update/{id}")
-    public ResponseEntity<String> update(@PathVariable Integer id, @RequestBody Category entity) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Integer id, @RequestBody Category entity) {
+
+        Map<String, Object> response = new HashMap<>();
+
         try {
             categoryServiceImpl.update(id, entity);
-            return new ResponseEntity<>("Category is Updated!", HttpStatus.OK);
+            response.put("status_code", 200);
+            response.put("message", "Category is Updated!");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getReason(), e.getStatus());
+            response.put("status_code", 400);
+            response.put("message", e.getReason());
+            return new ResponseEntity<>(response, e.getStatus());
         }
     }
 

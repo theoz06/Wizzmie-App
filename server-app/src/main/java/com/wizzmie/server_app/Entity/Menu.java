@@ -7,6 +7,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.jetbrains.annotations.Nullable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,9 +24,14 @@ public class Menu {
     private Integer id;    
 
     private String name;
+
+    @Nullable
     private String description;
+
     private Double price;
     private String image;
+    private Boolean isAvailable;
+
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)

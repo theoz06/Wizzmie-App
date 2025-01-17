@@ -2,6 +2,7 @@ package com.wizzmie.server_app.Services.Implements;
 
 import java.util.List;
 import java.util.Optional;
+import java.math.BigInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,11 +39,17 @@ public class CategoryServiceImpl implements GenericService<Category, Integer>  {
 
     @Override
     public Category update(Integer id, Category entity) {
-        Category SavedCategory = categoryRepository.findById(id)
+        Category savedCategory = categoryRepository.findById(id)
                                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category is doesn't Exist!"));
 
-        SavedCategory.setDescription(entity.getDescription());
-        return categoryRepository.save(entity);
+        Boolean descriptionExist = categoryRepository.existByDescriptionAndIdNot(entity.getDescription(), id).equals(BigInteger.ONE);
+
+        if(descriptionExist){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category with Description : "+ "'" + entity.getDescription()+ "'" + " is Already Exist!");
+        }
+        
+        savedCategory.setDescription(entity.getDescription());
+        return categoryRepository.save(savedCategory);
     }
 
     @Override
