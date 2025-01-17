@@ -1,5 +1,6 @@
 package com.wizzmie.server_app.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -26,4 +27,5 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
 
     @Query("SELECT COUNT(oi) FROM order_item oi WHERE oi.menu = :menu")
     Long countByMenu(@Param("menu") Menu menu);
+
 }

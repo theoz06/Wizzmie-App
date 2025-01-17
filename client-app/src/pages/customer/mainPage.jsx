@@ -10,8 +10,7 @@ import { useState } from "react";
 import useGetAllMenu from "@/hooks/menuHooks/useGetAllMenu";
 import useGetCartItems from "@/hooks/cartHooks/useGetCartItems";
 import useAddToCart from "@/hooks/cartHooks/useAddToCart";
-
-
+import useGetRecommendationMenu from "@/hooks/menuHooks/useGetRecommendationMenu";
 
 const MainPage = () => {
   const router = useRouter();
@@ -20,33 +19,69 @@ const MainPage = () => {
   const custName = searchParams.get("CustomerName");
   const custId = searchParams.get("CustomerId");
   const custPhone = searchParams.get("CustomerPhone");
- 
-  const url = process.env.NEXT_PUBLIC_API_BASE_URL
+
+  const url = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [cartData, setCartData] = useState([]);
-  const { getCartItems} = useGetCartItems();
+  const { getCartItems } = useGetCartItems();
   const [totalItemAdded, setTotalItemAdded] = useState(0);
 
-  const {categories} = useGetAllCategory();
-  const {menus} = useGetAllMenu();
-  
-  
+  const { categories } = useGetAllCategory();
+  const { menus } = useGetAllMenu();
 
-  const tabs = ["Rekomendasi", ...categories.map((category)=>{
-    return category.description;
-  })];
+  const tabs = [
+    "Rekomendasi",
+    ...categories.map((category) => {
+      return category.description;
+    }),
+  ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-  const menuRecomendation = [];
   const menusFilteredByCategory = menus.filter(
-    (menu)=> menu.category.description === activeTab
+    (menu) => menu.category.description === activeTab
   );
+
+  const {
+    getRecommendationMenu,
+    recommendation,
+    setRecommendation,
+    isLoading,
+    error,
+  } = useGetRecommendationMenu();
+
+  useEffect(() => {
+    const initializeData = async () => {
+      if (custId) {
+        const data = await getRecommendationMenu(custId);
+        if (data) {
+
+          const transformedData = data.map(item => ({
+            id: item.menu.id,
+            name: item.menu.name,
+            description: item.menu.description,
+            price: item.menu.price,
+            image: item.menu.image,
+            isAvailable: item.menu.isAvailable,
+            category: item.menu.category,
+          }));
+          setRecommendation(transformedData);
+
+          console.log( "data: " + data)
+        }
+      }
+    };
+
+    initializeData();
+  }, []);
 
   useEffect(() => {
     const initializeCart = async () => {
       if (tableNumber && custId) {
         const data = await getCartItems(tableNumber, custId);
         if (data?.cartItems) {
-          const total = data.cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+          const total = data.cartItems.reduce(
+            (sum, item) => sum + (item.quantity || 0),
+            0
+          );
           setTotalItemAdded(total);
         }
       }
@@ -55,39 +90,40 @@ const MainPage = () => {
     initializeCart();
   }, [tableNumber, custId, getCartItems]);
 
-
-  const {addToCart} = useAddToCart();
+  const { addToCart } = useAddToCart();
   const addToCartHandler = async (menu) => {
-
     const custId = searchParams.get("CustomerId");
 
     const items = {
-      menuId : menu.id,
-      menuName : menu.name,
-      price : menu.price,
-      imageUrl : menu.image,
-      quantity : 1
-
-    }
+      menuId: menu.id,
+      menuName: menu.name,
+      price: menu.price,
+      imageUrl: menu.image,
+      quantity: 1,
+    };
 
     const success = await addToCart(tableNumber, custId, items);
-    
+
     if (success) {
       const resp = await getCartItems(tableNumber, custId);
       setCartData(resp);
     }
-  }
+  };
 
   useEffect(() => {
     if (cartData.cartItems) {
-      const total = cartData.cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      const total = cartData.cartItems.reduce(
+        (sum, item) => sum + (item.quantity || 0),
+        0
+      );
       setTotalItemAdded(total);
     }
   }, [cartData]);
 
-
   const handleCartClick = () => {
-    router.push(`/customer/cartPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`);
+    router.push(
+      `/customer/cartPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`
+    );
   };
 
   return (
@@ -123,60 +159,112 @@ const MainPage = () => {
           ))}
         </ul>
       </nav>
-      
+
       <section className="fixed z-[1] space-y-6 top-[200px] bottom-0 left-0 w-full p-2 overflow-y-auto">
-        {activeTab === "Rekomendasi" ? menuRecomendation : menusFilteredByCategory.map((menu, index) => (
-          <div
-            key={index}
-            className="container pr-3  bg-[#EB65AE] rounded-l-full rounded-r-md h-20 flex justify-between items-center space-x-2 py-3 shadow-lg"
-          >
-            <div className="flex justify-between items-center space-x-2">
-              <Image
-                width={100}
-                height={100}
-                alt="Logo"
-                src={`${url}/images/${menu.image}`}
-                className="w-20 h-24 mb-1"
-                style={{
-                  objectFit: "contain",
-                }}
-              />
-              <div className="space-y-1 m-2 p-2 flex-1 min-w-0">
-                <h3 className="font-bold text-md text-white whitespace-normal break-words truncate">
-                  {menu.name}{" "}
-                  {menu.description === "" ? "" : "( Rp." + Number(menu.price).toLocaleString("id-ID") + ")"}
-                </h3>
-                <p className="text-gray-100 text-xs whitespace-normal break-words">
-                  <i>
-                    {menu.description === "" ? Number(menu.price).toLocaleString("id-ID") : menu.description}
-                  </i>
-                </p>
-              </div>
-            </div>
-            <div>
-              <button
-                type="button"
-                onClick={()=> addToCartHandler(menu)}
-                className="bg-[#C3046C] text-white p-2 rounded-full border-white border-2"
+        {activeTab === "Rekomendasi"
+          ? recommendation?.map((menu, index) => (
+            <div
+                key={index}
+                className="container pr-3 bg-pink-500 rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg"
               >
-                <FaPlus />
-              </button>
-            </div>
-          </div>
-        ))}
+                <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                  <div className="flex-shrink-0">
+                    <Image
+                      width={100}
+                      height={100}
+                      alt="Logo"
+                      src={`${url}/images/${menu.image}`}
+                      className="w-20 h-20 object-contain"
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-0 py-2 px-3">
+                    <h3 className="font-bold text-md text-white mb-1 line-clamp-2">
+                      {menu.name}{" "}
+                      {menu.description === ""
+                        ? ""
+                        : `( Rp.${Number(menu.price).toLocaleString("id-ID")})`}
+                    </h3>
+                    <p className="text-gray-100 text-xs italic line-clamp-2">
+                      {menu.description === ""
+                        ? Number(menu.price).toLocaleString("id-ID")
+                        : menu.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0 ml-2">
+                  <button
+                    type="button"
+                    onClick={() => addToCartHandler(menu)}
+                    className="bg-pink-700 text-white p-2 rounded-full border-white border-2 hover:bg-pink-800 transition-colors"
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+              </div>
+            ))
+          : menusFilteredByCategory.map((menu, index) => (
+              <div
+                key={index}
+                className="container pr-3 bg-pink-500 rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg"
+              >
+                <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                  <div className="flex-shrink-0">
+                    <Image
+                      width={100}
+                      height={100}
+                      alt="Logo"
+                      src={`${url}/images/${menu.image}`}
+                      className="w-20 h-20 object-contain"
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-0 py-2 px-3">
+                    <h3 className="font-bold text-md text-white mb-1 line-clamp-2">
+                      {menu.name}{" "}
+                      {menu.description === ""
+                        ? ""
+                        : `( Rp.${Number(menu.price).toLocaleString("id-ID")})`}
+                    </h3>
+                    <p className="text-gray-100 text-xs italic line-clamp-2">
+                      {menu.description === ""
+                        ? Number(menu.price).toLocaleString("id-ID")
+                        : menu.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0 ml-2">
+                  <button
+                    type="button"
+                    onClick={() => addToCartHandler(menu)}
+                    className="bg-pink-700 text-white p-2 rounded-full border-white border-2 hover:bg-pink-800 transition-colors"
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+              </div>
+            ))}
       </section>
       {totalItemAdded === 0 ? (
         <></>
-      ): (
+      ) : (
         <footer className="fixed z-[1] bottom-1 left-0 max-h-20 w-full px-6 ">
-        <button type="button" onClick={handleCartClick} className="bg-[#9c379a] text-white text-md font-bold w-full py-3 px-6 rounded-md flex justify-between items-center">
-          <p>Lihat Keranjang</p>
-          <div className="relative flex items-center">
-            <BsCart3 className="text-2xl"/>
-            <p className="absolute text-sm rounded-full bg-red-600 px-2  right-[-10px] top-[-10px] text-white">{totalItemAdded}</p>
-          </div>
-        </button>
-      </footer>
+          <button
+            type="button"
+            onClick={handleCartClick}
+            className="bg-[#9c379a] text-white text-md font-bold w-full py-3 px-6 rounded-md flex justify-between items-center"
+          >
+            <p>Lihat Keranjang</p>
+            <div className="relative flex items-center">
+              <BsCart3 className="text-2xl" />
+              <p className="absolute text-sm rounded-full bg-red-600 px-2  right-[-10px] top-[-10px] text-white">
+                {totalItemAdded}
+              </p>
+            </div>
+          </button>
+        </footer>
       )}
     </CustomerLayout>
   );

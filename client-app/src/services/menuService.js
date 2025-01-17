@@ -48,4 +48,20 @@ const deleteMenu = async (id)=> {
     }
 }
 
-export default {getAllMenu, createMenu, updateMenuAvailability, updateMenu, deleteMenu};
+const getRecommendationMenu = async (customerId) => {
+    try {
+        const response = await apiClient.get(`/recommendations/${customerId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export default {
+    getAllMenu, 
+    createMenu, 
+    updateMenuAvailability, 
+    updateMenu, 
+    deleteMenu, 
+    getRecommendationMenu
+};

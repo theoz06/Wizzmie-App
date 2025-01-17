@@ -20,5 +20,7 @@ public interface OrderRepository extends JpaRepository<Orders, Integer> {
        "LEFT JOIN FETCH oi.menu " +
        "WHERE o.orderStatus.id = ?1")
     List<Orders> findByOrderStatusId(Integer status_id);
+
+    List<Orders> findByCustomerId(Integer customerId);
     
 }

@@ -56,6 +56,7 @@ public class SecurityConfig {
                                 .antMatchers("/api/auth/login").permitAll()
                                 .antMatchers("/api/orderpage/**").permitAll()
                                 .antMatchers("/api/order/customer/**").permitAll()
+                                .antMatchers("/api/recommendations/**").permitAll()
                                 .antMatchers("/ws/**").permitAll()
                                 .anyRequest().authenticated()
                 )

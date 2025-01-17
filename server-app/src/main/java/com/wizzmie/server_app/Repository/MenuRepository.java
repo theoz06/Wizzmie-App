@@ -1,5 +1,6 @@
 package com.wizzmie.server_app.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,5 @@ public interface MenuRepository extends JpaRepository<Menu, Integer>{
     @Modifying
     @Query(value = "UPDATE menu SET is_available = :isAvailable WHERE id = :id", nativeQuery = true)
     Integer updateMenuAvailablelity(@Param("isAvailable") Boolean isAvailable, @Param("id") Integer id);
+
 }
