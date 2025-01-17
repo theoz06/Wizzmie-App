@@ -10,7 +10,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class UserRequest {
     private String name;
-    private Integer nik;
     private String role;
     private String password;
 }

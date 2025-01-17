@@ -1,37 +1,50 @@
 import React from "react";
 import "./login.css";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
+import { useRouter } from "next/router";
+import Cookies from "js-cookie";
+
 
 const LoginPage = () => {
-  const [username, setUsername] = useState("");
+  const [nik, setNik] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const [errorEmptyField, setErrorEmptyField] = useState(null)
+  const {isLoading, error, setError, login, user} = useAuth();
+  const router = useRouter();
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
-    if (!username || !password) {
-      alert("Username or Password is empty!");
+    if (!nik || !password) {
+      setErrorEmptyField("Username or Password is empty!");
       return;
     }
-    setIsLoading(true);
 
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+    setErrorEmptyField(null);
 
-    const data = await response.json();
-    if (data.success) {
-      alert("Login Success!");
-      redirect("/");
-    } else {
-      alert("Login Failed!");
+    const success = await login(nik, password);
+    
+    if (success) {
+
+      const role = Cookies.get("user") ? JSON.parse(Cookies.get("user")).role.toLowerCase() : null;
+      console.log(role);
+
+      switch (role) {
+        case "admin":
+          router.push("/admin/menu-management");
+          break;
+        case "kitchen":
+          router.push("/orders-page/kitchen");
+          break;
+        case "pelayan":
+          router.push("/orders-page/pelayan");
+          break;
+        default:
+          
+      }
     }
   };
 
@@ -49,8 +62,8 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8">
           <div>
             <label
-              htmlFor="email"
-              className="block text-sm/6 font-medium text-white-900"
+              htmlFor="nik"
+              className="block text-sm/6 font-medium text-white"
             >
               Username
             </label>
@@ -59,19 +72,20 @@ const LoginPage = () => {
                 id="nik"
                 name="nik"
                 type="text"
-                onChange={(e) => setUsername(e.target.value)}
-                required
+                onChange={(e) => setNik(e.target.value)}
+                
                 disabled={isLoading}
                 className="block w-full rounded-md border-0 py-1.5  text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-[#e985bb]"
               />
             </div>
           </div>
+          
 
           <div>
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
-                className="block text-sm/6 font-medium text-gray-900"
+                className="block text-sm/6 font-medium text-white"
               >
                 Password
               </label>
@@ -82,18 +96,20 @@ const LoginPage = () => {
                 name="password"
                 type="password"
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 disabled={isLoading}
                 className="block w-full rounded-md border-0 py-1.5  text-grey-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-inset focus:ring-[#e985bb]"
               />
             </div>
+            {errorEmptyField && <p className="text-red-600 text-23 pt-2">{errorEmptyField}</p>}
           </div>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <div>
             <button
               disabled={isLoading}
               type="submit"
-              className="flex w-full justify-center rounded-md bg-[#754985] px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-[#754985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className=" flex w-full justify-center rounded-md bg-[#754985] px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-[#754985] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               {isLoading ? (
                 <svg

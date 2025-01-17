@@ -43,7 +43,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/create/user")
+    @PostMapping("/user/create")
     public ResponseEntity<String> create(@RequestBody UserRequest userRequest){
         try{
             userServiceImpl.create(userRequest);
@@ -53,7 +53,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/update/user/{id}")
+    @PutMapping("/user/update/{id}")
     public ResponseEntity<String> update(@PathVariable Integer id ,@RequestBody UserRequest userRequest){
         try{
             userServiceImpl.update(id, userRequest);
@@ -63,7 +63,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/delete/user/{id}")
+    @DeleteMapping("/user/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id){
         try{
             userServiceImpl.delete(id);

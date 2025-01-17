@@ -48,7 +48,8 @@ public class PaymentServiceImpl {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-
+    @Autowired
+    private RatingServiceImpl ratingServiceImpl;
 
 
     private String paymentType = "";
@@ -175,18 +176,20 @@ public class PaymentServiceImpl {
             //Transaction
             Map<String, Object> transactionDetails = new HashMap<>();
             transactionDetails.put("order_id", order.getId().toString());
-            transactionDetails.put("gross_amount", order.getTotalAmount().toString());
-            chargeParams.put("transaction_details", transactionDetails);
+            transactionDetails.put("gross_amount", order.getTotalAmount().intValue());
+            
 
             //Customer Details
             Map<String, Object> customerDetails = new HashMap<>();
             customerDetails.put("first_name", order.getCustomer().getName().toString());
             customerDetails.put("phone", order.getCustomer().getPhone().toString());
-            chargeParams.put("customer_details", customerDetails);
+     
 
             chargeParams.put("transaction_details", transactionDetails);
             chargeParams.put("customer_details", customerDetails);
             chargeParams.put("payment_type", "qris");
+
+            System.out.println("Request to Midtrans: " + new JSONObject(chargeParams).toString());
 
             JSONObject result = CoreApi.chargeTransaction(chargeParams);
             JSONObject jsonResult = new JSONObject(result.toString());
@@ -209,6 +212,10 @@ public class PaymentServiceImpl {
             return ("QRIS URL not found");
 
         } catch (MidtransError e) {
+            System.err.println("Midtrans Error Details:");
+            System.err.println("Message: " + e.getMessage());
+            System.err.println("Status Code: " + e.getStatusCode());
+            System.err.println("Response Body: " + e.getResponseBody());
             e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e.getCause());
         }
@@ -252,6 +259,7 @@ public class PaymentServiceImpl {
                     throw new RuntimeException("Unknown transaction status: " + transactionStatus);
             }
         } catch (MidtransError e) {
+            
             e.printStackTrace();
             response.put("status_code", 500);
             response.put("transaction_status", "error");
@@ -263,15 +271,27 @@ public class PaymentServiceImpl {
 
     private void handlerSuccsesPayment(Integer orderId){
         Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
-        order.setPaid(true);
+
+        if (order.getOrderStatus().getId().equals(1)){
+            order.setPaid(true);
                     Status updateStatusOrder = statusRepository.findById(2)
                                                .orElseThrow(() -> new RuntimeException("Status not found"));
         order.setOrderStatus(updateStatusOrder);
         
         orderRepository.save(order);
 
-        //Send Data To Kitchen Monitor
-        messagingTemplate.convertAndSend("/kitchen/orders", order);
+        ratingServiceImpl.updateCustomerRating(order.getCustomer().getId());
+
+        System.out.println("Sending WebSocket messages for order: " + orderId);
+        try {
+            messagingTemplate.convertAndSend("/admin/active-orders", order);
+            
+            System.out.println("WebSocket messages sent successfully");
+        } catch (Exception e) {
+            System.err.println("Error sending WebSocket messages: " + e.getMessage());
+            e.printStackTrace();
+        }
+        }
     }
 
     private void handlerFailedPayment(Integer orderId){

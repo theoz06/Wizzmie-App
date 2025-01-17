@@ -10,6 +10,7 @@ public class CartItem {
     private String menuName;
     private Double price;
     private Integer quantity;
+    private String imageUrl;
 
     public CartItem(Integer menuId, String menuName, Double price, Integer quantity) {
         this.menuId = menuId;
@@ -19,5 +20,4 @@ public class CartItem {
     }
 
 }
-
 

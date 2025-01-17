@@ -10,4 +10,5 @@ import com.wizzmie.server_app.Entity.Customer;
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Query("SELECT c FROM customer c WHERE c.phone = ?1")
     Optional<Customer> findByPhone(String phone);
+
 }

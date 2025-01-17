@@ -8,18 +8,24 @@ import javax.servlet.http.HttpSession;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
+import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
+import com.wizzmie.server_app.Entity.OrderHistory;
 import com.wizzmie.server_app.Entity.OrderItem;
 import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Entity.Status;
+import com.wizzmie.server_app.Entity.User;
 import com.wizzmie.server_app.Entity.Helper.Cart;
 import com.wizzmie.server_app.Entity.Helper.CartItem;
 import com.wizzmie.server_app.Repository.CustomerRepository;
 import com.wizzmie.server_app.Repository.MenuRepository;
+import com.wizzmie.server_app.Repository.OrderHistoryRepository;
 import com.wizzmie.server_app.Repository.OrderItemRepository;
 import com.wizzmie.server_app.Repository.OrderRepository;
 import com.wizzmie.server_app.Repository.StatusRepository;
+import com.wizzmie.server_app.Repository.UserRepository;
 
 @Service
 public class OrderServiceImpl {
@@ -30,6 +36,10 @@ public class OrderServiceImpl {
     private CustomerRepository customerRepository;
     private MenuRepository menuRepository;
     private SimpMessagingTemplate messagingTemplate;
+    private OrderHistoryRepository orderHistoryRepository;
+    private UserRepository userRepository;
+
+
 
 
 
@@ -38,7 +48,10 @@ public class OrderServiceImpl {
                             OrderItemRepository orderItemRepository, 
                             StatusRepository statusRepository, 
                             CustomerRepository customerRepository,
-                            SimpMessagingTemplate messagingTemplate){
+                            SimpMessagingTemplate messagingTemplate,
+                            OrderHistoryRepository orderHistoryRepository,
+                            UserRepository userRepository
+                            ){
 
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
@@ -46,11 +59,19 @@ public class OrderServiceImpl {
         this.statusRepository = statusRepository;
         this.customerRepository = customerRepository;
         this.messagingTemplate = messagingTemplate;
+        this.orderHistoryRepository = orderHistoryRepository;
+        this.userRepository = userRepository;
     }
 
 
-    public Orders createOrder(HttpSession session){
-        Cart cart = (Cart) session.getAttribute("CART");
+    public Orders createOrder(HttpSession session, Integer tableNumber, Integer customerId){
+        if (tableNumber == null || customerId == null) {
+            throw new RuntimeException("Table number and customer ID are required.");
+        }
+
+        String sessionKey = String.format("CART_%d_%d", tableNumber, customerId);
+
+        Cart cart = (Cart) session.getAttribute(sessionKey);
         if (cart == null || cart.getCartItems().isEmpty()){
             throw new RuntimeException("Cart is Empty");
         }
@@ -81,7 +102,7 @@ public class OrderServiceImpl {
             orderItemRepository.save(orderItem);
         }
 
-        session.removeAttribute("CART");
+        session.removeAttribute(sessionKey);
 
         return order;
     }
@@ -101,28 +122,29 @@ public class OrderServiceImpl {
         return orders;
     }
 
-    public String updateOrderStatus(Integer orderId){
+    public String updateOrderStatus(Integer orderId, Integer changedBy){
         
         Orders order = orderRepository.findById(orderId).orElseThrow(()-> new RuntimeException("Order Not Found"));
+
+        User user = userRepository.findById(changedBy).orElseThrow(() -> new RuntimeException("User Not Found"));
 
         Status currentStatus = order.getOrderStatus();
         if (currentStatus == null || currentStatus.getId() == null) {
             throw new IllegalArgumentException("Current status or status ID is null for order ID: " + orderId);
         }
 
-        
+        Integer previousStatusId = currentStatus.getId();
+
         switch (currentStatus.getId()) {
             case 2:
                 updateStatus(order, 3);
+                messagingTemplate.convertAndSend("/pelayan/ready-orders", order);
 
-                //Send Data To Waiters Monitor
-                messagingTemplate.convertAndSend("/server/orders", order);
-
-                //Remove Data From Kitchen Monitor
-                messagingTemplate.convertAndSend("/kitchen/remove-order", order.getId());
                 break;
             case 3:
                 updateStatus(order, 4);
+                messagingTemplate.convertAndSend("/admin/active-orders", order);
+
                 break;
         
             default:
@@ -131,8 +153,23 @@ public class OrderServiceImpl {
             );
         }
 
+        savedOrderHistory(order, previousStatusId, order.getOrderStatus().getId(), user);
+
         return "Order Status Updated to: " + order.getOrderStatus().getDescription();
     
+    }
+
+    public Orders getOrderStatus(Integer orderId, Integer customerId, Integer tableNumber){
+
+        Orders orders = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order Not Found!"));
+        
+        if (orders.getCustomer().getId().equals(customerId) && orders.getTableNumber().equals(tableNumber)){
+            return orders;
+
+        }else{
+            throw new RuntimeException("Order Not Found!");
+        }
+        
     }
 
     private void updateStatus(Orders order, Integer newStatusId){
@@ -140,6 +177,17 @@ public class OrderServiceImpl {
         Status newStatus = statusRepository.findById(newStatusId).orElseThrow(()-> new RuntimeException("Status Not Found"));
         order.setOrderStatus(newStatus);
         orderRepository.save(order);
+    }
+
+    private void savedOrderHistory(Orders order, Integer previousStatus, Integer updatedStatus, User user){
+        OrderHistory history = new OrderHistory();
+        history.setOrder(order);
+        history.setPreviousStatusId(previousStatus);
+        history.setUpdatedStatusId(updatedStatus);
+        history.setUser(user);
+        history.setUpdateAt(LocalDateTime.now());
+
+        orderHistoryRepository.save(history);
     }
     
 }

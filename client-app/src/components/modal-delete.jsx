@@ -1,6 +1,6 @@
 import React, { Children } from "react";
 
-const ModalDelete = ({ isOpen, children, onClose, onSubmit }) => {
+const ModalDelete = ({ isOpen, children, onClose, onSubmit, action }) => {
   if (!isOpen) return null;
   return (
     <div
@@ -40,10 +40,10 @@ const ModalDelete = ({ isOpen, children, onClose, onSubmit }) => {
               </button>
               <button
                 onClick={onSubmit}
-                type="button"
+                type="submit"
                 className="inline-flex w-full justify-center rounded-md  bg-red-600  px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
               >
-                Delete
+                {action}
               </button>
             </div>
           </div>
