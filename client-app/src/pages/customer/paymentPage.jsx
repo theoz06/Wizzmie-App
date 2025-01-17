@@ -6,8 +6,9 @@ import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { FaRegCheckCircle, FaTimesCircle } from "react-icons/fa";
-import { QRCodeCanvas, QRCodeSVG } from "qrcode.react"; 
+import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import useCheckStatusPaid from "@/hooks/paymentHooks/useCheckStatusPaid";
+import { AlertCircle } from "lucide-react";
 
 const PaymentPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -23,14 +24,14 @@ const PaymentPage = () => {
   const qrCodeRef = useRef(null);
 
   const { isLoading, error, generateQRIS } = useGenerateQris();
-  const {checkStatusPaid} = useCheckStatusPaid();
+  const { checkStatusPaid } = useCheckStatusPaid();
   const [paid, setPaid] = useState("");
 
   useEffect(() => {
     let isMounted = true;
 
     const generateQrisCode = async () => {
-      if (!orderId || qrisUrl) return; 
+      if (!orderId || qrisUrl) return;
 
       try {
         const data = await generateQRIS(orderId);
@@ -50,61 +51,64 @@ const PaymentPage = () => {
     };
   }, [orderId, generateQRIS, qrisUrl]);
 
-    useEffect(() => {
+  useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault();
-      e.returnValue = '';
-      return '';
+      e.returnValue = "";
+      return "";
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
-  useEffect(()=> {
+  useEffect(() => {
     let intervalId;
     let isSubscribed = true;
 
     const checkStatus = async () => {
       if (!qrisUrl || !orderId) return;
 
-      
-        try {
-          const res = await checkStatusPaid(orderId);
-          if (!isSubscribed) return;
-          console.log("res : "  + JSON.stringify(res, null,2))
-          if(res){
-            if (res?.transaction_status === "settlement" && res?.status_code === 200){
-              setPaid(res?.transaction_status);
-              clearInterval(intervalId);
-            }else if(res?.transaction_status === "pending" && res?.status_code === 200){
-              setPaid(res?.transaction_status);
-            }else{
-              setPaid(res?.transaction_status);
-              clearInterval(intervalId);
-
-            }
+      try {
+        const res = await checkStatusPaid(orderId);
+        if (!isSubscribed) return;
+        console.log("res : " + JSON.stringify(res, null, 2));
+        if (res) {
+          if (
+            res?.transaction_status === "settlement" &&
+            res?.status_code === 200
+          ) {
+            setPaid(res?.transaction_status);
+            clearInterval(intervalId);
+          } else if (
+            res?.transaction_status === "pending" &&
+            res?.status_code === 200
+          ) {
+            setPaid(res?.transaction_status);
+          } else {
+            setPaid(res?.transaction_status);
+            clearInterval(intervalId);
           }
-        } catch (error) {
-          console.log ("error :" + error);
-          if (!isSubscribed) return;
-          clearInterval(intervalId);
-          
         }
+      } catch (error) {
+        console.log("error :" + error);
+        if (!isSubscribed) return;
+        clearInterval(intervalId);
       }
+    };
 
-      if(qrisUrl) {
+    if (qrisUrl) {
       intervalId = setInterval(checkStatus, 1000);
+    }
+
+    return () => {
+      isSubscribed = false;
+      if (intervalId) {
+        clearInterval(intervalId);
       }
-    
-      return () => {
-        isSubscribed = false;
-        if (intervalId) {
-          clearInterval(intervalId);
-        }
     };
   }, [qrisUrl, orderId, checkStatusPaid]);
 
@@ -115,25 +119,27 @@ const PaymentPage = () => {
         console.error("Canvas element not found");
         return;
       }
-      
+
       const image = canvas.toDataURL("image/png");
       const link = document.createElement("a");
       link.href = image;
-      link.download = `QRIS-table-${tableNumber || 'unknown'}.png`;
+      link.download = `QRIS-table-${tableNumber || "unknown"}.png`;
       link.click();
     } catch (error) {
       console.error("Error downloading QR code:", error);
     }
   };
 
-  const checkStatusOrder = () =>{
+  const checkStatusOrder = () => {
     if (!orderId) return;
-    router.push(`/customer/statusPage?table=${tableNumber}&CustomerId=${custId}&orderId=${orderId}`)
-  }
+    router.push(
+      `/customer/statusPage?table=${tableNumber}&CustomerId=${custId}&orderId=${orderId}`
+    );
+  };
 
   const backToFormPage = () => {
     router.push(`/customer/customerForm?table=${tableNumber}`);
-  }
+  };
 
   return (
     <CustomerLayout>
@@ -149,7 +155,10 @@ const PaymentPage = () => {
       ) : paid === "pending" || paid === "" ? (
         <>
           <article className="space-y-4 m-5 sm:m-8 md:m-14 text-white text-sm text-center">
-            <p>Silahkan lakukan pembayaran dan selesaikan proses pembayaran dalam waktu 15 menit.</p>
+            <p>
+              Silahkan lakukan pembayaran dan selesaikan proses pembayaran dalam
+              waktu 15 menit.
+            </p>
           </article>
           <figure className="flex flex-col items-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
             <h2 className=" font-bold text-3xl sm:text-lg md:text-xl text-gray-900">
@@ -161,17 +170,32 @@ const PaymentPage = () => {
               </div>
             ) : qrisUrl ? (
               <div ref={qrCodeRef}>
-              <QRCodeCanvas
-                value={qrisUrl}
-                size={250}
-                level="H"
-                bgColor="#ffffff" 
-                fgColor="#000000"
-              />
+                <QRCodeCanvas
+                  value={qrisUrl}
+                  size={250}
+                  level="H"
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                />
               </div>
-
             ) : (
-              error
+              <div className="flex flex-col items-center justify-center space-y-4 text-center p-4">
+                <AlertCircle className="h-16 w-16 text-red-500" />
+                <div className="space-y-2">
+                  <p className="font-medium text-red-500">
+                    Gagal memuat QR Code
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {error || "Terjadi kesalahan. Silakan coba lagi."}
+                  </p>
+                </div>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                >
+                  Coba Lagi
+                </button>
+              </div>
             )}
           </figure>
           <article className=" m-5 sm:m-8 md:m-14 text-white">
@@ -186,10 +210,10 @@ const PaymentPage = () => {
             </ol>
           </article>
         </>
-      ): (
+      ) : (
         <figure className="relative top-[100px] flex flex-col items-center justify-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
           <p className="absolute top-[-35px] text-5xl text-red-500 bg-white rounded-full p-2 border-b-2 border-red-500">
-          <FaTimesCircle />
+            <FaTimesCircle />
           </p>
           <h2 className=" font-bold text-2xl sm:text-lg md:text-xl text-gray-600 text-center">
             Pembayaran Gagal
@@ -200,10 +224,20 @@ const PaymentPage = () => {
         <button
           type="button"
           className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4 rounded-md"
-          onClick={paid ==="settlement" ? checkStatusOrder : paid === "pending" ? qRCodeDownloader : backToFormPage }
+          onClick={
+            paid === "settlement"
+              ? checkStatusOrder
+              : paid === "pending"
+              ? qRCodeDownloader
+              : backToFormPage
+          }
           disabled={isLoading || (!paid && !qrisUrl)}
         >
-          {paid === "settlement" ? "Cek Status Pesanan" : paid === "pending" ? "Download QRIS" : "Pesan Kembali"}
+          {paid === "settlement"
+            ? "Cek Status Pesanan"
+            : paid === "pending"
+            ? "Download QRIS"
+            : "Pesan Kembali"}
         </button>
       </footer>
     </CustomerLayout>

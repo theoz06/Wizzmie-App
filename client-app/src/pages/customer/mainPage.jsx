@@ -151,7 +151,6 @@ const MainPage = () => {
     );
   };
 
-  
 
   return (
     <CustomerLayout>
