@@ -54,7 +54,7 @@ const LoginPage = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
           alt="wizzmie-logo"
-          src="images/logo-wizzmie.webp"
+          src="/images/logo-wizzmie.webp"
           className="mx-auto h-40 w-auto"
         />
       </div>
