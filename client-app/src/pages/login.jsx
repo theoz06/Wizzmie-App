@@ -56,7 +56,7 @@ const LoginPage = () => {
           height={100}
           width={100}
           alt="wizzmie-logo"
-          src="images/logo-wizzmie.webp"
+          src="/images/logo-wizzmie.webp"
           className="mx-auto h-40 w-auto"
         />
       </div>
