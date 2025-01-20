@@ -38,11 +38,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .requiresChannel(channel -> channel
-                    .requestMatchers(request -> "http".equals(request.getScheme()))
-                    .requiresSecure());
-
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
