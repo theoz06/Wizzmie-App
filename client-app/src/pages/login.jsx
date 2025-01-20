@@ -53,11 +53,11 @@ const LoginPage = () => {
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
-          width={100}
-          height={100}
-          alt="wizzmie-logo"
-          src="/images/logo-wizzmie.webp"
-          className="mx-auto h-40 w-auto"
+            src="/images/Logo-wizzmie.webp"
+            alt="Wizzmie Logo"
+            width={100}
+            height={100}
+            className="mx-auto h-40 w-auto"
         />
       </div>
 
