@@ -13,7 +13,7 @@ const nextConfig = {
       remotePatterns: [
         {
           protocol: 'http',
-          hostname: 'localhost',
+          hostname: '3.107.68.141',
           port: '8000', // Sesuaikan dengan port server API Anda
           pathname: '/api/images/**', // Path sesuai dengan lokasi gambar Anda
         },

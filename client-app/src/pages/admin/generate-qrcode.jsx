@@ -10,7 +10,7 @@ const GenerateQrCode = () => {
   const [generatedQrCode, setGeneratedQrCode] = useState(null);
   const qrCodeRef = useRef();
 
-  const baseUrl = "http://localhost:3000/customer/customerForm?";
+  const baseUrl = " http://3.107.68.141:3000/customer/customerForm?";
 
   const generatorQrCode = async (e) => {
     e.preventDefault();
