@@ -53,14 +53,14 @@ const LoginPage = () => {
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
-          width={100}
-          height={100}
-          alt="wizzmie-logo"
-          src="/images/logo-wizzmie.webp"
+            src="/images/Logo-wizzmie.webp"
+            alt="Wizzmie Logo"
+            width={100}
+            height={100}
           className="mx-auto h-40 w-auto"
         />
       </div>
-
+      
       <div className="login-container rounded-lg shadow-2xl  mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8">
           <div>
