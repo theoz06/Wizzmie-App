@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const apiClient = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://3.107.68.141:8000/api',
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://54.252.141.173:8000/api',
     headers: {
         "content-type" : "application/json"
     }
