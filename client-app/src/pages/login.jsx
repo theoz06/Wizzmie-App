@@ -57,10 +57,10 @@ const LoginPage = () => {
             alt="Wizzmie Logo"
             width={100}
             height={100}
-          className="mx-auto h-40 w-auto"
+            className="mx-auto h-40 w-auto"
         />
       </div>
-      
+
       <div className="login-container rounded-lg shadow-2xl  mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleSubmit} method="POST" className="space-y-6 p-8">
           <div>
