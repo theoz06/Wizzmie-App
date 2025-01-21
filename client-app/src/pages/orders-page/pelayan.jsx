@@ -142,7 +142,7 @@ const PelayanPage = () => {
                       <span className="font-medium text-gray-900">{item.menu}</span>
                     </div>
                     <div>
-                      <span className="relative left-10 text-gray-400 text-xs  font-medium ">{item.catatan}</span>
+                      <span className="relative left-9 text-gray-500 text-sm">{item.catatan}</span>
                     </div>
                   </div>
                 ))}
