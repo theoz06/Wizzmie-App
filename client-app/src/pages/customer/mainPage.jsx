@@ -213,15 +213,10 @@ const MainPage = () => {
 
                   <div className="flex-1 min-w-0 py-2 px-3">
                     <h3 className="font-bold text-md text-white mb-1 line-clamp-2">
-                      {menu.name}{" "}
-                      {menu.description === ""
-                        ? ""
-                        : `( Rp.${Number(menu.price).toLocaleString("id-ID")})`}
+                      {menu.name}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
-                      {menu.isAvailable ? menu.description === ""
-                        ? Number(menu.price).toLocaleString("id-ID")
-                        : menu.description : "Tidak tersedia" }
+                      {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
                     </p>
                   </div>
                 </div>
@@ -256,15 +251,10 @@ const MainPage = () => {
 
                   <div className="flex-1 min-w-0 py-2 px-3">
                     <h3 className="font-bold text-md text-white mb-1 line-clamp-2">
-                      {menu.name}{" "}
-                      {menu.description === ""
-                        ? ""
-                        : `( Rp.${Number(menu.price).toLocaleString("id-ID")})`}
+                      {menu.name}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
-                      {menu.isAvailable ? menu.description === ""
-                        ? Number(menu.price).toLocaleString("id-ID")
-                        : menu.description : "Tidak tersedia" }
+                      {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
                     </p>
                   </div>
                 </div>
