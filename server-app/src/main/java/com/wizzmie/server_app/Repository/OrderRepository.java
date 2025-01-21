@@ -9,7 +9,7 @@ import com.wizzmie.server_app.Entity.Orders;
 
 public interface OrderRepository extends JpaRepository<Orders, Integer> {
 
-    @Query(value ="SELECT DISTINCT o.* FROM orders o "+
+    @Query(value ="SELECT DISTINCT o.* FROM Orders o "+
            "JOIN order_item oi ON o.id = oi.order_id " +
            "WHERE o.paid = ?1", 
            nativeQuery = true)

@@ -93,16 +93,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://54.252.141.173:3000", "https://wizzmie-cibaduyut.vercel.app"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://wizzmie-cibaduyut.vercel.app"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         
         configuration.setExposedHeaders(Arrays.asList(
-        "Authorization", 
-            "Content-Type", 
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Credentials"
+        "Authorization", "Content-Type"
     ));
     configuration.setAllowCredentials(true);
     

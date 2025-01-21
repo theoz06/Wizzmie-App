@@ -22,7 +22,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry){
         registry
                 .addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:3000", " http://54.252.141.173:3000", "https://wizzmie-cibaduyut.vercel.app")
+                .setAllowedOrigins("http://localhost:3000", "https://wizzmie-cibaduyut.vercel.app")
                 .withSockJS();
     }
 
