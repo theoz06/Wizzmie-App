@@ -24,7 +24,7 @@ const ConfirmPage = () => {
   const [ppnAmount, setPpnAmount] = useState(0);
 
   const { getCartItems } = useGetCartItems();
-  const {isLoading, error, createOrder} = useCreateOrder();
+  const { isLoading, error, createOrder } = useCreateOrder();
 
   useEffect(() => {
     const initializeData = async () => {
@@ -65,14 +65,15 @@ const ConfirmPage = () => {
   const confirmHandler = async () => {
     try {
       const res = await createOrder(tableNumber, custId);
-      if(res?.orders?.id){
-        router.push(`/customer/paymentPage?table=${res?.orders?.tableNumber}&CustomerId=${res?.orders?.customer?.id}&&orderId=${res?.orders?.id}&Tpay=${res?.orders?.totalAmount}`);
+      if (res?.orders?.id) {
+        router.push(
+          `/customer/paymentPage?table=${res?.orders?.tableNumber}&CustomerId=${res?.orders?.customer?.id}&&orderId=${res?.orders?.id}&Tpay=${res?.orders?.totalAmount}`
+        );
       }
     } catch (error) {
-      console.log("err: " + error)
+      console.log("err: " + error);
     }
-    
-  }
+  };
 
   return (
     <CustomerLayout>
@@ -85,45 +86,50 @@ const ConfirmPage = () => {
 
       <section className="fixed top-[75px] left-0 bottom-[64px] w-full bg-transparent text-white p-4 overflow-y-auto">
         <div className="bg-[#EB65AE] p-4 rounded-md shadow-md font-bold">
-          <h3 className="absolute top-[-10px] left-7 p-[3px] bg-[#EB65AE] border-4 border-[#D53A8E] rounded-lg font-bold">Data Pembeli</h3>
+          <h3 className="absolute top-[-10px] left-7 p-[3px] bg-[#EB65AE] border-4 border-[#D53A8E] rounded-lg font-bold">
+            Data Pembeli
+          </h3>
           <div>
             <p>No. Meja: {tableNumber}</p>
             <p>Nama: {custName}</p>
           </div>
         </div>
 
-        <div className="relative bg-[#EB65AE] p-4 rounded-md shadow-md mt-4 space-y-5">
+        <div className="relative bg-[#EB65AE] p-2 rounded-md shadow-md mt-4 space-y-1">
           <h3 className="absolute top-[-12px] left-3 p-[2px] bg-[#EB65AE] border-4 border-[#D53A8E] rounded-lg font-bold">
             Pesanan
           </h3>
           {cartData?.cartItems?.map((item, index) => (
             <div
               key={index}
-              className="container  h-20 flex justify-between items-center space-x-2 py-3 overflow-hidden"
+              className="container "
             >
-              <div className="flex items-center space-x-2">
-                <Image
-                  width={100}
-                  height={100}
-                  alt="Logo"
-                  src={`${url}/images/${item.imageUrl}`}
-                  className="w-20 h-24 mb-1"
-                  style={{
-                    objectFit: "contain",
-                  }}
-                />
-                <div className="space-y-1 m-0">
-                  <h3 className="font-bold text-lg text-white">
-                    {item.menuName}
-                  </h3>
-                  <p className="text-gray-100 font-bold text-xs">
-                    Rp. {item.price}
-                  </p>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <Image
+                    width={100}
+                    height={100}
+                    alt="Logo"
+                    src={`${url}/images/${item.imageUrl}`}
+                    className="w-20 h-24 mb-1"
+                    style={{
+                      objectFit: "contain",
+                    }}
+                  />
+                  <div className="space-y-1 m-0">
+                    <h3 className="font-bold text-lg text-white">
+                      {item.menuName}
+                    </h3>
+                    <p className="text-gray-100 font-bold text-xs">
+                      Rp. {item.price}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-white p-3">
+                  <p>x{item.quantity}</p>
                 </div>
               </div>
-              <div className="text-white p-3">
-                <p>x{item.quantity}</p>
-              </div>
+              <p className="text-gray-100 text-sm italic">Catatan: {item.description}</p>
             </div>
           ))}
         </div>
@@ -151,7 +157,11 @@ const ConfirmPage = () => {
       </section>
 
       <footer className="fixed z-[1] bottom-0 left-0 max-h-20 w-full ">
-        <button type="button" className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4" onClick={confirmHandler}>
+        <button
+          type="button"
+          className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4"
+          onClick={confirmHandler}
+        >
           Buat Pesanan
         </button>
       </footer>

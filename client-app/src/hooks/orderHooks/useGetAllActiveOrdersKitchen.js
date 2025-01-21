@@ -17,7 +17,8 @@ const useGetAllActiveOrdersKitchen = () => {
         table: order.tableNumber,
         items:order.orderItems.map((item)=>({
             qty: item.quantity,
-            menu: item.menu.name
+            menu: item.menu.name,
+            catatan: item.description,
         }))
     }))
   }
@@ -28,6 +29,7 @@ const useGetAllActiveOrdersKitchen = () => {
 
     try {
         const response = await orderService.getAllActiveOrdersKitchen();
+        console.log(response)
         const transformed = transformeOrderData(response);
         setActiveOrders(transformed);
     } catch (err) {

@@ -14,6 +14,7 @@ const useWebsocketOrders = () => {
     items: order.orderItems.map((item) => ({
       qty: item.quantity,
       menu: item.menu.name,
+      catatan: item.description,
     })),
   });
 
@@ -28,7 +29,6 @@ const useWebsocketOrders = () => {
                 );
         
                 if (existingOrderIndex !== -1) {
-                  // Update order yang sudah ada (termasuk status)
                   const updatedOrders = [...prevOrders];
                   updatedOrders[existingOrderIndex] = transformedOrder;
                   return updatedOrders;
