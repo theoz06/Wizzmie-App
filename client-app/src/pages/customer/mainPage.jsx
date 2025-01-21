@@ -32,8 +32,6 @@ const MainPage = () => {
   const { categories } = useGetAllCategory();
   const { menus } = useGetAllMenu();
 
-  console.log("Menu: " + JSON.stringify(menus, null, 2));
-
   const tabs = [
     "Rekomendasi",
     ...categories.map((category) => {
@@ -69,8 +67,6 @@ const MainPage = () => {
             category: item.menu.category,
           }));
           setRecommendation(transformedData);
-
-          console.log("data: " + JSON.stringify(data, null, 2));
         }
       }
     };
