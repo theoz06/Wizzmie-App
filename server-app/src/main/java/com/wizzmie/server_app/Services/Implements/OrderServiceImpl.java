@@ -97,6 +97,7 @@ public class OrderServiceImpl {
             orderItem.setMenu(menu);
             orderItem.setPrice(menu.getPrice());
             orderItem.setQuantity(item.getQuantity());
+            orderItem.setDescription(item.getDescription());
             orderItem.setOrder(order);
 
             orderItemRepository.save(orderItem);
