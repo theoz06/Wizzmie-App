@@ -14,6 +14,7 @@ import useGetRecommendationMenu from "@/hooks/menuHooks/useGetRecommendationMenu
 import { useRef } from "react";
 
 
+
 const MainPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,6 +31,8 @@ const MainPage = () => {
 
   const { categories } = useGetAllCategory();
   const { menus } = useGetAllMenu();
+
+  console.log("Menu: " + JSON.stringify(menus, null, 2));
 
   const tabs = [
     "Rekomendasi",
@@ -67,13 +70,13 @@ const MainPage = () => {
           }));
           setRecommendation(transformedData);
 
-          console.log("data: " + data);
+          console.log("data: " + JSON.stringify(data, null, 2));
         }
       }
     };
 
     initializeData();
-  }, []);
+  },[]);
 
   useEffect(() => {
     const initializeCart = async () => {
@@ -199,7 +202,7 @@ const MainPage = () => {
           ? recommendation?.map((menu, index) => (
               <div
                 key={index}
-                className="container pr-3 bg-pink-500 rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg"
+                className={`container pr-3 ${menu.isAvailable ? `bg-pink-500` : `bg-gray-400 text-[#B0B0B0]`}  rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative`}
               >
                 <div className="flex flex-1 items-center gap-2 overflow-hidden">
                   <div className="flex-shrink-0">
@@ -220,9 +223,9 @@ const MainPage = () => {
                         : `( Rp.${Number(menu.price).toLocaleString("id-ID")})`}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
-                      {menu.description === ""
+                      {menu.isAvailable ? menu.description === ""
                         ? Number(menu.price).toLocaleString("id-ID")
-                        : menu.description}
+                        : menu.description : "Tidak tersedia" }
                     </p>
                   </div>
                 </div>
@@ -230,8 +233,9 @@ const MainPage = () => {
                 <div className="flex-shrink-0 ml-2">
                   <button
                     type="button"
+                    disabled={!menu.isAvailable}
                     onClick={() => addToCartHandler(menu)}
-                    className="bg-pink-700 text-white p-2 rounded-full border-white border-2 hover:bg-pink-800 transition-colors"
+                    className={`${menu.isAvailable ? `bg-pink-700 hover:bg-pink-800` : `bg-gray-400`}  text-white p-2 rounded-full border-white border-2  transition-colors`}
                   >
                     <FaPlus />
                   </button>
@@ -241,7 +245,7 @@ const MainPage = () => {
           : menusFilteredByCategory.map((menu, index) => (
               <div
                 key={index}
-                className="container pr-3 bg-pink-500 rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg"
+                className={`container pr-3 ${menu.isAvailable ? `bg-pink-500` : `bg-gray-400 text-[#B0B0B0]`}  rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative`}
               >
                 <div className="flex flex-1 items-center gap-2 overflow-hidden">
                   <div className="flex-shrink-0">
@@ -262,9 +266,9 @@ const MainPage = () => {
                         : `( Rp.${Number(menu.price).toLocaleString("id-ID")})`}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
-                      {menu.description === ""
+                      {menu.isAvailable ? menu.description === ""
                         ? Number(menu.price).toLocaleString("id-ID")
-                        : menu.description}
+                        : menu.description : "Tidak tersedia" }
                     </p>
                   </div>
                 </div>
@@ -272,8 +276,9 @@ const MainPage = () => {
                 <div className="flex-shrink-0 ml-2">
                   <button
                     type="button"
+                    disabled={!menu.isAvailable}
                     onClick={() => addToCartHandler(menu)}
-                    className="bg-pink-700 text-white p-2 rounded-full border-white border-2 hover:bg-pink-800 transition-colors"
+                    className={`${menu.isAvailable ? `bg-pink-700 hover:bg-pink-800` : `bg-gray-400`}  text-white p-2 rounded-full border-white border-2  transition-colors`}
                   >
                     <FaPlus />
                   </button>
