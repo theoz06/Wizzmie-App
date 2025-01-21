@@ -100,6 +100,7 @@ const MainPage = () => {
       menuName: menu.name,
       price: menu.price,
       imageUrl: menu.image,
+      description: "",
       quantity: 1,
     };
 
