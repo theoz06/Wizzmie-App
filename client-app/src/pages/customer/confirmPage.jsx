@@ -61,7 +61,7 @@ const ConfirmPage = () => {
   const backHandler = () => {
     router.back();
   };
-
+  
   const confirmHandler = async () => {
     try {
       const res = await createOrder(tableNumber, custId);

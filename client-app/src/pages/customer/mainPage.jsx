@@ -105,7 +105,6 @@ const MainPage = () => {
     };
 
     const success = await addToCart(tableNumber, custId, items);
-
     if (success) {
       const resp = await getCartItems(tableNumber, custId);
       setCartData(resp);
