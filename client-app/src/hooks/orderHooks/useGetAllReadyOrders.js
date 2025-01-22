@@ -21,7 +21,8 @@ const useGetAllReadyOrders = () => {
         items: Array.isArray(order.orderItems) 
           ? order.orderItems.map((item) => ({
               qty: item.quantity,
-              menu: item.menu?.name || 'Unknown Menu'
+              menu: item.menu?.name || 'Unknown Menu',
+              catatan: item.description,
             }))
           : []
       }));

@@ -11,6 +11,7 @@ import {Router} from 'next/navigation';
 import useUpdateCart from '@/hooks/cartHooks/useUpdateCart';
 import useRemoveCartItem from '@/hooks/cartHooks/useRemoveCartItem';
 import useClearCart from '@/hooks/cartHooks/useClearCart';
+import useUpdateItemDescription from '@/hooks/cartHooks/useUpdateItemDescription';
 
 
 const CartPage = () => {
@@ -125,7 +126,6 @@ const CartPage = () => {
   const decrementQuantity = async (index) => {
     if (localCart[index].quantity > 1) {
       const updatedCart = [...localCart];
-      console.log(updatedCart[index].quantity)
       updatedCart[index].quantity -= 1;
       const newQty = updatedCart[index].quantity
       
@@ -165,6 +165,46 @@ const CartPage = () => {
         const updatedCart = localCart.filter((_, i) => i !== index);
         setLocalCart(updatedCart);
       }
+    }
+  };
+
+  const {updateItemDescription} = useUpdateItemDescription();
+  const handleNotesChange = async (index, value) => {
+    try {
+      // Membatasi input ke 100 karakter
+      const limitedValue = value.slice(0, 100);
+      
+      const newCart = [...localCart];
+      newCart[index] = {
+        ...newCart[index],
+        description: limitedValue
+      };
+      setLocalCart(newCart);
+  
+      const menuId = localCart[index].menuId;
+      const params = new FormData();
+      params.append("newDescription", limitedValue);
+  
+
+      const isUpdate = await updateItemDescription(tableNumber, custId, menuId, params);
+
+      if (!isUpdate) {
+        const revertCart = [...localCart];
+        revertCart[index] = {
+          ...revertCart[index],
+          description: localCart[index].description 
+        };
+        setLocalCart(revertCart);
+      }
+    } catch (error) {
+      console.error("Update Notes gagal:", error);
+      
+      const revertCart = [...localCart];
+      revertCart[index] = {
+        ...revertCart[index],
+        description: localCart[index].description
+      };
+      setLocalCart(revertCart);
     }
   };
 
@@ -243,6 +283,19 @@ const CartPage = () => {
               </button>
             </div>
           </div>
+          <div className="relative">
+              <textarea
+                value={item.description || ''}
+                onChange={(e) => handleNotesChange(index, e.target.value)}
+                placeholder={item.description === "" && "Tambahkan catatan... (opsional)"}
+                className="w-full p-3 pr-3 text-gray-700 bg-white/90 backdrop-blur-sm rounded-lg shadow-inner
+                          placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300
+                          resize-none"
+              />
+              <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+                {item.description?.length || 0}/100
+              </div>
+            </div>
         </div>
       ))}
 

@@ -69,6 +69,16 @@ public class CartControllerImpl {
         }
     }
 
+    @PutMapping("/cart/update/description/{menuId}")
+    public ResponseEntity<String> updateItemDescription (HttpSession session, @PathVariable Integer tableNumber, @PathVariable Integer customerId, @PathVariable Integer menuId, @RequestParam String newDescription){
+        try {
+            cartServiceImpl.updateItemDescription(session, tableNumber, customerId, menuId, newDescription);
+            return new ResponseEntity<>("Description updated", HttpStatus.OK);
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(e.getReason(), e.getStatus());
+        }
+    }
+
     @DeleteMapping("/cart/remove/{menuId}")
     public ResponseEntity<String> removeFromCart(@PathVariable Integer tableNumber, @PathVariable Integer customerId, HttpSession session, @PathVariable Integer menuId) {
         try {

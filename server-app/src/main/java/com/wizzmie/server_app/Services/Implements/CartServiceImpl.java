@@ -66,6 +66,16 @@ public class CartServiceImpl {
         session.setAttribute(sessionKey, cart);
     }
 
+    public void updateItemDescription (HttpSession session, Integer tableNumber, Integer customerId, Integer menuId, String newDescription){
+        Cart cart = getCart(session, tableNumber, customerId);
+
+        cart.getCartItems().forEach(item -> {
+            if (item.getMenuId().equals(menuId)){
+                item.setDescription(newDescription);
+            }
+        });
+    }
+
     public void removeFromCart(HttpSession session, Integer tableNumber, Integer customerId, Integer menuId){
         Cart cart = getCart(session, tableNumber, customerId);
         cart.getCartItems().removeIf(item -> item.getMenuId().equals(menuId));
