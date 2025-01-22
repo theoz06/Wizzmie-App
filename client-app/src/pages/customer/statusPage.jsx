@@ -11,7 +11,6 @@ import { useSearchParams } from "next/navigation";
 import useGetOrderStatus from "@/hooks/orderHooks/useGetOrderStatus";
 import { useRef } from "react";
 
-
 const StatusPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
   const router = useRouter();
@@ -92,9 +91,15 @@ const StatusPage = () => {
         <div className="min-h-screen bg-gradient-to-b from-[#9c379a] to-[#EB65AE] p-4 flex items-center justify-center">
           <div className="bg-white rounded-2xl p-8 shadow-xl max-w-md w-full text-center">
             <div className="mb-6 flex justify-center space-x-4">
-              <LuPartyPopper size={40} className="text-[#9c379a] animate-bounce" />
+              <LuPartyPopper
+                size={40}
+                className="text-[#9c379a] animate-bounce"
+              />
               <FaUtensils size={40} className="text-[#9c379a]" />
-              <LuPartyPopper size={40} className="text-[#9c379a] animate-bounce" />
+              <LuPartyPopper
+                size={40}
+                className="text-[#9c379a] animate-bounce"
+              />
             </div>
 
             <h1 className="text-2xl font-bold text-[#9c379a] mb-4">
@@ -182,33 +187,36 @@ const StatusPage = () => {
 
             <div className="bg-[#EB65AE] p-4 rounded-md shadow-md mt-4 space-y-3">
               {order?.orderItems?.map((item, index) => (
-                <div
-                  key={index}
-                  className="container  h-20 flex justify-between items-center space-x-2 py-3 overflow-hidden"
-                >
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      width={100}
-                      height={100}
-                      alt="Logo"
-                      src={`${url}/images/${item?.menu?.image}`}
-                      className="w-20 h-24 mb-1"
-                      style={{
-                        objectFit: "contain",
-                      }}
-                    />
-                    <div className="space-y-1 m-0">
-                      <h3 className="font-bold text-lg text-white">
-                        {item?.menu?.name}
-                      </h3>
-                      <p className="text-gray-100 font-bold text-xs">
-                        Rp. {Number(item?.menu?.price).toLocaleString("id-ID")}
-                      </p>
+                <div key={index} className="container ">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Image
+                        width={100}
+                        height={100}
+                        alt="Logo"
+                        src={`${url}/images/${item?.menu?.image}`}
+                        className="w-20 h-24 mb-1"
+                        style={{
+                          objectFit: "contain",
+                        }}
+                      />
+                      <div className="space-y-1 m-0">
+                        <h3 className="font-bold text-lg text-white">
+                          {item?.menu?.name}
+                        </h3>
+                        <p className="text-gray-100 font-bold text-xs">
+                          Rp.{" "}
+                          {Number(item?.menu?.price).toLocaleString("id-ID")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-white p-3 text-lg">
+                      <p>x {item?.quantity}</p>
                     </div>
                   </div>
-                  <div className="text-white p-3 text-lg">
-                    <p>x {item?.quantity}</p>
-                  </div>
+                  <p className="text-gray-100 text-sm italic">
+                    Catatan: {item.description}
+                  </p>
                 </div>
               ))}
             </div>
