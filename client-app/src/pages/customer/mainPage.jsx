@@ -216,7 +216,9 @@ const MainPage = () => {
                       {menu.name}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
+
                       {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
+
                     </p>
                   </div>
                 </div>
@@ -254,7 +256,9 @@ const MainPage = () => {
                       {menu.name}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
+
                       {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
+
                     </p>
                   </div>
                 </div>
