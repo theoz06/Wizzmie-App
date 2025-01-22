@@ -28,6 +28,15 @@ const updateCart = async (tableNumber, customerId, menuId, params) => {
     }
 }
 
+const updateItemDescription = async (tableNumber, customerId, menuId, params) => {
+    try {
+        const response = await apiClient.put(`/customer/orderpage/table/${tableNumber}/customer/${customerId}/cart/update/description/${menuId}`, params);
+        return response.data;
+    } catch (error) {
+        throw error;
+    };
+}
+
 const removeItem = async (tableNumber, customerId, menuId) => {
     try {
         const response = await apiClient.delete(`/customer/orderpage/table/${tableNumber}/customer/${customerId}/cart/remove/${menuId}`);
@@ -46,4 +55,4 @@ const clearCart = async (tableNumber, customerId) => {
     }
 }
 
-export default { getCart, addToCart, updateCart, removeItem, clearCart };
+export default { getCart, addToCart, updateCart, removeItem, clearCart , updateItemDescription };

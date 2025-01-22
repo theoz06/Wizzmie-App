@@ -21,6 +21,9 @@ const KitchenPage = () => {
     [activeOrders, newOrder]
   );
 
+  console.log(updatedData);
+
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrderIndex, setSelectedOrderIndex] = useState(0);
   const itemsPerPage = 8;
@@ -190,12 +193,15 @@ const KitchenPage = () => {
                     {order.items.map((item, itemIndex) => (
                       <li
                         key={itemIndex}
-                        className="flex items-center space-x-3 text-gray-300 py-2 px-3 rounded-md bg-gray-700/50"
+                        className="space-x-3 text-gray-300 py-2 px-3 rounded-md bg-gray-700/50"
                       >
+                        <div className="flex items-center space-x-3 text-gray-300">
                         <span className="flex items-center justify-center bg-blue-500/20 text-blue-400 h-6 w-6 rounded-full text-sm font-medium">
                           {item.qty}
                         </span>
                         <span className="flex-1 font-medium">{item.menu}</span>
+                        </div>
+                        {item.catatan &&  <span className="relative left-7 text-gray-400 text-xs font-sm">{item.catatan}</span>}
                       </li>
                     ))}
                   </ul>
