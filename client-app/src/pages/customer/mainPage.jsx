@@ -12,6 +12,7 @@ import useGetCartItems from "@/hooks/cartHooks/useGetCartItems";
 import useAddToCart from "@/hooks/cartHooks/useAddToCart";
 import useGetRecommendationMenu from "@/hooks/menuHooks/useGetRecommendationMenu";
 import { useRef } from "react";
+import { FaExclamationCircle } from "react-icons/fa";
 
 
 
@@ -30,7 +31,7 @@ const MainPage = () => {
   const [totalItemAdded, setTotalItemAdded] = useState(0);
 
   const { categories } = useGetAllCategory();
-  const { menus } = useGetAllMenu();
+  const { menus, getAllMenu } = useGetAllMenu();
 
   const tabs = [
     "Rekomendasi",
@@ -91,7 +92,7 @@ const MainPage = () => {
     initializeCart();
   }, [tableNumber, custId, getCartItems]);
 
-  const { addToCart } = useAddToCart();
+  const { addToCart, error: errorAddToCartMessage, setError: setErrorAddToCartMessage } = useAddToCart();
   const addToCartHandler = async (menu) => {
     const custId = searchParams.get("CustomerId");
 
@@ -150,6 +151,30 @@ const MainPage = () => {
     );
   };
 
+  const onClose = async() => {
+    setErrorAddToCartMessage(null);
+    await getAllMenu();
+    const data = await getRecommendationMenu(custId);
+        if (data) {
+          const transformedData = data.map((item) => ({
+            id: item.menu.id,
+            name: item.menu.name,
+            description: item.menu.description,
+            price: item.menu.price,
+            image: item.menu.image,
+            isAvailable: item.menu.isAvailable,
+            category: item.menu.category,
+          }));
+          setRecommendation(transformedData);
+        }
+  };
+
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+const handleScroll = (e) => {
+  const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+  setIsAtBottom(bottom);
+};
 
   return (
     <CustomerLayout>
@@ -193,7 +218,7 @@ const MainPage = () => {
           </ul>
         </div>
       </nav>
-      <section className="fixed z-[1] space-y-6 top-[200px] bottom-0 left-0 w-full p-2 overflow-y-auto">
+      <section className="fixed z-[1] space-y-6 top-[200px] bottom-0 left-0 w-full p-2 overflow-y-auto" onScroll={handleScroll}>
         {activeTab === "Rekomendasi"
           ? recommendation?.map((menu, index) => (
               <div
@@ -272,7 +297,7 @@ const MainPage = () => {
               </div>
             ))}
       </section>
-      {totalItemAdded === 0 ? (
+      {totalItemAdded === 0 || isAtBottom ? (
         <></>
       ) : (
         <footer className="fixed z-[1] bottom-1 left-0 max-h-20 w-full px-6 ">
@@ -291,6 +316,22 @@ const MainPage = () => {
           </button>
         </footer>
       )}
+
+      {errorAddToCartMessage && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="bg-black/50 absolute inset-0" />
+    <div className="bg-white rounded-lg p-6 w-[90%] z-50 m-auto">
+      <div className="text-center space-y-4">
+        <FaExclamationCircle className="text-red-600 text-4xl mx-auto"/>
+        <h3 className="font-bold text-lg">Gagal menambahkan ke keranjang</h3>
+        <p className="text-gray-600">{errorAddToCartMessage}</p>
+        <button onClick={onClose} className="px-4 py-2 bg-pink-700 text-white rounded-md hover:bg-pink-800">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </CustomerLayout>
   );
 };

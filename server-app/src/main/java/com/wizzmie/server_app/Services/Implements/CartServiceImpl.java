@@ -1,16 +1,23 @@
 package com.wizzmie.server_app.Services.Implements;
 
+import java.util.Optional;
+
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Entity.Helper.Cart;
 import com.wizzmie.server_app.Entity.Helper.CartItem;
+import com.wizzmie.server_app.Repository.MenuRepository;
 
 @Service
 public class CartServiceImpl {
     private static final String CART_SESSION_KEY = "CART_%d_%d";
+
+    @Autowired
+    private MenuRepository menuRepository;
 
     public Cart getCart(HttpSession session, Integer tableNumber, Integer customerId) {
         if (tableNumber == null || customerId == null) {
@@ -32,6 +39,15 @@ public class CartServiceImpl {
     public void addToCart(Integer tableNumber, Integer customerId, HttpSession session, CartItem cartItem) {
         if (tableNumber == null || customerId == null) {
             throw new RuntimeException("Table number and customer ID are required.");
+        }
+
+        Optional<Menu> menu = menuRepository.findById(cartItem.getMenuId());
+        if (!menu.isPresent()){
+            throw new RuntimeException("Menu tidak ditemukan.");
+        }
+
+        if (!menu.get().getIsAvailable()){
+            throw new RuntimeException("Menu sedang tidak tersedia, silahkan pilih menu lain.");
         }
         
         Cart cart = getCart(session, tableNumber, customerId);

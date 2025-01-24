@@ -10,8 +10,8 @@ class WebSocketClient {
                 console.log(str);
             },
             reconnectDelay: 100,
-            heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000
+            heartbeatIncoming: 2000,
+            heartbeatOutgoing: 2000
         });
     }
 
