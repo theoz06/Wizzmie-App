@@ -9,7 +9,7 @@ const KitchenPage = () => {
     useGetAllActiveOrdersKitchen();
 
   const { updateOrderStatus } = useUpdateOrderStatus();
-  const { newOrder, setNewOrder } = useWebsocketOrders();
+  const { newOrder, setNewOrder } = useWebsocketOrders("kitchen");
 
   const updatedData = useMemo(
     () => [

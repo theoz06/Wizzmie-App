@@ -15,13 +15,14 @@ class WebSocketClient {
         });
     }
 
-    connect(onConnect, onError) {
-        this.client.onConnect = onConnect;
+    connect(type, onConnect, onError) {
+        this.client.onConnect = () => {
+            console.log(`${type} WebSocket connected`);
+            if(onConnect) onConnect();
+        };
         this.client.onStompError = (frame) => {
-            console.log("Websocket Error : " + frame.headers["message"]);
-            if (onError) {
-                onError(frame);
-            }
+            console.error(`${type} WebSocket Error:`, frame.headers["message"]);
+            if (onError) onError(frame);
         }
         this.client.activate();
     }
