@@ -11,6 +11,7 @@ class WebsocketService {
         this.client.connect(()=>{
             console.log("connect to websocket");
             this.client.subscribe("/admin/active-orders", (message)=> {
+                console.log("Raw message received:", message);
                 if(message.body){
                     try {
                         const data = JSON.parse(message.body);
