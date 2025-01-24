@@ -3,38 +3,17 @@ import Breadcrumb from "@/components/breadcrumb";
 import React, { useEffect, useState } from "react";
 import { GrMoney } from "react-icons/gr";
 import { MdPeopleAlt } from "react-icons/md";
-import { IoFastFoodOutline } from "react-icons/io5";
 import withAuth from "@/hoc/protectedRoute";
+import useGetMetrics from "@/hooks/dashboardHooks/useGetMetrics";
+
 
 const AdminHome = () => {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const [stats, setStats] = useState({
-    totalSales: 0,
-    totalCustomer: 0,
-    totalOrder: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  
+  const {isLoading, error, metrics} = useGetMetrics();
+  console.log(metrics);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/admin/stats`);
-        const data = await response.json();
-        setStats({
-          totalSales: data.totalSales,
-          totalCustomer: data.totalCustomer,
-          totalOrder: data.totalSold,
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch data: ", error);
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <AdminLayout>
         <div className="flex justify-center items-center h-screen">
@@ -45,56 +24,65 @@ const AdminHome = () => {
   }
 
   return (
-    <AdminLayout>
-      <div className="h-screen p-6">
-      <div className="p-2 rounded-md bg-white">
-        <Breadcrumb />
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-      </div>
-      <div className="flex justify-center items-center mt-32">
-        <ul className="flex space-x-20">
-          <li>
-            <div className="flex flex-col justify-center items-center space-y-3">
-              <div className="bg-[#fff] rounded-lg size-32 w-60 flex items-center shadow-md">
-                <span className="text-4xl ml-0 mr-2 bg-[#e985bb] h-full w-20 items-center flex justify-center rounded-l-lg">
-                  <GrMoney />
-                </span>
-                <span className="text-2xl items-center flex justify-center">
-                  IDR {stats.totalSales}
-                </span>
+<AdminLayout>
+  <div className="h-full p-4 md:p-6">
+    <div className="p-4 rounded-lg bg-white shadow-sm">
+      <Breadcrumb />
+      <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+    </div>
+    
+    <div className="mt-8 md:mt-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        
+        {/* Total Sales Card */}
+        <div className="flex flex-col items-center">
+          <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="flex items-center p-4">
+              <div className="bg-[#e985bb] p-4 rounded-lg">
+                <GrMoney className="text-3xl text-white" />
               </div>
-              <span className="text-2xl">Total Sales</span>
-            </div>
-          </li>
-          <li>
-            <div className="flex flex-col justify-center items-center space-y-3">
-              <div className="bg-[#fff] rounded-lg size-32 w-60 flex items-center shadow-md">
-                <span className="text-4xl ml-0 mr-2 bg-[#e985bb] h-full w-20 items-center flex justify-center rounded-l-lg ">
-                  <MdPeopleAlt />
-                </span>
-                <span className="text-2xl ml-10 items-center flex justify-center">
-                  {stats.totalCustomer}
-                </span>
+              <div className="ml-4">
+                <p className="text-sm text-gray-500 font-medium">Total Sales Bulanan</p>
+                <p className="text-xl font-bold text-gray-800">Rp. {Number(metrics?.totalSalesMonthly).toLocaleString('id-ID')}</p>
               </div>
-              <span className="text-2xl">Visit Customer</span>
             </div>
-          </li>
-          <li>
-            <div className="flex flex-col justify-center items-center space-y-3">
-              <div className="bg-[#fff] rounded-lg size-32 w-60 flex items-center shadow-md">
-                <span className="text-4xl ml-0 mr-2 bg-[#e985bb] h-full w-20 items-center flex justify-center rounded-l-lg">
-                  <IoFastFoodOutline />
-                </span>
-                <span className="text-2xl ml-10">{stats.totalOrder}</span>
-              </div>
-              <span className="text-2xl">Total Sold</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-      </div>
+          </div>
+        </div>
 
-    </AdminLayout>
+        {/* Visit Customer Card */}
+        <div className="flex flex-col items-center">
+          <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="flex items-center p-4">
+              <div className="bg-[#e985bb] p-4 rounded-lg">
+                <MdPeopleAlt className="text-3xl text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-gray-500 font-medium">Visit Customer Bulanan</p>
+                <p className="text-xl font-bold text-gray-800">{Number(metrics?.totalCustomersMonthly).toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Monthly Sales Card */}
+        <div className="flex flex-col items-center">
+          <div className="w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="flex items-center p-4">
+              <div className="bg-[#e985bb] p-4 rounded-lg">
+                <GrMoney className="text-3xl text-white" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm text-gray-500 font-medium">Sales Tahunan</p>
+                <p className="text-xl font-bold text-gray-800">Rp. {Number(metrics?.totalSalesYearly).toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</AdminLayout>
   );
 };
 

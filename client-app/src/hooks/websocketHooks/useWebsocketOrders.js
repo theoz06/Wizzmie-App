@@ -1,7 +1,7 @@
 import WebsocketService from '@/services/webSocketService';
 import { useEffect, useState } from 'react'
 
-const useWebsocketOrders = () => {
+const useWebsocketOrders = (type) => {
     const [newOrder, setNewOrder] = useState([]);
 
     
@@ -39,14 +39,14 @@ const useWebsocketOrders = () => {
               });
         }
 
-        WebsocketService.connect(handleNewOrder, (error)=> {
+        WebsocketService.connect(type,handleNewOrder, (error)=> {
             console.log("Websocket connection Error: " + error);
         });
 
         return () => {
             WebsocketService.disconnect();
         }
-    },[]);
+    },[type]);
 
     return {
         newOrder, setNewOrder

@@ -72,29 +72,43 @@ const Navbar = () => {
       </Link>
 
       {user?.role.toLowerCase() === "pelayan" ? (
-        <div className="relative block md:hidden" ref={menuRef}>
-          <button 
-            type="button" 
-            onClick={toggleMenu}
-            className="p-2 hover:bg-gray-800 rounded-md"
+        <>
+    {/* Mobile menu */}
+    <div className="relative block md:hidden" ref={menuRef}>
+      <button
+        type="button"
+        onClick={toggleMenu}
+        className="p-2 hover:bg-gray-800 rounded-md"
+      >
+        {isOpen ? <MdOutlineClose size={24} /> : <GiHamburgerMenu size={24} />}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-lg py-1">
+          <div className="px-4 py-2 text-sm border-b border-gray-700">
+            {user?.name || "Admin"}
+          </div>
+          <button
+            onClick={LogOutHandler}
+            className="w-full px-4 py-2 text-sm text-left text-red-500 hover:bg-gray-800"
           >
-            {isOpen ? <MdOutlineClose size={24} /> : <GiHamburgerMenu size={24} />}
+            Logout
           </button>
-          
-          {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-md shadow-lg py-1">
-              <div className="px-4 py-2 text-sm border-b border-gray-700">
-                {user?.name || "Admin"}
-              </div>
-              <button 
-                onClick={LogOutHandler}
-                className="w-full px-4 py-2 text-sm text-left text-red-500 hover:bg-gray-800"
-              >
-                Logout
-              </button>
-            </div>
-          )}
         </div>
+      )}
+    </div>
+
+    {/* Desktop menu */}
+    <div className="hidden md:flex items-center space-x-4">
+      <span className="font-medium">{user?.name || "Admin"}</span>
+      <button
+        onClick={LogOutHandler}
+        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+      >
+        Logout
+      </button>
+    </div>
+  </>
       ) : (
         <div className="flex items-center space-x-4">
           <span className="font-medium">{user?.name || "Admin"}</span>

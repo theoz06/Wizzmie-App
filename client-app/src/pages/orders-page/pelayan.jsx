@@ -5,6 +5,8 @@ import useUpdateOrderStatus from "@/hooks/orderHooks/useUpdateOrderStatus";
 import Modal from "@/components/modal";
 import { FaRegClock } from "react-icons/fa";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
+import useWebsocketOrders from "@/hooks/websocketHooks/useWebsocketOrders";
+import { useEffect, useMemo } from "react";
 
 
 
@@ -16,7 +18,19 @@ const PelayanPage = () => {
     getAllReadyOrders,
   } = useGetAllReadyOrders();
   const [selectedOrder, setSelectedOrder] = useState(null);
+
   const { updateOrderStatus } = useUpdateOrderStatus();
+  const { newOrder, setNewOrder } = useWebsocketOrders("pelayan");
+
+  const updatedData = useMemo(
+    () => [
+      ...readyOrders.filter(
+        (order) => !newOrder.some((newOrder) => newOrder.id === order.id)
+      ),
+      ...newOrder,
+    ],
+    [readyOrders, newOrder]
+  );
 
   const [isOpen, setIsOpen] = useState(false);
   const handleCloseModal = () => {
@@ -40,6 +54,7 @@ const PelayanPage = () => {
     if (success) {
       handleCloseModal();
       setSelectedOrder(null);
+      setNewOrder([]);
       await getAllReadyOrders();
     }
   };
@@ -67,7 +82,7 @@ const PelayanPage = () => {
           </div>
         )}
 
-        {!loading && !error && !Array.isArray(readyOrders) && (
+        {!loading && !error && !Array.isArray(updatedData) && (
           <div className="text-center text-gray-600 p-4">
             <p>No orders ready at the moment</p>
           </div>
@@ -75,8 +90,8 @@ const PelayanPage = () => {
 
         {!loading &&
           !error &&
-          Array.isArray(readyOrders) &&
-          readyOrders.length === 0 && (
+          Array.isArray(updatedData) &&
+          updatedData.length === 0 && (
             <div className="text-center text-gray-600 p-4">
               <p>No orders ready at the moment</p>
             </div>
@@ -84,10 +99,10 @@ const PelayanPage = () => {
 
         {!loading &&
           !error &&
-          Array.isArray(readyOrders) &&
-          readyOrders.length > 0 && (
+          Array.isArray(updatedData) &&
+          updatedData.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {readyOrders.map((data, index) => (
+        {updatedData.map((data, index) => (
           <div
             key={index}
             className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"

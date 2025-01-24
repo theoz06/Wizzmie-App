@@ -140,6 +140,7 @@ public class OrderServiceImpl {
             case 2:
                 updateStatus(order, 3);
                 messagingTemplate.convertAndSend("/pelayan/ready-orders", order);
+                messagingTemplate.convertAndSend("/admin/active-orders", order);
 
                 break;
             case 3:

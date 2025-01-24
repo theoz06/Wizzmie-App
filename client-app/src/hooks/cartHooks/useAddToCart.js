@@ -16,6 +16,7 @@ const useAddToCart = () => {
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err.message || "An error occurred during adding to cart.";
             setError(errorMessage);
+            setIsLoading(false);
             return false;
         } finally {
             setIsLoading(false);
@@ -26,6 +27,7 @@ const useAddToCart = () => {
         addToCart,
         isLoading,
         error,
+        setError
     }
 }
 

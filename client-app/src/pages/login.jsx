@@ -35,7 +35,7 @@ const LoginPage = () => {
 
       switch (role) {
         case "admin":
-          router.push("/admin/menu-management");
+          router.push("/admin/AdminHome");
           break;
         case "kitchen":
           router.push("/orders-page/kitchen");
