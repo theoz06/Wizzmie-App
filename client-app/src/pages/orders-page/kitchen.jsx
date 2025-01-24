@@ -23,7 +23,6 @@ const KitchenPage = () => {
 
   console.log(updatedData);
 
-
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrderIndex, setSelectedOrderIndex] = useState(0);
   const itemsPerPage = 8;
@@ -41,13 +40,13 @@ const KitchenPage = () => {
         containerRef.current.focus();
       }
     };
-  
+
     // Focus on mount
     focusContainer();
-  
+
     // Set up interval to check and restore focus
     const focusInterval = setInterval(focusContainer, 1000);
-  
+
     return () => clearInterval(focusInterval);
   }, []);
 
@@ -115,7 +114,7 @@ const KitchenPage = () => {
   return (
     <AdminLayout>
       <div className="h-full flex flex-col bg-gray-900">
-      {isLoading && (
+        {isLoading && (
           <div className="flex flex-col items-center justify-center h-96 space-y-4">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-indigo-600"></div>
             <p className="text-gray-600 font-medium">Loading orders...</p>
@@ -143,27 +142,28 @@ const KitchenPage = () => {
               <p>No orders ready at the moment</p>
             </div>
           )}
-        
+
         <div className="flex-1 overflow-auto p-4">
           <div
             tabIndex={0}
             ref={containerRef}
             onKeyDown={handlerKeyDown}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max outline-none"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto outline-none"
           >
             {paginatedData.map((order, index) => (
               <div
                 key={order.id || index}
                 onClick={() => setSelectedOrderIndex(index)}
                 className={`
-                  bg-gray-800 
-                  rounded-lg 
-                  overflow-hidden 
+                  h-fit
+                  bg-gray-800
+                  rounded-lg
+                  overflow-hidden
                   shadow-lg
-                  transition-all 
-                  duration-200 
+                  transition-all
+                  duration-200
                   cursor-pointer
-                  hover:transform 
+                  hover:transform
                   hover:scale-[1.02]
                   ${
                     selectedOrderIndex === index
@@ -196,12 +196,18 @@ const KitchenPage = () => {
                         className="space-x-3 text-gray-300 py-2 px-3 rounded-md bg-gray-700/50"
                       >
                         <div className="flex items-center space-x-3 text-gray-300">
-                        <span className="flex items-center justify-center bg-blue-500/20 text-blue-400 h-6 w-6 rounded-full text-sm font-medium">
-                          {item.qty}
-                        </span>
-                        <span className="flex-1 font-medium">{item.menu}</span>
+                          <span className="flex items-center justify-center bg-blue-500/20 text-blue-400 h-6 w-6 rounded-full text-sm font-medium">
+                            {item.qty}
+                          </span>
+                          <span className="flex-1 font-medium">
+                            {item.menu}
+                          </span>
                         </div>
-                        {item.catatan &&  <span className="relative left-7 text-gray-400 text-xs font-sm">{item.catatan}</span>}
+                        {item.catatan && (
+                          <span className="relative left-7 text-gray-400 text-xs font-sm">
+                            {item.catatan}
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>

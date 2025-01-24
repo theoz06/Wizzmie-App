@@ -29,18 +29,23 @@ const PaymentPage = () => {
 
   useEffect(() => {
     let isMounted = true;
+    let isGenerating = false;
 
     const generateQrisCode = async () => {
-      if (!orderId || qrisUrl) return;
+      if (!orderId || qrisUrl || isGenerating) return;
 
       try {
+        isGenerating = true;
         const data = await generateQRIS(orderId);
         if (isMounted && data) {
           console.log("Generated QRIS URL:", data);
           setQrisUrl(data);
         }
       } catch (error) {
+        isGenerating = false;
         console.error("Error Generate QRIS:", error);
+      }finally{
+        isGenerating = false;
       }
     };
 

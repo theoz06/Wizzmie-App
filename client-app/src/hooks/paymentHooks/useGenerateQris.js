@@ -1,11 +1,13 @@
 import paymentService from "@/services/paymentService";
 import { useState } from "react";
+import { useCallback } from "react";
+
 
 const useGenerateQris = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const generateQRIS = async (orderId) => {
+    const generateQRIS = useCallback(async (orderId) => {
         setIsLoading(true);
         setError(null);
 
@@ -19,7 +21,7 @@ const useGenerateQris = () => {
         }finally{
             setIsLoading(false);
         }
-    }
+    },[]);
 
     return {
         isLoading,
