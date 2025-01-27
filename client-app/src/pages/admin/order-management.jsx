@@ -14,11 +14,8 @@ const ManageOrder = () => {
   const tabs = ["Prepared", "Ready To Serve", "Served"];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-    const {newOrder,setNewOrder} = useWebsocketOrders("admin");
+  const {newOrder,setNewOrder} = useWebsocketOrders("admin");
 
-    // const latestOrderId = 0;
-
-    //Get All Paid Orders
     let {
       transformeData: ordersData,
       isLoading: loadingGetOrders,

@@ -2,13 +2,16 @@ import WebSocketClient from "@/dal/webSocketClient";
 import { env } from "process";
 
 
-class WebSocketService {
+export class WebSocketService {
     
     constructor() {
-        this.client = new WebSocketClient(process.env.NEXT_PUBLIC_API_WS_URL);
+        this.client = null;
     }
     
     connect(type, onMessageReceived, onError) {
+
+        this.client = new WebSocketClient(process.env.NEXT_PUBLIC_API_WS_URL);
+        
         this.client.connect(type, () => {
             console.log("Type received:", type);
             switch(type) {
@@ -38,8 +41,10 @@ class WebSocketService {
     }
 
     disconnect() {
-        this.client.disconnect();
+        if (this.client) {
+            this.client.disconnect();
+            this.client = null;
+        }
     }
 }
 
-export default new WebSocketService();

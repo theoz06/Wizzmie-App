@@ -13,7 +13,7 @@ const getCart = async (tableNumber, customerId)=>{
 const addToCart = async (tableNumber, customerId, data) => {
     try {
         const response = await apiClient.post(`/customer/orderpage/table/${tableNumber}/customer/${customerId}/cart/add`, data);
-        return response.data;
+        return response.status;
     } catch (error) {
         throw error;
     }

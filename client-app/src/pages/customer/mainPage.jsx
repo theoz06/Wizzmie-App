@@ -105,11 +105,23 @@ const MainPage = () => {
       quantity: 1,
     };
 
-    const success = await addToCart(tableNumber, custId, items);
-    if (success) {
-      const resp = await getCartItems(tableNumber, custId);
-      setCartData(resp);
+    try {
+
+      const success = await addToCart(tableNumber, custId, items);
+
+      if (success) {
+
+        const resp = await getCartItems(tableNumber, custId);
+
+        setCartData(resp);
+
+      } else {
+        setErrorAddToCartMessage("Gagal menambahkan ke keranjang");
+      }
+    } catch (error) {
+      console.log("error : " + error);
     }
+
   };
 
   useEffect(() => {
@@ -171,10 +183,12 @@ const MainPage = () => {
 
   const [isAtBottom, setIsAtBottom] = useState(false);
 
-const handleScroll = (e) => {
-  const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-  setIsAtBottom(bottom);
-};
+  const handleScroll = (e) => {
+    const bottom = Math.abs(e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight) < 1;
+    setIsAtBottom(bottom);
+  };
+
+
 
   return (
     <CustomerLayout>

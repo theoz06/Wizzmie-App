@@ -55,7 +55,6 @@ const StatusPage = () => {
             ) {
               setStatus(res?.Order?.orderStatus?.description.toLowerCase());
               clearInterval(intervalId);
-              router.push(`/customer/customerForm?table=${tableNumber}`);
             } else if (
               res?.Order?.orderStatus?.description.toLowerCase() ===
               "ready to serve"
