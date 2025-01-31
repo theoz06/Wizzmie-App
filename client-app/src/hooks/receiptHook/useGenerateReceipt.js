@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { useCallback } from 'react';            
 import receiptService from '@/services/receiptService';
 
 const useGenerateReceipt = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState(null);
 
-    const generateReceipt = async (orderId) => {
+    const generateReceipt = useCallback(async (orderId) => {
         setIsGenerating(true);
         setError(null);
 
@@ -20,7 +21,7 @@ const useGenerateReceipt = () => {
         }finally{
             setIsGenerating(false);
         }
-    }
+    },[])
 
     return {
         isGenerating,

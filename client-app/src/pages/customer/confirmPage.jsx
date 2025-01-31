@@ -20,7 +20,7 @@ const ConfirmPage = () => {
   const [cartData, setCartData] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPayment, setTotalPayment] = useState(0);
-  const ppn = 0.03;
+  const ppn = 0.1;
   const [ppnAmount, setPpnAmount] = useState(0);
 
   const { getCartItems } = useGetCartItems();
@@ -121,7 +121,7 @@ const ConfirmPage = () => {
                       {item.menuName}
                     </h3>
                     <p className="text-gray-100 font-bold text-xs">
-                      Rp. {item.price}
+                      Rp. {Number(item.price).toLocaleString("id-ID")}
                     </p>
                   </div>
                 </div>
