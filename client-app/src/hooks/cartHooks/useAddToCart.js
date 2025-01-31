@@ -11,8 +11,13 @@ const useAddToCart = () => {
         setError(null);
 
         try {
-            await cartService.addToCart(tableNumber, customerId, data);
-            return true;
+            const response = await cartService.addToCart(tableNumber, customerId, data);
+            if (response === 200){
+                return true;
+            }else{
+                return false;
+            }
+            
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err.message || "An error occurred during adding to cart.";
             setError(errorMessage);

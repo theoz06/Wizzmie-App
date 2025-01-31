@@ -1,9 +1,9 @@
-import WebsocketService from '@/services/webSocketService';
-import { useEffect, useState } from 'react'
+import {WebSocketService} from '@/services/webSocketService';
+import { useEffect, useRef, useState } from 'react'
 
 const useWebsocketOrders = (type) => {
     const [newOrder, setNewOrder] = useState([]);
-
+    const wsServiceRef = useRef(null);// Create instance per hook usage
     
   const transformeOrderData = (order) => ({
     id: order.id,
@@ -19,6 +19,11 @@ const useWebsocketOrders = (type) => {
   });
 
     useEffect(()=>{
+
+        if(!wsServiceRef.current){
+          wsServiceRef.current = new WebSocketService();
+        }
+
         const handleNewOrder = (order) => {
 
             const transformedOrder = transformeOrderData(order);
@@ -39,12 +44,14 @@ const useWebsocketOrders = (type) => {
               });
         }
 
-        WebsocketService.connect(type,handleNewOrder, (error)=> {
+        wsServiceRef.current.connect(type,handleNewOrder, (error)=> {
             console.log("Websocket connection Error: " + error);
         });
 
         return () => {
-            WebsocketService.disconnect();
+          if (wsServiceRef.current) {
+            wsServiceRef.current.disconnect();
+        }
         }
     },[type]);
 
