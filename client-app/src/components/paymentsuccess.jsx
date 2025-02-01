@@ -11,7 +11,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
   const handleDownload = () => {
     try {
       const link = document.createElement('a');
-      link.href = `${process.env.NEXT_PUBLIC_API_URL}/receipt/${orderId}`;
+      link.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/receipt/${orderId}`;
       link.setAttribute('download', `struk-${orderId}.pdf`);
       document.body.appendChild(link);
       link.click();
