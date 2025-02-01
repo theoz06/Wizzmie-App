@@ -22,11 +22,10 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDate now = LocalDate.now();
         int month = now.getMonthValue();
         int year = now.getYear();
-        Boolean paid = true; 
 
-        BigDecimal totalSalesMonthly = orderRepository.getTotalSalesByMonthAndYear(month, year, paid);
-        Long totalCustomersMonthly = orderRepository.getTotalCustomersByMonthAndYear(month, year, paid);
-        BigDecimal totalSalesYearly = orderRepository.getTotalSalesByYear(year, paid);
+        BigDecimal totalSalesMonthly = orderRepository.getTotalSalesByMonthAndYear(month, year);
+        Long totalCustomersMonthly = orderRepository.getTotalCustomersByMonthAndYear(month, year);
+        BigDecimal totalSalesYearly = orderRepository.getTotalSalesByYear(year);
 
         return new DashboardMetricsDTO(
                 totalSalesMonthly != null ? totalSalesMonthly : BigDecimal.ZERO,
