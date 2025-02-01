@@ -29,7 +29,7 @@ public class Cart {
     public Double getTotalAmount(){
 
         Double totalPrice = cartItems.stream().mapToDouble(item -> item.getPrice() * item.getQuantity()).sum();
-        Double ppn = 0.03 * totalPrice;
+        Double ppn = 0.1 * totalPrice;
 
         return ppn + totalPrice;
     }

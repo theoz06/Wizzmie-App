@@ -9,6 +9,7 @@ import { FaRegCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import useCheckStatusPaid from "@/hooks/paymentHooks/useCheckStatusPaid";
 import { AlertCircle } from "lucide-react";
+import PaymentSuccessWithReceipt from "@/components/paymentsuccess";
 
 const PaymentPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -149,14 +150,9 @@ const PaymentPage = () => {
   return (
     <CustomerLayout>
       {paid === "settlement" ? (
-        <figure className="relative top-[100px] flex flex-col items-center justify-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
-          <p className="absolute top-[-35px] text-5xl text-green-500 bg-white rounded-full p-2 border-b-2 border-green-500">
-            <FaRegCheckCircle />
-          </p>
-          <h2 className=" font-bold text-2xl sm:text-lg md:text-xl text-gray-600 text-center">
-            Pembayaran Berhasil
-          </h2>
-        </figure>
+        <PaymentSuccessWithReceipt 
+          orderId={orderId} 
+        />
       ) : paid === "pending" || paid === "" ? (
         <>
           <article className="space-y-4 m-5 sm:m-8 md:m-14 text-white text-sm text-center">
