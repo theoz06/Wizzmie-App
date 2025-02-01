@@ -152,7 +152,6 @@ const PaymentPage = () => {
       {paid === "settlement" ? (
         <PaymentSuccessWithReceipt 
           orderId={orderId} 
-          duration={2000}
         />
       ) : paid === "pending" || paid === "" ? (
         <>

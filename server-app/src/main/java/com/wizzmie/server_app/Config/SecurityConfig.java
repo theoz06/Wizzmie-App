@@ -95,7 +95,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://wizzmie-cibaduyut.vercel.app"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://52.62.206.58:3000" , "https://wizzmie-cibaduyut.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
