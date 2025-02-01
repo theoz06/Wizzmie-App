@@ -24,13 +24,13 @@ public interface OrderRepository extends JpaRepository<Orders, Integer> {
 
     List<Orders> findByCustomerId(Integer customerId);
 
-    @Query(value = "SELECT SUM(o.total_amount) FROM orders o WHERE MONTH(o.order_date) = :month AND YEAR(o.order_date) = :year", nativeQuery = true)
-    BigDecimal getTotalSalesByMonthAndYear(int month, int year);
+    @Query(value = "SELECT SUM(o.total_amount) FROM orders o WHERE MONTH(o.order_date) = :month AND YEAR(o.order_date) = :year AND o.paid = :paid)", nativeQuery = true)
+    BigDecimal getTotalSalesByMonthAndYear(int month, int year, boolean paid);
 
-    @Query(value = "SELECT COUNT(DISTINCT o.customer_id) FROM orders o WHERE MONTH(o.order_date) = :month AND YEAR(o.order_date) = :year", nativeQuery = true)
-    Long getTotalCustomersByMonthAndYear(int month, int year);
+    @Query(value = "SELECT COUNT(DISTINCT o.customer_id) FROM orders o WHERE MONTH(o.order_date) = :month AND YEAR(o.order_date) = :year AND o.paid = :paid)", nativeQuery = true)
+    Long getTotalCustomersByMonthAndYear(int month, int year, boolean paid);
 
-    @Query(value = "SELECT SUM(o.total_amount) FROM orders o WHERE YEAR(o.order_date) = :year", nativeQuery = true)
-    BigDecimal getTotalSalesByYear(int year);
+    @Query(value = "SELECT SUM(o.total_amount) FROM orders o WHERE YEAR(o.order_date) = :year AND o.paid = :paid)", nativeQuery = true)
+    BigDecimal getTotalSalesByYear(int year, boolean paid);
     
 }
