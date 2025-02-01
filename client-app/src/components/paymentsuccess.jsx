@@ -6,26 +6,18 @@ import { IoMdClose } from 'react-icons/io';
 import useGenerateReceipt from '@/hooks/receiptHook/useGenerateReceipt';
 
 const PaymentSuccessWithReceipt = ({ orderId }) => {
-  const { isGenerating, error, generateReceipt } = useGenerateReceipt();
-  const [showError, setShowError] = useState(true);
+  const [showError, setShowError] = useState(false);
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     try {
-      const response = await generateReceipt(orderId);
-      if (response) {
-        const blob = new Blob([response], { 
-          type: 'application/pdf'
-        });
-        const blobUrl = URL.createObjectURL(blob);
-        
-        window.open(blobUrl, '_self');
-        
-        setTimeout(() => {
-          URL.revokeObjectURL(blobUrl);
-        }, 1000);
-      }
+      const link = document.createElement('a');
+      link.href = `${process.env.NEXT_PUBLIC_API_URL}/receipt/${orderId}`;
+      link.setAttribute('download', `struk-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (err) {
-      console.error('Error generating receipt:', err);
+      console.error('Error downloading receipt:', err);
       setShowError(true);
     }
   };
@@ -33,7 +25,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
   return (
     <div className="relative w-full">
       {/* Error Modal */}
-      {error && showError && (
+      {showError && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4">
             <div className="flex justify-between items-start mb-4">
@@ -50,7 +42,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
             </div>
             <div className="mb-4">
               <p className="text-gray-500">
-                Terjadi kesalahan saat membuat struk. Silahkan coba lagi.
+                Terjadi kesalahan saat mengunduh struk. Silahkan coba lagi.
               </p>
             </div>
             <div className="flex justify-end gap-2">
@@ -61,22 +53,15 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
                 Tutup
               </button>
               <button
-                onClick={handleDownload}
+                onClick={() => {
+                  setShowError(false);
+                  handleDownload();
+                }}
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
               >
                 Coba Lagi
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Loading State */}
-      {isGenerating && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="flex flex-col items-center gap-3">
-            <AiOutlineLoading3Quarters className="w-12 h-12 text-green-500 animate-spin" />
-            <p className="text-white">Membuat Struk...</p>
           </div>
         </div>
       )}
@@ -91,11 +76,10 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
         </h2>
         <button
           onClick={handleDownload}
-          disabled={isGenerating}
-          className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
         >
           <HiDocumentDownload className="w-5 h-5" />
-          {isGenerating ? 'Membuat Struk...' : 'Download Struk'}
+          Download Struk
         </button>
       </figure>
     </div>
