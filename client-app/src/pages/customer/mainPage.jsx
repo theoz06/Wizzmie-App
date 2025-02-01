@@ -13,8 +13,7 @@ import useAddToCart from "@/hooks/cartHooks/useAddToCart";
 import useGetRecommendationMenu from "@/hooks/menuHooks/useGetRecommendationMenu";
 import { useRef } from "react";
 import { FaExclamationCircle } from "react-icons/fa";
-
-
+import FlavorModal from "@/components/flavor";
 
 const MainPage = () => {
   const router = useRouter();
@@ -45,6 +44,22 @@ const MainPage = () => {
     (menu) => menu.category.description === activeTab
   );
 
+  const imagesUrl = {
+    "Rekomendasi": "/images/Screenshot_2025-02-01_193135-removebg-preview.png",
+    "Sushi": "/images/Screenshot_2025-02-01_192933-removebg-preview.png",
+    "Mie": "/images/Screenshot_2025-02-01_192341-removebg-preview.png",
+    "Rice Bowl": "/images/Screenshot_2025-02-01_192251-removebg-preview.png",
+    "Coffee": "/images/Screenshot_2025-02-01_192307-removebg-preview.png",
+    "Non-coffee": "/images/Screenshot_2025-02-01_193154-removebg-preview.png",
+    "Frappe": "/images/Screenshot_2025-02-01_192251-removebg-preview.png",
+    "Dimsum": "/images/Screenshot_2025-02-01_193017-removebg-preview.png",
+    "Gelato": "/images/Screenshot_2025-02-01_193154-removebg-preview.png",
+  }
+
+  const getImageUrl = (activeTab) => {
+    return imagesUrl[activeTab];
+  }
+
   const {
     getRecommendationMenu,
     recommendation,
@@ -73,7 +88,7 @@ const MainPage = () => {
     };
 
     initializeData();
-  },[]);
+  }, []);
 
   useEffect(() => {
     const initializeCart = async () => {
@@ -92,8 +107,26 @@ const MainPage = () => {
     initializeCart();
   }, [tableNumber, custId, getCartItems]);
 
-  const { addToCart, error: errorAddToCartMessage, setError: setErrorAddToCartMessage } = useAddToCart();
-  const addToCartHandler = async (menu) => {
+  const {
+    addToCart,
+    error: errorAddToCartMessage,
+    setError: setErrorAddToCartMessage,
+  } = useAddToCart();
+
+  const [isFlavorModalOpen, setIsFlavorModalOpen] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState(null);
+  const handleAddItem = (menu) => {
+    const menuLower = menu.name.toLowerCase();
+    if (menu.category.description.toLowerCase() === "gelato" && 
+        (menuLower.startsWith("cone") || menuLower.startsWith("cup"))) {
+      setSelectedMenu(menu);
+      setIsFlavorModalOpen(true);
+    } else {
+      addToCartHandler(menu);
+    }
+  };
+
+  const addToCartHandler = async (menu, flavor = []) => {
     const custId = searchParams.get("CustomerId");
 
     const items = {
@@ -101,27 +134,23 @@ const MainPage = () => {
       menuName: menu.name,
       price: menu.price,
       imageUrl: menu.image,
-      description: "",
+      description: flavor.length > 0 ? flavor.join(", ") : "",
       quantity: 1,
     };
 
     try {
-
       const success = await addToCart(tableNumber, custId, items);
 
       if (success) {
-
         const resp = await getCartItems(tableNumber, custId);
 
         setCartData(resp);
-
       } else {
         setErrorAddToCartMessage("Gagal menambahkan ke keranjang");
       }
     } catch (error) {
       console.log("error : " + error);
     }
-
   };
 
   useEffect(() => {
@@ -163,37 +192,38 @@ const MainPage = () => {
     );
   };
 
-  const onClose = async() => {
+  const onClose = async () => {
     setErrorAddToCartMessage(null);
     await getAllMenu();
     const data = await getRecommendationMenu(custId);
-        if (data) {
-          const transformedData = data.map((item) => ({
-            id: item.menu.id,
-            name: item.menu.name,
-            description: item.menu.description,
-            price: item.menu.price,
-            image: item.menu.image,
-            isAvailable: item.menu.isAvailable,
-            category: item.menu.category,
-          }));
-          setRecommendation(transformedData);
-        }
+    if (data) {
+      const transformedData = data.map((item) => ({
+        id: item.menu.id,
+        name: item.menu.name,
+        description: item.menu.description,
+        price: item.menu.price,
+        image: item.menu.image,
+        isAvailable: item.menu.isAvailable,
+        category: item.menu.category,
+      }));
+      setRecommendation(transformedData);
+    }
   };
 
   const [isAtBottom, setIsAtBottom] = useState(false);
 
   const handleScroll = (e) => {
-    const bottom = Math.abs(e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight) < 1;
+    const bottom =
+      Math.abs(
+        e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight
+      ) < 1;
     setIsAtBottom(bottom);
   };
 
-
-
   return (
     <CustomerLayout>
-      <header className="fixed top-0 z-[2] left-0 bg-[#9c379a] p-4 flex justify-between items-center w-full border-2 border-[#9c379a]">
-        <div className="space-y-6">
+      <header className="fixed h-[150px] top-0 z-[2] left-0 bg-[#9c379a] p-4 flex justify-between items-center w-full border-2 border-[#9c379a]">
+        <div className="space-y-6 overflow-ellipsis">
           <h1 className=" table-number font-bold text-6xl text-[#9c379a]">
             {tableNumber}
           </h1>
@@ -205,7 +235,8 @@ const MainPage = () => {
           width={100}
           height={100}
           alt="Logo"
-          src="/images/Logo-wizzmie.webp"
+          src={getImageUrl(activeTab)}
+          className="overflow-ellipsis"
         />
       </header>
       <nav className="fixed top-[147px] left-0 z-10 bg-purple-100 w-full p-1 border-4 border-pink-700 rounded-b">
@@ -232,12 +263,19 @@ const MainPage = () => {
           </ul>
         </div>
       </nav>
-      <section className="fixed z-[1] space-y-6 top-[200px] bottom-0 left-0 w-full p-2 overflow-y-auto" onScroll={handleScroll}>
+      <section
+        className="fixed z-[1] space-y-6 top-[210px] bottom-0 left-0 w-full p-2 overflow-y-auto"
+        onScroll={handleScroll}
+      >
         {activeTab === "Rekomendasi"
           ? recommendation?.map((menu, index) => (
               <div
                 key={index}
-                className={`container pr-3 ${menu.isAvailable ? `bg-pink-500` : `bg-gray-400 text-[#B0B0B0]`}  rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative`}
+                className={`container pr-3 ${
+                  menu.isAvailable
+                    ? `bg-pink-500`
+                    : `bg-gray-400 text-[#B0B0B0]`
+                }  rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative`}
               >
                 <div className="flex flex-1 items-center gap-2 overflow-hidden">
                   <div className="flex-shrink-0">
@@ -256,7 +294,9 @@ const MainPage = () => {
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
 
+
                       {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
+
 
                     </p>
                   </div>
@@ -266,8 +306,12 @@ const MainPage = () => {
                   <button
                     type="button"
                     disabled={!menu.isAvailable}
-                    onClick={() => addToCartHandler(menu)}
-                    className={`${menu.isAvailable ? `bg-pink-700 hover:bg-pink-800` : `bg-gray-400`}  text-white p-2 rounded-full border-white border-2  transition-colors`}
+                    onClick={() => handleAddItem(menu)}
+                    className={`${
+                      menu.isAvailable
+                        ? `bg-pink-700 hover:bg-pink-800`
+                        : `bg-gray-400`
+                    }  text-white p-2 rounded-full border-white border-2  transition-colors`}
                   >
                     <FaPlus />
                   </button>
@@ -277,7 +321,11 @@ const MainPage = () => {
           : menusFilteredByCategory.map((menu, index) => (
               <div
                 key={index}
-                className={`container pr-3 ${menu.isAvailable ? `bg-pink-500` : `bg-gray-400 text-[#B0B0B0]`}  rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative`}
+                className={`container pr-3 ${
+                  menu.isAvailable
+                    ? `bg-pink-500`
+                    : `bg-gray-400 text-[#B0B0B0]`
+                }  rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative`}
               >
                 <div className="flex flex-1 items-center gap-2 overflow-hidden">
                   <div className="flex-shrink-0">
@@ -306,8 +354,12 @@ const MainPage = () => {
                   <button
                     type="button"
                     disabled={!menu.isAvailable}
-                    onClick={() => addToCartHandler(menu)}
-                    className={`${menu.isAvailable ? `bg-pink-700 hover:bg-pink-800` : `bg-gray-400`}  text-white p-2 rounded-full border-white border-2  transition-colors`}
+                    onClick={() => handleAddItem(menu)}
+                    className={`${
+                      menu.isAvailable
+                        ? `bg-pink-700 hover:bg-pink-800`
+                        : `bg-gray-400`
+                    }  text-white p-2 rounded-full border-white border-2  transition-colors`}
                   >
                     <FaPlus />
                   </button>
@@ -336,20 +388,35 @@ const MainPage = () => {
       )}
 
       {errorAddToCartMessage && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center">
-    <div className="bg-black/50 absolute inset-0" />
-    <div className="bg-white rounded-lg p-6 w-[90%] z-50 m-auto">
-      <div className="text-center space-y-4">
-        <FaExclamationCircle className="text-red-600 text-4xl mx-auto"/>
-        <h3 className="font-bold text-lg">Gagal menambahkan ke keranjang</h3>
-        <p className="text-gray-600">{errorAddToCartMessage}</p>
-        <button onClick={onClose} className="px-4 py-2 bg-pink-700 text-white rounded-md hover:bg-pink-800">
-          Tutup
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-black/50 absolute inset-0" />
+          <div className="bg-white rounded-lg p-6 w-[90%] z-50 m-auto">
+            <div className="text-center space-y-4">
+              <FaExclamationCircle className="text-red-600 text-4xl mx-auto" />
+              <h3 className="font-bold text-lg">
+                Gagal menambahkan ke keranjang
+              </h3>
+              <p className="text-gray-600">{errorAddToCartMessage}</p>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-pink-700 text-white rounded-md hover:bg-pink-800"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <FlavorModal 
+        isOpen={isFlavorModalOpen}
+        onClose={() => {
+          setIsFlavorModalOpen(false);
+          setSelectedMenu(null);
+        }}
+        onConfirm={(flavors) => addToCartHandler(selectedMenu, flavors)}
+        menu={selectedMenu}
+      />
     </CustomerLayout>
   );
 };

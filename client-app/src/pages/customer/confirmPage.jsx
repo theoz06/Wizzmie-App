@@ -104,7 +104,7 @@ const ConfirmPage = () => {
               key={index}
               className="container "
             >
-              <div className="flex justify-between items-center">
+              <div className="flex mt-5 justify-between items-center">
                 <div className="flex items-center space-x-2">
                   <Image
                     width={100}
@@ -129,7 +129,11 @@ const ConfirmPage = () => {
                   <p>x{item.quantity}</p>
                 </div>
               </div>
-              <p className="text-gray-100 text-sm italic">Catatan: {item.description}</p>
+              {item.description !== "" && (
+                <p className="text-gray-100 text-sm italic">
+                  Catatan: {item.description}
+                </p>
+              )}
             </div>
           ))}
         </div>
