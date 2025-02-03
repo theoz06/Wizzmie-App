@@ -7,12 +7,14 @@ import { FaRegClock } from "react-icons/fa";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import useWebsocketOrders from "@/hooks/websocketHooks/useWebsocketOrders";
 import { useEffect, useMemo } from "react";
+import NotificationSound from "@/components/notificationSound";
 
 
 
 const PelayanPage = () => {
   const {
     readyOrders = [],
+    setReadyOrders,
     loading,
     error,
     getAllReadyOrders,
@@ -22,15 +24,20 @@ const PelayanPage = () => {
   const { updateOrderStatus } = useUpdateOrderStatus();
   const { newOrder, setNewOrder } = useWebsocketOrders("pelayan");
 
-  const updatedData = useMemo(
-    () => [
+  const mergedData = useMemo(() => {
+    return [
       ...readyOrders.filter(
         (order) => !newOrder.some((newOrder) => newOrder.id === order.id)
       ),
       ...newOrder,
-    ],
-    [readyOrders, newOrder]
-  );
+    ].filter((order) => order.status.toLowerCase() === "ready to serve");
+  }, [readyOrders, newOrder]);
+
+  const updatedData = useMemo(
+    () => {
+      return mergedData.filter((order)=> order?.status.toLowerCase() === "ready to serve");
+    }, [mergedData]);
+    console.log(updatedData);
 
   const [isOpen, setIsOpen] = useState(false);
   const handleCloseModal = () => {
@@ -48,19 +55,18 @@ const PelayanPage = () => {
 
     const orderId = selectedOrder?.id;
 
-    console.log("Order Id: " + orderId);
-
     const success = await updateOrderStatus(orderId);
     if (success) {
       handleCloseModal();
       setSelectedOrder(null);
-      setNewOrder([]);
-      await getAllReadyOrders();
+      setNewOrder((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
+      setReadyOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
     }
   };
 
   return (
     <AdminLayout>
+      <NotificationSound soundUrl="/sounds/long-chime-sound-455.mp3" newOrder={newOrder} />
       <div className="m-3 p-3 space-y-6">
         {loading && (
           <div className="flex flex-col items-center justify-center h-96 space-y-4">
