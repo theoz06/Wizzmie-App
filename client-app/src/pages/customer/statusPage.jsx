@@ -213,9 +213,11 @@ const StatusPage = () => {
                       <p>x {item?.quantity}</p>
                     </div>
                   </div>
-                  <p className="text-gray-100 text-sm italic">
-                    Catatan: {item.description}
-                  </p>
+                  {item.description !== "" && (
+                    <p className="text-gray-100 text-sm italic">
+                      Catatan: {item.description}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

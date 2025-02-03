@@ -19,6 +19,9 @@ const CustomerForm = () => {
     error: errorGetAllCategory,
   } = useGetAllCategory();
 
+  const filteredCategories = categories.filter((category) => category.description !== "Gelato");
+  console.log(filteredCategories);
+
   const { getOrCreate, isLoading, error } = useCustomerFormHook();
   const [customerData, setCustomerData] = useState({
     name: "",
@@ -149,8 +152,8 @@ const CustomerForm = () => {
             )}
             <p className="text-xs sm:text-sm text-gray-500 mt-2">
               <i>
-                Catatan: Pastikan Nomor yang dimasukkan terdaftar di Whatsapp.
-                Sistem akan mengirimkan struk pembelian melalui Whatsapp.
+                Catatan: Bantu kami merekomendasikan menu yang sesuai dengan preferensi Anda.
+                Mohon pilih salah satu kategori menu di bawah ini.
               </i>
             </p>
           </div>
@@ -158,7 +161,7 @@ const CustomerForm = () => {
           <div className="option-container mb-2">
             <div className="option-group">
               <label className="text-gray-700 font-medium text-sm">
-                Preference
+                Preferensi:
               </label>
               <div
                 className="options text-gray-500 text-sm space-x-1 space-y-1 w-full flex flex-wrap items-baseline"
@@ -166,8 +169,8 @@ const CustomerForm = () => {
               >
                 {loading && <p>Loading categories...</p>}
                 {errorGetAllCategory && <p>Error fetching categories.</p>}
-                {categories &&
-                  categories.map((category) => (
+                {filteredCategories &&
+                  filteredCategories.map((category) => (
                     <button
                       key={category.id}
                       type="button"
@@ -199,7 +202,7 @@ const CustomerForm = () => {
               disabled= {isLoading || !!phoneError}
               type="button"
               onClick={handleSubmit}
-              className="bg-[#754985] hover:bg-[#a448c6] text-white p-2 rounded-md font-semibold w-full sm:w-auto sm:px-6"
+              className="bg-[#754985] mt-2 hover:bg-[#a448c6] text-white p-2 rounded-md font-semibold w-full sm:w-auto sm:px-6"
             >
               {isLoading ? (
                 <svg
