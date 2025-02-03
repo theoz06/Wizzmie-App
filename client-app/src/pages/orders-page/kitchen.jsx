@@ -1,4 +1,5 @@
 import AdminLayout from "@/components/layout/AdminLayout";
+import NotificationSound from "@/components/notificationSound";
 import useGetAllActiveOrdersKitchen from "@/hooks/orderHooks/useGetAllActiveOrdersKitchen";
 import useUpdateOrderStatus from "@/hooks/orderHooks/useUpdateOrderStatus";
 import useWebsocketOrders from "@/hooks/websocketHooks/useWebsocketOrders";
@@ -114,6 +115,7 @@ const KitchenPage = () => {
 
   return (
     <AdminLayout>
+      <NotificationSound soundUrl="/sounds/office-2-453.mp3" newOrder={newOrder} />
       <div className="h-full flex flex-col bg-gray-900">
         {isLoading && (
           <div className="flex flex-col items-center justify-center h-96 space-y-4">

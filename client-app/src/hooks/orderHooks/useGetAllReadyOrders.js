@@ -10,7 +10,6 @@ const useGetAllReadyOrders = () => {
 
   const transformeOrderData = (fetchedData) => {
     if (!Array.isArray(fetchedData)) {
-      console.warn('Received non-array data:', fetchedData);
       return [];
     }
 
@@ -18,6 +17,7 @@ const useGetAllReadyOrders = () => {
       return fetchedData.map((order) => ({
         id: order.id,
         table: order.tableNumber,
+        status: order?.orderStatus?.description,
         items: Array.isArray(order.orderItems) 
           ? order.orderItems.map((item) => ({
               qty: item.quantity,
@@ -38,15 +38,13 @@ const useGetAllReadyOrders = () => {
 
     try {
       const response = await orderService.getAllActiveOrdersPelayan();
-      const data = response?.data || response; // Handle if response is wrapped
+      const data = response?.data || response; 
       const transformed = transformeOrderData(data);
-      console.log("Ready Order Data API: ", transformed);
       setReadyOrders(transformed);
     } catch (err) {
-      console.error('Original error:', err);
       const errorMessage = err?.response?.data?.message || err.message || "Something went wrong";
       setError(errorMessage);
-      setReadyOrders([]); // Reset to empty array on error
+      setReadyOrders([]); 
     } finally {
       setLoading(false);
     }
@@ -58,6 +56,7 @@ const useGetAllReadyOrders = () => {
 
   return {
     readyOrders,
+    setReadyOrders,
     loading,
     error,
     getAllReadyOrders
