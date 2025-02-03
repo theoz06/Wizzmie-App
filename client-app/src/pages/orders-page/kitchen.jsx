@@ -11,7 +11,7 @@ const KitchenPage = () => {
   const { updateOrderStatus } = useUpdateOrderStatus();
   const { newOrder, setNewOrder } = useWebsocketOrders("kitchen");
 
-  const updatedData = useMemo(
+  const mergedOrders = useMemo(
     () => [
       ...activeOrders.filter(
         (order) => !newOrder.some((newOrder) => newOrder.id === order.id)
@@ -21,7 +21,9 @@ const KitchenPage = () => {
     [activeOrders, newOrder]
   );
 
-  console.log(updatedData);
+  const updatedData = useMemo(()=> {
+    return mergedOrders.filter((order) => order.status.toLowerCase() === "prepared")
+  }, [mergedOrders])
 
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrderIndex, setSelectedOrderIndex] = useState(0);
@@ -84,8 +86,7 @@ const KitchenPage = () => {
   const handleUpdateStatus = async (orderId) => {
     const success = await updateOrderStatus(orderId);
     if (success) {
-      setNewOrder([]);
-      await getAllActiveOrdersKitchen();
+      setNewOrder((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
     }
   };
 

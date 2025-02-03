@@ -141,6 +141,7 @@ public class OrderServiceImpl {
                 updateStatus(order, 3);
                 messagingTemplate.convertAndSend("/pelayan/ready-orders", order);
                 messagingTemplate.convertAndSend("/admin/active-orders", order);
+                messagingTemplate.convertAndSend("/kitchen/prepared-orders", order);
 
                 break;
             case 3:
