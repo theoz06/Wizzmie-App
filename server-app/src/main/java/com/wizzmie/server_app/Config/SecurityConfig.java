@@ -22,11 +22,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.wizzmie.server_app.Services.Implements.UserDetailsServiceImpl;
 import com.wizzmie.server_app.utils.JwtAuthenticationFilter;
 
+import org.springframework.beans.factory.annotation.Value;
+
 
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsServiceImpl;
@@ -95,19 +100,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://52.62.206.58:3000" , "https://wizzmie-cibaduyut.vercel.app"));
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        
         configuration.setExposedHeaders(Arrays.asList(
         "Authorization", "Content-Type"
     ));
-    configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true);
     
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
     
-    return source;
+        return source;
     }
 }
