@@ -1,5 +1,6 @@
-const { default: categoryService } = require("@/services/categoryService");
-const { useState } = require("react")
+import categoryService from "@/services/categoryService";
+import { useState } from "react";
+
 
 const useDeleteCategory = () => {
     const [isLoading, setIsLoading ] = useState(false);
