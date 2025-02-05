@@ -1,30 +1,51 @@
-import React, { useState } from 'react';
-import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
-import { AiOutlineLoading3Quarters } from 'react-icons/ai';
-import { HiDocumentDownload } from 'react-icons/hi';
-import { IoMdClose } from 'react-icons/io';
-import useGenerateReceipt from '@/hooks/receiptHook/useGenerateReceipt';
+import React, { useState, useEffect } from "react";
+import { BiCheckCircle, BiErrorCircle } from "react-icons/bi";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { HiDocumentDownload } from "react-icons/hi";
+import { IoMdClose } from "react-icons/io";
+import useGenerateReceipt from "@/hooks/receiptHook/useGenerateReceipt";
+import Image from "next/image";
 
 const PaymentSuccessWithReceipt = ({ orderId }) => {
   const [showError, setShowError] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadReceiptImage = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/receipt/${orderId}`
+        );
+        if (!response.ok) throw new Error("Failed to load receipt");
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setImageUrl(url);
+      } catch (err) {
+        console.error("Error loading receipt:", err);
+        setShowError(true);
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadReceiptImage();
+  }, [orderId]);
 
   const handleDownload = () => {
-    try {
-      const link = document.createElement('a');
-      link.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/receipt/${orderId}`;
-      link.setAttribute('download', `struk-${orderId}.pdf`);
+    console.log("Download struk");
+    if (imageUrl) {
+      const link = document.createElement("a");
+      link.href = imageUrl;
+      link.download = `struk-${orderId}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (err) {
-      console.error('Error downloading receipt:', err);
-      setShowError(true);
     }
   };
 
   return (
     <div className="relative w-full">
-      {/* Error Modal */}
       {showError && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4">
@@ -33,7 +54,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
                 <BiErrorCircle className="w-6 h-6 text-red-500" />
                 <h3 className="text-lg font-semibold text-gray-900">Error</h3>
               </div>
-              <button 
+              <button
                 onClick={() => setShowError(false)}
                 className="text-gray-400 hover:text-gray-500"
               >
@@ -42,7 +63,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
             </div>
             <div className="mb-4">
               <p className="text-gray-500">
-                Terjadi kesalahan saat mengunduh struk. Silahkan coba lagi.
+                Terjadi kesalahan saat memuat struk. Silahkan coba lagi.
               </p>
             </div>
             <div className="flex justify-end gap-2">
@@ -55,7 +76,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
               <button
                 onClick={() => {
                   setShowError(false);
-                  handleDownload();
+                  loadReceiptImage();
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
               >
@@ -65,18 +86,38 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
           </div>
         </div>
       )}
-
-      {/* Success Message with Download Button */}
-      <figure className="relative top-[100px] flex flex-col items-center justify-center bg-white m-4 h-[350px] p-3 space-y-6 shadow-md rounded-md">
+      <figure
+        className="relative 
+          md:h-[700px] sm:h-[500px] top-[80px] flex flex-col items-center justify-center bg-white m-4 p-3 space-y-6 shadow-md rounded-md"
+      >
         <p className="absolute top-[-35px] text-5xl text-green-500 bg-white rounded-full p-2 border-b-2 border-green-500">
           <BiCheckCircle />
         </p>
         <h2 className="font-bold text-2xl sm:text-lg md:text-xl text-gray-600 text-center">
           Pembayaran Berhasil
         </h2>
+        <div className="flex-grow scrollbar-none overflow-y-auto my-4">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-green-500 border-t-transparent" />
+            </div>
+          ) : (
+            imageUrl && (
+              <div className="w-full max-w-md mx-auto">
+                <Image
+                  width={100}
+                  height={100}
+                  src={imageUrl}
+                  alt="Receipt"
+                  className="w-full h-auto"
+                />
+              </div>
+            )
+          )}
+        </div>
         <button
           onClick={handleDownload}
-          className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors animate-pulse"
         >
           <HiDocumentDownload className="w-5 h-5" />
           Download Struk

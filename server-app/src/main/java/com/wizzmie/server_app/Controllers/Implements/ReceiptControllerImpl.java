@@ -20,7 +20,7 @@ public class ReceiptControllerImpl {
     public ResponseEntity<byte[]> getReceipt(@PathVariable Integer orderId){
         byte[] receipt = receiptServiceImpl.generateReceipt(orderId);
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=receipt-" + orderId + ".pdf");
-        return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(receipt);
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=receipt-" + orderId + ".png");
+        return ResponseEntity.ok().headers(headers).contentType(MediaType.IMAGE_PNG).body(receipt);
     }
 }

@@ -1,11 +1,16 @@
 package com.wizzmie.server_app.Services.Implements;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import javax.imageio.ImageIO;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +41,24 @@ public class ReceiptServiceImpl {
     private String logoPath;
 
     public byte[] generateReceipt(Integer orderId) {
+        try {
+            byte[] pdfBytes = generatePdfReceipt(orderId);
+
+            PDDocument document = PDDocument.load(pdfBytes);
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+            BufferedImage image = pdfRenderer.renderImageWithDPI(0, 300);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "PNG", baos);
+            document.close();
+
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate receipt pdf to Image", e);
+        }
+    }
+
+    private byte[] generatePdfReceipt(Integer orderId) {
         try {
             Orders order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order Not Found"));
 
@@ -139,7 +162,7 @@ public class ReceiptServiceImpl {
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate receipt", e);
+            throw new RuntimeException("Failed to generate PDF receipt", e);
         }
     }
     
