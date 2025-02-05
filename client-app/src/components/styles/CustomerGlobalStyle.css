@@ -38,6 +38,15 @@ section h1, main h1.table-number {
     -2px 2px 0px #ffffff;
 }
 
+.scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+
 @media (max-width: 640px) {
     main {
         padding: 0.5rem;

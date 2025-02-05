@@ -149,6 +149,7 @@ const PaymentPage = () => {
 
   return (
     <CustomerLayout>
+      <div className="min-h-screen">
       {paid === "settlement" ? (
         <PaymentSuccessWithReceipt 
           orderId={orderId} 
@@ -221,10 +222,11 @@ const PaymentPage = () => {
           </h2>
         </figure>
       )}
-      <footer className="fixed z-[1] bottom-0 left-0 max-h-20 w-full ">
+      </div>
+      <footer className={`fixed z-[1] bottom-0 left-0  w-full   ${paid === "settlement" && "bottom-0 justify-center items-center flex"}`}>
         <button
           type="button"
-          className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4 rounded-md"
+          className={`bg-[#9c379a]  text-white text-2xl font-bold p-4 ${paid === "settlement" ? "animate-bounce rounded-lg" : "w-full"}`}
           onClick={
             paid === "settlement"
               ? checkStatusOrder
@@ -232,7 +234,7 @@ const PaymentPage = () => {
               ? qRCodeDownloader
               : backToFormPage
           }
-          disabled={isLoading || (!paid && !qrisUrl)}
+          disabled={isLoading }
         >
           {paid === "settlement"
             ? "Cek Status Pesanan"
