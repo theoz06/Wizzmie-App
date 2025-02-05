@@ -88,7 +88,7 @@ const PaymentSuccessWithReceipt = ({ orderId }) => {
       )}
       <figure
         className="relative 
-          md:h-[700px] sm:h-[500px] top-[80px] flex flex-col items-center justify-center bg-white m-4 p-3 space-y-6 shadow-md rounded-md"
+          lg:h-[700px] md:h-[400px] h-[500px] bottom-0 top-[60px] flex flex-col items-center justify-center bg-white m-4 p-3 space-y-6 shadow-md rounded-md"
       >
         <p className="absolute top-[-35px] text-5xl text-green-500 bg-white rounded-full p-2 border-b-2 border-green-500">
           <BiCheckCircle />
