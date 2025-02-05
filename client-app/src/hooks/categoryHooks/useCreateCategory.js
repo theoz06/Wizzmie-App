@@ -1,4 +1,3 @@
-import apiClient from "@/dal/apiClient";
 import categoryService from "@/services/categoryService";
 import { useState } from "react";
 
