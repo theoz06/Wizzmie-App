@@ -35,7 +35,10 @@ public class Rating {
     
     private double rating;
     private int totalQuantity;
+
     
     @Column(nullable = false)
     private LocalDateTime lastCalculated;
+
+    
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.wizzmie.server_app.Entity.Orders;
 
@@ -32,5 +33,11 @@ public interface OrderRepository extends JpaRepository<Orders, Integer> {
 
     @Query(value = "SELECT SUM(o.total_amount) FROM orders o WHERE YEAR(o.order_date) = :year AND o.paid = true", nativeQuery = true)
     BigDecimal getTotalSalesByYear(int year);
+
+    @Query("SELECT o FROM orders o JOIN o.orderItems oi WHERE oi.menu.id = :menuId ORDER BY o.orderDate DESC")
+    List<Orders> findByMenuIdOrderByOrderDateDesc(@Param("menuId") Integer menuId);
+
+    @Query(value = "SELECT COUNT(o) FROM orders o WHERE o.customer_id = :customerId AND o.paid = true", nativeQuery = true)
+    long countByCustomerId(Integer customerId);
     
 }
