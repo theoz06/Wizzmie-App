@@ -128,13 +128,20 @@ public class HybridRecommendationService {
                 .mapToDouble(Menu::getPrice)
                 .average()
                 .orElse(0.0);
+
+        double minPrice = menuRepository.findAll().stream()
+                .mapToDouble(Menu::getPrice)
+                .min()
+                .orElse(1.0);
         
-        double maxPriceDiff = menuRepository.findAll().stream()
+        double maxPrice = menuRepository.findAll().stream()
                 .mapToDouble(Menu::getPrice)
                 .max()
                 .orElse(1.0);
         
-        return 1.0 - (Math.abs(menu.getPrice() - avgOrderedPrice) / maxPriceDiff);
+        // Simetri dengan rumus 1 - |perbedaan harga| / perbedaan harga maksimum
+        double similarity = 1.0 - Math.abs(menu.getPrice() - avgOrderedPrice) / (maxPrice - minPrice);
+        return similarity;
     }
 
     private double calculateNameSimilarity(Menu menu, Set<Integer> orderedMenuIds, List<String> allMenuNames) {
@@ -194,6 +201,7 @@ public class HybridRecommendationService {
     }
 
     private double calculateRecencyScore(Menu menu) {
+
         List<Orders> recentOrders = orderRepository.findByMenuIdOrderByOrderDateDesc(menu.getId());
         if (recentOrders.isEmpty()) {
             return 0.0;
@@ -213,6 +221,8 @@ public class HybridRecommendationService {
         double maxTimeDiff = 30L * 24L * 60L * 60L * 1000L; // 30 days in milliseconds
         return Math.max(0.0, 1.0 - (avgTimeDiff / maxTimeDiff));
     }
+
+
     private Map<Integer, Double> getCollaborativeFilteringScores(Integer customerId) {
         Map<Integer, Double> orderBasedScores = getOrderBasedScore(customerId);
         Map<Integer, Double> ratingBasedScores = getRatingBasedScore(customerId);
@@ -234,7 +244,6 @@ public class HybridRecommendationService {
 
     private Map<Integer, Double> getOrderBasedScore(Integer customerId){
 
-
         // Ambil semua pesanan dari semua pelanggan
         List<Orders> allOrders = orderRepository.findAll();
         Map<Integer, Set<Integer>> customerOrderHistory = new HashMap<>();
@@ -254,7 +263,7 @@ public class HybridRecommendationService {
             return new HashMap<>();
         }
         
-        // Hitung Pearson Correlation antara customerId dengan customer lain
+        // Hitung similarity antara customerId dengan customer lain
         Map<Integer, Double> similarityScores = new HashMap<>();
         for (Map.Entry<Integer, Set<Integer>> entry : customerOrderHistory.entrySet()) {
             if (!entry.getKey().equals(customerId)) {
@@ -265,16 +274,31 @@ public class HybridRecommendationService {
         
         // Prediksi skor menu berdasarkan pelanggan yang mirip
         Map<Integer, Double> orderBasedScores = new HashMap<>();
-        for (Map.Entry<Integer, Double> similarityEntry : similarityScores.entrySet()) {
-            int similarCustomerId = similarityEntry.getKey();
-            double similarity = similarityEntry.getValue();
-            
-            Set<Integer> similarCustomerOrders = customerOrderHistory.get(similarCustomerId);
-            for (Integer menuId : similarCustomerOrders) {
-                if (!targetOrderHistory.contains(menuId)) { // Hanya menu yang belum dipesan customer target
-                    orderBasedScores.put(menuId, orderBasedScores.getOrDefault(menuId, 0.0) + similarity);
+        Set<Integer> allMenuIds = menuRepository.findAll().stream()
+        .map(Menu::getId)
+        .collect(Collectors.toSet());
+
+        for (Integer menuId : allMenuIds) {
+            double numerator = 0.0;
+            double denominator = 0.0;
+        
+            for (Map.Entry<Integer, Double> similarityEntry : similarityScores.entrySet()) {
+                int neighborId = similarityEntry.getKey();
+                double similarity = similarityEntry.getValue();
+                Set<Integer> neighborOrderHistory = customerOrderHistory.get(neighborId);
+        
+                // Jika tetangga memesan menu, tambahkan kontribusinya
+                if (neighborOrderHistory != null && neighborOrderHistory.contains(menuId)) {
+                    numerator += similarity * 1; // r(i, m) = 1 untuk menu yang dipesan
+                    denominator += Math.abs(similarity);
                 }
             }
+        
+            // Hitung skor prediksi hanya jika denominator > 0
+            if (denominator > 0) {
+                orderBasedScores.put(menuId, numerator / denominator);
+            }
+
         }
         
         return orderBasedScores;
@@ -337,6 +361,7 @@ public class HybridRecommendationService {
                         if (similaritySum > 0) {
                             predictedRatings.put(menuId, weightedSum / similaritySum);
                         }
+
                     }
                 }
 
