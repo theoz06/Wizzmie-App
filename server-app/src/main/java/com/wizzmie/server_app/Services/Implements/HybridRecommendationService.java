@@ -14,7 +14,6 @@ import com.wizzmie.server_app.Repository.MenuRepository;
 import com.wizzmie.server_app.Repository.OrderRepository;
 import com.wizzmie.server_app.Repository.RatingRepository;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -197,7 +196,7 @@ public class HybridRecommendationService {
 
         // Combine all popularity metrics
         double combinedScore = (ratingScore * 0.4) + (orderScore * 0.35) + (recencyScore * 0.25);
-        
+
         return combinedScore;   
     }
 
