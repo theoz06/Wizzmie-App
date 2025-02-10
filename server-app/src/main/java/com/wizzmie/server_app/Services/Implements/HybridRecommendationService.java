@@ -16,6 +16,7 @@ import com.wizzmie.server_app.Repository.RatingRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -110,7 +111,7 @@ public class HybridRecommendationService {
                 double priceScore = calculatePriceSimilarity(menu, orderedMenuIds);
                 double popularityScore = calculatePopularityScore(menu);
 
-                double finalScore = (categoryScore * 0.25) + (nameScore * 0.25) + (priceScore * 0.25) + (popularityScore * 0.3);
+                double finalScore = (categoryScore * 0.3) + (nameScore * 0.2) + (priceScore * 0.2) + (popularityScore * 0.3);
                 contentBasedScores.put(menu.getId(), finalScore);
             }
         }
@@ -195,9 +196,9 @@ public class HybridRecommendationService {
         double recencyScore = calculateRecencyScore(menu);
 
         // Combine all popularity metrics
-        return (ratingScore * 0.4) +           // Rating weight 40%
-            (orderScore * 0.35) +           // Order frequency weight 35%
-            (recencyScore * 0.25);          // Recent orders weight 25%    
+        double combinedScore = (ratingScore * 0.4) + (orderScore * 0.35) + (recencyScore * 0.25);
+        
+        return combinedScore;   
     }
 
     private double calculateRecencyScore(Menu menu) {
@@ -227,15 +228,22 @@ public class HybridRecommendationService {
         Map<Integer, Double> orderBasedScores = getOrderBasedScore(customerId);
         Map<Integer, Double> ratingBasedScores = getRatingBasedScore(customerId);
 
-        Map<Integer, Double> combineScores = new HashMap<>();
+        orderBasedScores = (orderBasedScores != null) ? orderBasedScores : Collections.emptyMap();
+        ratingBasedScores = (ratingBasedScores != null) ? ratingBasedScores : Collections.emptyMap();
+
         Set<Integer> allMenuIds = new HashSet<>();
         allMenuIds.addAll(orderBasedScores.keySet());
         allMenuIds.addAll(ratingBasedScores.keySet());
         
+        // Bobot untuk masing-masing pendekatan
+        double orderWeight = 0.4;
+        double ratingWeight = 0.6;
+
+        Map<Integer, Double> combineScores = new HashMap<>();
         for(Integer menuId : allMenuIds) {
             double ratingScore = ratingBasedScores.getOrDefault(menuId, 0.0);
             double orderScore = orderBasedScores.getOrDefault(menuId, 0.0);
-            double combinedScore = (ratingScore + orderScore) / 2;
+            double combinedScore = (ratingScore * ratingWeight) + (orderScore * orderWeight);
             combineScores.put(menuId, combinedScore);
         }
 
@@ -268,15 +276,17 @@ public class HybridRecommendationService {
         for (Map.Entry<Integer, Set<Integer>> entry : customerOrderHistory.entrySet()) {
             if (!entry.getKey().equals(customerId)) {
                 double similarity = calculateJaccardSimilarity(targetOrderHistory, entry.getValue());
-                similarityScores.put(entry.getKey(), similarity);
+                if (similarity > 0) {
+                    similarityScores.put(entry.getKey(), similarity);
+                }
             }
         }
         
         // Prediksi skor menu berdasarkan pelanggan yang mirip
         Map<Integer, Double> orderBasedScores = new HashMap<>();
         Set<Integer> allMenuIds = menuRepository.findAll().stream()
-        .map(Menu::getId)
-        .collect(Collectors.toSet());
+            .map(Menu::getId)
+            .collect(Collectors.toSet());
 
         for (Integer menuId : allMenuIds) {
             double numerator = 0.0;
@@ -287,7 +297,7 @@ public class HybridRecommendationService {
                 double similarity = similarityEntry.getValue();
                 Set<Integer> neighborOrderHistory = customerOrderHistory.get(neighborId);
         
-                // Jika tetangga memesan menu, tambahkan kontribusinya
+                // Jika pelanggan mirip pernah memesan menu ini, tambahkan kontribusinya
                 if (neighborOrderHistory != null && neighborOrderHistory.contains(menuId)) {
                     numerator += similarity * 1; // r(i, m) = 1 untuk menu yang dipesan
                     denominator += Math.abs(similarity);
@@ -299,6 +309,21 @@ public class HybridRecommendationService {
                 orderBasedScores.put(menuId, numerator / denominator);
             }
 
+        }
+
+        // Normalisasi Skor prediksi
+        if (!orderBasedScores.isEmpty()) {
+            double maxRating = orderBasedScores.values().stream().max(Double::compare).orElse(1.0);
+            double minRating = orderBasedScores.values().stream().min(Double::compare).orElse(0.0);
+            
+            // Hindari pembagian dengan nol
+            if (maxRating > minRating) {
+                orderBasedScores = orderBasedScores.entrySet().stream()
+                .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                    e -> (e.getValue() - minRating) / (maxRating - minRating)
+                ));
+            }
         }
         
         return orderBasedScores;
@@ -335,7 +360,9 @@ public class HybridRecommendationService {
                 for (Map.Entry<Integer, Map<Integer, Double>> entry : userItemRatings.entrySet()) {
                     if (!entry.getKey().equals(customerId)) {
                         double similarity = calculatePearsonCorrelation(targetUserRatings, entry.getValue());
-                        userSimilarities.put(entry.getKey(), similarity);
+                        if (similarity > 0){
+                            userSimilarities.put(entry.getKey(), similarity);
+                        }
                     }
                 }
                 
@@ -345,25 +372,40 @@ public class HybridRecommendationService {
                         .map(Menu::getId)
                         .collect(Collectors.toSet());
                 
-                for (Integer menuId : allMenuIds) {
-                    if (!targetUserRatings.containsKey(menuId)) {
-                        double weightedSum = 0.0;
-                        double similaritySum = 0.0;
+            for (Integer menuId : allMenuIds) {
+                if (!targetUserRatings.containsKey(menuId)) {
+                    double weightedSum = 0.0;
+                    double similaritySum = 0.0;
                         
-                        for (Map.Entry<Integer, Double> similarUser : userSimilarities.entrySet()) {
-                            Map<Integer, Double> similarUserRatings = userItemRatings.get(similarUser.getKey());
-                            if (similarUserRatings.containsKey(menuId)) {
-                                weightedSum += similarUser.getValue() * similarUserRatings.get(menuId);
-                                similaritySum += Math.abs(similarUser.getValue());
-                            }
+                    for (Map.Entry<Integer, Double> similarUser : userSimilarities.entrySet()) {
+                         Map<Integer, Double> similarUserRatings = userItemRatings.get(similarUser.getKey());
+                        if (similarUserRatings.containsKey(menuId)) {
+                            weightedSum += similarUser.getValue() * similarUserRatings.get(menuId);
+                            similaritySum += Math.abs(similarUser.getValue());
                         }
-                        
-                        if (similaritySum > 0) {
-                            predictedRatings.put(menuId, weightedSum / similaritySum);
-                        }
-
                     }
+                        
+                    if (similaritySum > 0) {
+                        predictedRatings.put(menuId, weightedSum / similaritySum);
+                    }
+
                 }
+            }
+
+                // Normalisasi Skor prediksi
+            if (!predictedRatings.isEmpty()) {
+                double maxRating = predictedRatings.values().stream().max(Double::compare).orElse(1.0);
+                double minRating = predictedRatings.values().stream().min(Double::compare).orElse(0.0);
+
+                // Hindari pembagian dengan nol
+                if (maxRating > minRating) {
+                predictedRatings = predictedRatings.entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> (e.getValue() - minRating) / (maxRating - minRating)
+                    ));
+                }
+            }
 
         return predictedRatings;
     }
