@@ -2,7 +2,9 @@ package com.wizzmie.server_app.Services.Implements;
 
 import org.springframework.stereotype.Service;
 
+import com.wizzmie.server_app.DTO.Respon.MaeResponse;
 import com.wizzmie.server_app.DTO.Respon.MenuRecommendationResponse;
+import com.wizzmie.server_app.DTO.Respon.RecommendationResponse;
 import com.wizzmie.server_app.Entity.Category;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
@@ -35,33 +37,54 @@ public class HybridRecommendationService {
     private final RatingRepository ratingRepository;
     private final CustomerRepository customerRepository;
     private final TfIdfVectorizer tfIdfVectorizer;
+    private final MAECalculator maeCalculator;
+
 
     public HybridRecommendationService( MenuRepository menuRepository, 
                                         OrderRepository orderRepository, 
                                         RatingRepository ratingRepository, 
-                                        CustomerRepository customerRepository
+                                        CustomerRepository customerRepository,
+                                        MAECalculator maeCalculator
                                         ) {
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
         this.ratingRepository = ratingRepository;
         this.customerRepository = customerRepository;
+        this.maeCalculator = maeCalculator;
         this.tfIdfVectorizer = new TfIdfVectorizer();
         
     }
 
     @Value("${recommendation.collaborative.weight}")
-    private Double collaborativeWeight = 0.6;
+    private Double collaborativeWeight;
 
     @Value("${recommendation.content.weight}")
-    private Double contentWeight = 0.4;
+    private Double contentWeight;
 
-    public List<MenuRecommendationResponse> getRecommendations(Integer customerId, int limit){
+    public RecommendationResponse getRecommendations(Integer customerId, int limit){
+        // Definisi orderedMenuIds
+        Set<Integer> orderedMenuIds = orderRepository.findByCustomerId(customerId).stream()
+            .flatMap(order -> order.getOrderItems().stream())
+            .map(item -> item.getMenu().getId())
+            .collect(Collectors.toSet());
 
         // Get collaborative filtering recommendations
         Map<Integer, Double> collaborativeScores = getCollaborativeFilteringScores(customerId);
+        double collaborativeMAE = maeCalculator.calculateCollaborativeBasedMAE(customerId, collaborativeScores);
+        
+        // System.out.println("Collaborative Scores: " + collaborativeScores);
+        // System.out.println("Collaborative MAE: " + collaborativeMAE);
+
+
+        System.out.println("Collab :" + collaborativeScores);
+        System.out.println("Collab MAE :" + collaborativeMAE);
+
 
          // Get content-based recommendations
         Map<Integer, Double> contentBasedScores = getContentBasedFilteringScores(customerId);
+        System.out.println("Content :" + contentBasedScores);
+
+        double contentBasedMAE = maeCalculator.calculateContentBasedMAE(customerId, contentBasedScores);
                 
         // Combine scores using weighted average
         Map<Integer, Double> hybridScores = new HashMap<>();
@@ -76,16 +99,23 @@ public class HybridRecommendationService {
             hybridScores.put(menuId, hybridScore);
         }
         
-        // Sort and return top recommendations
-        return hybridScores.entrySet().parallelStream()
-                .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
-                .limit(limit)
-                .map(entry -> {
-                    Menu menu = menuRepository.findById(entry.getKey())
-                            .orElseThrow(() -> new RuntimeException("Menu not found"));
-                    return new MenuRecommendationResponse(menu, entry.getValue());
-                })
-                .collect(Collectors.toList());
+        double hybridMAE = maeCalculator.calculateHybridBasedMAE(customerId, hybridScores);
+
+        // Map Rekomendation dan Mae
+        List<MenuRecommendationResponse> recommendations = hybridScores.entrySet().parallelStream()
+                            .filter(entry -> !orderedMenuIds.contains(entry.getKey()))
+                            .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
+                            .limit(limit)
+                            .map(entry -> {
+                                Menu menu = menuRepository.findById(entry.getKey())
+                                .orElseThrow(() -> new RuntimeException("Menu not found"));
+                            return new MenuRecommendationResponse(menu, entry.getValue());
+                            })
+                            .collect(Collectors.toList());
+
+        MaeResponse maeResponse = new MaeResponse(contentBasedMAE, collaborativeMAE, hybridMAE);
+        
+        return new RecommendationResponse(recommendations, maeResponse);
     }
         
     private Map<Integer, Double> getContentBasedFilteringScores(Integer customerId) {
@@ -104,15 +134,13 @@ public class HybridRecommendationService {
 
         Map<Integer, Double> contentBasedScores = new HashMap<>();
         for (Menu menu : allMenus){
-            if(!orderedMenuIds.contains(menu.getId())){
                 double categoryScore = (preferredCategory != null && menu.getCategory().getId().equals(preferredCategory.getId())) ? 1.0 : 0.0;
                 double nameScore = calculateNameSimilarity(menu, orderedMenuIds, allMenuNames);
                 double priceScore = calculatePriceSimilarity(menu, orderedMenuIds);
                 double popularityScore = calculatePopularityScore(menu);
 
-                double finalScore = (categoryScore * 0.3) + (nameScore * 0.2) + (priceScore * 0.2) + (popularityScore * 0.3);
+                double finalScore = (categoryScore * 0.4) + (nameScore * 0.1) + (priceScore * 0.2) + (popularityScore * 0.3);
                 contentBasedScores.put(menu.getId(), finalScore);
-            }
         }
         
         return contentBasedScores;
@@ -235,17 +263,19 @@ public class HybridRecommendationService {
         allMenuIds.addAll(ratingBasedScores.keySet());
         
         // Bobot untuk masing-masing pendekatan
-        double orderWeight = 0.4;
-        double ratingWeight = 0.6;
+        double orderWeight = 0.6;
+        double ratingWeight = 0.4;
 
         Map<Integer, Double> combineScores = new HashMap<>();
         for(Integer menuId : allMenuIds) {
             double ratingScore = ratingBasedScores.getOrDefault(menuId, 0.0);
+            System.out.println("ratingScore: " + ratingScore);
             double orderScore = orderBasedScores.getOrDefault(menuId, 0.0);
+            System.out.println("orderScore: " + orderScore);
             double combinedScore = (ratingScore * ratingWeight) + (orderScore * orderWeight);
             combineScores.put(menuId, combinedScore);
         }
-
+        System.out.println("combined : " + combineScores);
         return combineScores;
     }
 

@@ -8,10 +8,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface RatingRepository extends JpaRepository<Rating, Integer> {
     Optional<Rating> findByCustomerIdAndMenu(Integer customerId, Menu menu);
-    List<Rating> findByCustomerId(Integer customerId);
+
+    @Query(value = "SELECT * FROM ratings WHERE customer_id = :customerId", nativeQuery = true)
+    List<Rating> findByCustomerId(@Param("customerId") Integer customerId);
+    // List<Rating> findByCustomerId(Integer customerId);
     Collection<String> findByMenuId(Integer id);
     List<Rating> findRatingByMenuId(Integer menuId);
 }

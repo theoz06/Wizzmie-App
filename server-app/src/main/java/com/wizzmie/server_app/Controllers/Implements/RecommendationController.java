@@ -1,6 +1,5 @@
 package com.wizzmie.server_app.Controllers.Implements;
 
-import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wizzmie.server_app.DTO.Respon.MenuRecommendationResponse;
+import com.wizzmie.server_app.DTO.Respon.RecommendationResponse;
 import com.wizzmie.server_app.Services.Implements.HybridRecommendationService;
 
 @RestController
@@ -22,7 +21,7 @@ public class RecommendationController {
     }
     
     @GetMapping("/{customerId}")
-    public List<MenuRecommendationResponse> getRecommendations(
+    public RecommendationResponse getRecommendations(
             @PathVariable Integer customerId,
             @RequestParam(defaultValue = "10") int limit) {
         return recommendationService.getRecommendations(customerId, limit);
