@@ -32,8 +32,6 @@ public class MAECalculator {
 
     private double calculateMAE(Integer customerId, Map<Integer, Double> predictedScores){
         List<Rating> actualRatings = ratingRepository.findByCustomerId(customerId);
-        System.out.println("Actual ratings: " + actualRatings);
-        System.out.println("Predicted scores: " + predictedScores);
         
         if(actualRatings.isEmpty()){
             return 0.0;
@@ -47,13 +45,9 @@ public class MAECalculator {
             if(predictedScores.containsKey(menuId)){
                 // predicted sudah dalam range 0-1, kali 5 untuk mendapat skala 0-5
                 double predicted = predictedScores.get(menuId) * 5.0;
-                // actual dalam skala 0-5, tidak perlu dibagi
+
                 double actual = rating.getRating();
-                
-                System.out.println("Menu " + menuId + 
-                    ": predicted=" + predicted + 
-                    ", actual=" + actual);
-                    
+
                 totalError += Math.abs(predicted - actual);
                 count++;
             }

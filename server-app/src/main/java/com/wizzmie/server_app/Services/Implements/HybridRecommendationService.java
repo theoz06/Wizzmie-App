@@ -269,9 +269,7 @@ public class HybridRecommendationService {
         Map<Integer, Double> combineScores = new HashMap<>();
         for(Integer menuId : allMenuIds) {
             double ratingScore = ratingBasedScores.getOrDefault(menuId, 0.0);
-            System.out.println("ratingScore: " + ratingScore);
             double orderScore = orderBasedScores.getOrDefault(menuId, 0.0);
-            System.out.println("orderScore: " + orderScore);
             double combinedScore = (ratingScore * ratingWeight) + (orderScore * orderWeight);
             combineScores.put(menuId, combinedScore);
         }
