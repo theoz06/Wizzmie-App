@@ -38,19 +38,24 @@ public class HybridRecommendationService {
     private final CustomerRepository customerRepository;
     private final TfIdfVectorizer tfIdfVectorizer;
     private final MAECalculator maeCalculator;
+    private final SparseHandler sparseHandler;
+
 
 
     public HybridRecommendationService( MenuRepository menuRepository, 
                                         OrderRepository orderRepository, 
                                         RatingRepository ratingRepository, 
                                         CustomerRepository customerRepository,
-                                        MAECalculator maeCalculator
+                                        MAECalculator maeCalculator,
+                                        SparseHandler sparseHandler
+
                                         ) {
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
         this.ratingRepository = ratingRepository;
         this.customerRepository = customerRepository;
         this.maeCalculator = maeCalculator;
+        this.sparseHandler = sparseHandler;
         this.tfIdfVectorizer = new TfIdfVectorizer();
         
     }
@@ -70,19 +75,11 @@ public class HybridRecommendationService {
 
         // Get collaborative filtering recommendations
         Map<Integer, Double> collaborativeScores = getCollaborativeFilteringScores(customerId);
+
         double collaborativeMAE = maeCalculator.calculateCollaborativeBasedMAE(customerId, collaborativeScores);
-        
-        // System.out.println("Collaborative Scores: " + collaborativeScores);
-        // System.out.println("Collaborative MAE: " + collaborativeMAE);
-
-
-        System.out.println("Collab :" + collaborativeScores);
-        System.out.println("Collab MAE :" + collaborativeMAE);
-
 
          // Get content-based recommendations
         Map<Integer, Double> contentBasedScores = getContentBasedFilteringScores(customerId);
-        System.out.println("Content :" + contentBasedScores);
 
         double contentBasedMAE = maeCalculator.calculateContentBasedMAE(customerId, contentBasedScores);
                 
@@ -98,7 +95,12 @@ public class HybridRecommendationService {
             double hybridScore = (collabScore * collaborativeWeight) + (contentScore * contentWeight);
             hybridScores.put(menuId, hybridScore);
         }
-        
+
+        System.out.println("Collab :" + collaborativeScores);
+        System.out.println("Content :" + contentBasedScores);
+        System.out.println("Hybrid :" + hybridScores);
+
+
         double hybridMAE = maeCalculator.calculateHybridBasedMAE(customerId, hybridScores);
 
         // Map Rekomendation dan Mae
@@ -252,29 +254,44 @@ public class HybridRecommendationService {
 
 
     private Map<Integer, Double> getCollaborativeFilteringScores(Integer customerId) {
-        Map<Integer, Double> orderBasedScores = getOrderBasedScore(customerId);
-        Map<Integer, Double> ratingBasedScores = getRatingBasedScore(customerId);
-
-        orderBasedScores = (orderBasedScores != null) ? orderBasedScores : Collections.emptyMap();
-        ratingBasedScores = (ratingBasedScores != null) ? ratingBasedScores : Collections.emptyMap();
-
-        Set<Integer> allMenuIds = new HashSet<>();
-        allMenuIds.addAll(orderBasedScores.keySet());
-        allMenuIds.addAll(ratingBasedScores.keySet());
         
-        // Bobot untuk masing-masing pendekatan
-        double orderWeight = 0.6;
-        double ratingWeight = 0.4;
+        if(sparseHandler.isDataSparse()) {
+            Map<Integer, Double> sparseScores = sparseHandler.recommendUsingKNN(customerId, 10);
+            System.out.println("Sparse Data Detected");
+            System.out.println("Sparse Scores Size: " + sparseScores.size());
+            sparseScores.forEach((menuId, score) -> 
+                System.out.println("Menu " + menuId + ": Score " + score)
+            );
+    
+            return sparseScores;
+        }else{
+ 
+            Map<Integer, Double> orderBasedScores = getOrderBasedScore(customerId);
+            Map<Integer, Double> ratingBasedScores = getRatingBasedScore(customerId);
 
-        Map<Integer, Double> combineScores = new HashMap<>();
-        for(Integer menuId : allMenuIds) {
-            double ratingScore = ratingBasedScores.getOrDefault(menuId, 0.0);
-            double orderScore = orderBasedScores.getOrDefault(menuId, 0.0);
-            double combinedScore = (ratingScore * ratingWeight) + (orderScore * orderWeight);
-            combineScores.put(menuId, combinedScore);
+            orderBasedScores = (orderBasedScores != null) ? orderBasedScores : Collections.emptyMap();
+            ratingBasedScores = (ratingBasedScores != null) ? ratingBasedScores : Collections.emptyMap();
+
+            Set<Integer> allMenuIds = new HashSet<>();
+            allMenuIds.addAll(orderBasedScores.keySet());
+            allMenuIds.addAll(ratingBasedScores.keySet());
+        
+            // Bobot untuk masing-masing pendekatan
+            double orderWeight = 0.6;
+            double ratingWeight = 0.4;
+
+            Map<Integer, Double> combineScores = new HashMap<>();
+            for(Integer menuId : allMenuIds) {
+                
+                double ratingScore = ratingBasedScores.getOrDefault(menuId, 0.0);
+                double orderScore = orderBasedScores.getOrDefault(menuId, 0.0);
+
+                double combinedScore = (ratingScore * ratingWeight) + (orderScore * orderWeight);
+                combineScores.put(menuId, combinedScore);
+            }
+
+            return combineScores;
         }
-        System.out.println("combined : " + combineScores);
-        return combineScores;
     }
 
     private Map<Integer, Double> getOrderBasedScore(Integer customerId){

@@ -19,4 +19,8 @@ public interface RatingRepository extends JpaRepository<Rating, Integer> {
     // List<Rating> findByCustomerId(Integer customerId);
     Collection<String> findByMenuId(Integer id);
     List<Rating> findRatingByMenuId(Integer menuId);
+
+    @Query(value = "SELECT COUNT(DISTINCT menu_id) FROM ratings", nativeQuery = true)
+    long countDistinctMenus();
+
 }
