@@ -45,20 +45,20 @@ const MainPage = () => {
   );
 
   const imagesUrl = {
-    "Rekomendasi": "/images/Screenshot_2025-02-01_193135-removebg-preview.png",
-    "Sushi": "/images/Screenshot_2025-02-01_192933-removebg-preview.png",
-    "Mie": "/images/Screenshot_2025-02-01_192341-removebg-preview.png",
+    Rekomendasi: "/images/Screenshot_2025-02-01_193135-removebg-preview.png",
+    Sushi: "/images/Screenshot_2025-02-01_192933-removebg-preview.png",
+    Mie: "/images/Screenshot_2025-02-01_192341-removebg-preview.png",
     "Rice Bowl": "/images/Screenshot_2025-02-01_192251-removebg-preview.png",
-    "Coffee": "/images/Screenshot_2025-02-01_192307-removebg-preview.png",
+    Coffee: "/images/Screenshot_2025-02-01_192307-removebg-preview.png",
     "Non-coffee": "/images/Screenshot_2025-02-01_193154-removebg-preview.png",
-    "Frappe": "/images/Screenshot_2025-02-01_192251-removebg-preview.png",
-    "Dimsum": "/images/Screenshot_2025-02-01_193017-removebg-preview.png",
-    "Gelato": "/images/Screenshot_2025-02-01_193154-removebg-preview.png",
-  }
+    Frappe: "/images/Screenshot_2025-02-01_192251-removebg-preview.png",
+    Dimsum: "/images/Screenshot_2025-02-01_193017-removebg-preview.png",
+    Gelato: "/images/Screenshot_2025-02-01_193154-removebg-preview.png",
+  };
 
   const getImageUrl = (activeTab) => {
     return imagesUrl[activeTab];
-  }
+  };
 
   const {
     getRecommendationMenu,
@@ -73,7 +73,7 @@ const MainPage = () => {
       if (custId) {
         const data = await getRecommendationMenu(custId);
         if (data) {
-          const transformedData = data.map((item) => ({
+          const transformedData = data?.recommendations?.map((item) => ({
             id: item.menu.id,
             name: item.menu.name,
             description: item.menu.description,
@@ -88,7 +88,7 @@ const MainPage = () => {
     };
 
     initializeData();
-  }, []);
+  }, [custId, getRecommendationMenu, setRecommendation]);
 
   useEffect(() => {
     const initializeCart = async () => {
@@ -117,8 +117,10 @@ const MainPage = () => {
   const [selectedMenu, setSelectedMenu] = useState(null);
   const handleAddItem = (menu) => {
     const menuLower = menu.name.toLowerCase();
-    if (menu.category.description.toLowerCase() === "gelato" && 
-        (menuLower.startsWith("cone") || menuLower.startsWith("cup"))) {
+    if (
+      menu.category.description.toLowerCase() === "gelato" &&
+      (menuLower.startsWith("cone") || menuLower.startsWith("cup"))
+    ) {
       setSelectedMenu(menu);
       setIsFlavorModalOpen(true);
     } else {
@@ -126,6 +128,8 @@ const MainPage = () => {
     }
   };
 
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const addToCartHandler = async (menu, flavor = []) => {
     const custId = searchParams.get("CustomerId");
 
@@ -143,8 +147,15 @@ const MainPage = () => {
 
       if (success) {
         const resp = await getCartItems(tableNumber, custId);
-
         setCartData(resp);
+
+        // Tampilkan toast sukses
+        setSuccessMessage(`berhasil ditambahkan ke keranjang`);
+        setShowSuccessToast(true);
+        // Hilangkan toast setelah 2 detik
+        setTimeout(() => {
+          setShowSuccessToast(false);
+        }, 2000);
       } else {
         setErrorAddToCartMessage("Gagal menambahkan ke keranjang");
       }
@@ -293,11 +304,9 @@ const MainPage = () => {
                       {menu.name}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
-
-
-                      {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
-
-
+                      {menu.isAvailable
+                        ? Number(menu.price).toLocaleString("id-ID")
+                        : "Tidak tersedia"}
                     </p>
                   </div>
                 </div>
@@ -343,9 +352,9 @@ const MainPage = () => {
                       {menu.name}
                     </h3>
                     <p className="text-gray-100 text-xs italic line-clamp-2">
-
-                      {menu.isAvailable ? Number(menu.price).toLocaleString("id-ID"): "Tidak tersedia" }
-
+                      {menu.isAvailable
+                        ? Number(menu.price).toLocaleString("id-ID")
+                        : "Tidak tersedia"}
                     </p>
                   </div>
                 </div>
@@ -387,6 +396,46 @@ const MainPage = () => {
         </footer>
       )}
 
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-black/50 absolute inset-0" />
+          <div className="bg-none rounded-lg p-6 w-[90%] max-w-sm z-50">
+            {" "}
+            <div className="text-center space-y-4">
+              <Image
+                width={100}
+                height={100}
+                alt="Logo"
+                src="/images/Screenshot_2025-02-01_193154-removebg-preview.png"
+                className="w-20 h-20 object-contain mx-auto animate-bounce"
+              />
+              <h3 className="font-bold text-lg text-white">Loading...</h3>{" "}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSuccessToast && (
+        <div className="fixed top-2 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-up w-full max-w-sm">
+          <div className="bg-green-500 text-white px-2 py-3 rounded-lg shadow-lg flex items-center space-x-2 w-fit">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+          </div>
+        </div>
+      )}
+
       {errorAddToCartMessage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="bg-black/50 absolute inset-0" />
@@ -408,7 +457,7 @@ const MainPage = () => {
         </div>
       )}
 
-      <FlavorModal 
+      <FlavorModal
         isOpen={isFlavorModalOpen}
         onClose={() => {
           setIsFlavorModalOpen(false);
