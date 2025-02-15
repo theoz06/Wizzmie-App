@@ -137,7 +137,7 @@ public class HybridRecommendationService {
                 double priceScore = calculatePriceSimilarity(menu, orderedMenuIds);
                 double popularityScore = calculatePopularityScore(menu);
 
-                double finalScore = (categoryScore * 0.4) + (nameScore * 0.1) + (priceScore * 0.2) + (popularityScore * 0.3);
+                double finalScore = (categoryScore * 0.3) + (nameScore * 0.1) + (priceScore * 0.2) + (popularityScore * 0.5);
                 contentBasedScores.put(menu.getId(), finalScore);
         }
         
