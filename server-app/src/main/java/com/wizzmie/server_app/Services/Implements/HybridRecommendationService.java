@@ -96,10 +96,6 @@ public class HybridRecommendationService {
             hybridScores.put(menuId, hybridScore);
         }
 
-        System.out.println("Collab :" + collaborativeScores);
-        System.out.println("Content :" + contentBasedScores);
-        System.out.println("Hybrid :" + hybridScores);
-
 
         double hybridMAE = maeCalculator.calculateHybridBasedMAE(customerId, hybridScores);
 
