@@ -75,14 +75,16 @@ public class HybridRecommendationService {
 
         // Get collaborative filtering recommendations
         Map<Integer, Double> collaborativeScores = getCollaborativeFilteringScores(customerId);
-
+        System.out.println("Collaborative Scores : " + collaborativeScores);
         double collaborativeMAE = maeCalculator.calculateCollaborativeBasedMAE(customerId, collaborativeScores);
+        System.out.println("Collaborative MAE: " + collaborativeMAE);
 
          // Get content-based recommendations
         Map<Integer, Double> contentBasedScores = getContentBasedFilteringScores(customerId);
-
+        System.out.println("content-based Scores : " + contentBasedScores);
         double contentBasedMAE = maeCalculator.calculateContentBasedMAE(customerId, contentBasedScores);
-                
+        System.out.println("content-based MAE : " + contentBasedMAE);  
+        
         // Combine scores using weighted average
         Map<Integer, Double> hybridScores = new HashMap<>();
         Set<Integer> allMenuIds = new HashSet<>();
@@ -96,9 +98,9 @@ public class HybridRecommendationService {
             hybridScores.put(menuId, hybridScore);
         }
 
-
+        System.out.println("hybrid Scores : " + hybridScores);
         double hybridMAE = maeCalculator.calculateHybridBasedMAE(customerId, hybridScores);
-
+        System.out.println("hybrid MAE : " + hybridMAE);     
         // Map Rekomendation dan Mae
         List<MenuRecommendationResponse> recommendations = hybridScores.entrySet().parallelStream()
                             .filter(entry -> !orderedMenuIds.contains(entry.getKey()))
