@@ -139,7 +139,7 @@ public class HybridRecommendationService {
                 double priceScore = calculatePriceSimilarity(menu, orderedMenuIds);
                 double popularityScore = calculatePopularityScore(menu);
 
-                double finalScore = (categoryScore * 0.3) + (nameScore * 0.1) + (priceScore * 0.2) + (popularityScore * 0.5);
+                double finalScore = (categoryScore * 0.3) + (nameScore * 0.1) + (priceScore * 0.2) + (popularityScore * 0.4);
                 contentBasedScores.put(menu.getId(), finalScore);
         }
         
@@ -275,8 +275,8 @@ public class HybridRecommendationService {
             allMenuIds.addAll(ratingBasedScores.keySet());
         
             // Bobot untuk masing-masing pendekatan
-            double orderWeight = 0.6;
-            double ratingWeight = 0.4;
+            double orderWeight = 0.4;
+            double ratingWeight = 0.6;
 
             Map<Integer, Double> combineScores = new HashMap<>();
             for(Integer menuId : allMenuIds) {

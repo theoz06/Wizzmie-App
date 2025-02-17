@@ -42,7 +42,17 @@ const MainPage = () => {
 
   const menusFilteredByCategory = menus.filter(
     (menu) => menu.category.description === activeTab
-  );
+  );  
+
+  // const menusFilteredByCategory = menus.filter((menu) => {
+  //   const categoryDesc = menu.category.description;
+    
+  //   if (activeTab === "Mie") {
+  //     return categoryDesc === activeTab && menu.name.includes("Manja");
+  //   }
+    
+  //   return categoryDesc === activeTab;
+  // });
 
   const imagesUrl = {
     Rekomendasi: "/images/Screenshot_2025-02-01_193135-removebg-preview.png",
@@ -401,7 +411,7 @@ const MainPage = () => {
           <div className="bg-black/50 absolute inset-0" />
           <div className="bg-none rounded-lg p-6 w-[90%] max-w-sm z-50">
             {" "}
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-1">
               <Image
                 width={100}
                 height={100}
