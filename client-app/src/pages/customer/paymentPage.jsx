@@ -10,6 +10,7 @@ import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import useCheckStatusPaid from "@/hooks/paymentHooks/useCheckStatusPaid";
 import { AlertCircle } from "lucide-react";
 import PaymentSuccessWithReceipt from "@/components/paymentsuccess";
+import Cookies from "js-cookie";
 
 const PaymentPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -35,11 +36,27 @@ const PaymentPage = () => {
     const generateQrisCode = async () => {
       if (!orderId || qrisUrl || isGenerating) return;
 
+      const existQrisUrl = Cookies.get(`qrisUrl_${orderId}`);
+      if (existQrisUrl) {
+        if(isMounted){
+          console.log("Exist QRIS URL:", existQrisUrl);
+          setQrisUrl(existQrisUrl);
+          hasGenerated.current = true;
+        }
+        return;
+      }
+
       try {
         isGenerating = true;
         const data = await generateQRIS(orderId);
         if (isMounted && data) {
           console.log("Generated QRIS URL:", data);
+          Cookies.set(`qrisUrl_${orderId}`, data, {
+            expires: new Date(Date.now() + 15 * 60 * 1000),
+            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+            path: "/customer/paymentPage"
+          })
           setQrisUrl(data);
         }
       } catch (error) {
@@ -56,6 +73,13 @@ const PaymentPage = () => {
       isMounted = false;
     };
   }, [orderId, generateQRIS, qrisUrl]);
+
+  useEffect(() => {
+    if (paid === "settlement" || paid === "failure") {
+      Cookies.remove(`qris_${orderId}`, 
+        {path: "/customer/paymentPage"});
+    }
+  }, [paid, orderId]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {

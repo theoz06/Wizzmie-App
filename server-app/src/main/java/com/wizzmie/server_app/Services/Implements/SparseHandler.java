@@ -33,11 +33,11 @@ public class SparseHandler {
         long menusWithRatings = ratingRepository.countDistinctMenus();
         double sparsityRatio = 1.0 - (menusWithRatings / (double) totalMenus);
         
-        return sparsityRatio > 0.7; // Threshold sparsity
+        return sparsityRatio > 0.5; // Threshold sparsity
     }
 
 
-         // Metode K-NN untuk sparse data
+     // Metode K-NN untuk sparse data
     public Map<Integer, Double> recommendUsingKNN(
         Integer customerId, 
         int limit
@@ -45,6 +45,7 @@ public class SparseHandler {
         List<Rating> ratings = ratingRepository.findAll();
         List<Customer> customers = customerRepository.findAll();
         List<Menu> menus = menuRepository.findAll();
+        int k = Math.min(5, (int) Math.sqrt(customers.size()));
 
         // Bangun vektor rating untuk setiap customer
         Map<Integer, Map<Integer, Double>> customerRatingVectors = new HashMap<>();
@@ -60,7 +61,7 @@ public class SparseHandler {
         Map<Integer, Double> nearestNeighborRecommendations = findNearestNeighborRecommendations(
             customerId, 
             customerRatingVectors, 
-            5 // k=5
+            k
         );
 
         // Sorting dan batasi

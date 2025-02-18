@@ -43,6 +43,6 @@ public class Customer {
     }
 
     public void setRole(EnumRole role) {
-        this.role = role;  // Set role directly as EnumRole
+        this.role = role;  
     }
 }
