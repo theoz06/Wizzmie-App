@@ -48,7 +48,6 @@ const StatusPage = () => {
           const res = await getOrderStatus(orderId, tableNumber, custId);
           if (!isSubscribed) return;
 
-          console.log("res : " + JSON.stringify(res, null, 2));
           if (res) {
             if (
               res?.Order?.orderStatus?.description.toLowerCase() === "served"
