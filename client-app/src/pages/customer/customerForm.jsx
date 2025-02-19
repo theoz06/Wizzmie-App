@@ -19,7 +19,9 @@ const CustomerForm = () => {
     error: errorGetAllCategory,
   } = useGetAllCategory();
 
-  const filteredCategories = categories.filter((category) => category.description !== "Gelato");
+  const filteredCategories = categories.filter(
+    (category) => category.description !== "Gelato"
+  );
   console.log(filteredCategories);
 
   const { getOrCreate, isLoading, error } = useCustomerFormHook();
@@ -41,43 +43,50 @@ const CustomerForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if(!customerData.name || customerData.name.trim() === "" || !customerData.phone || customerData.phone.trim() === ""){
+    if (
+      !customerData.name ||
+      customerData.name.trim() === "" ||
+      !customerData.phone ||
+      customerData.phone.trim() === ""
+    ) {
       setErrorMessage("Semua field harus diisi.");
-    }else if(!customerData.menuRef){
+    } else if (!customerData.menuRef) {
       setErrorMessage("Pilih kategori terlebih dahulu.");
-    }else{
-    setErrorMessage(null)
-    const customerDetails = new FormData();
+    } else {
+      setErrorMessage(null);
+      const customerDetails = new FormData();
 
-    customerDetails.append("name", customerData.name);
-    customerDetails.append("phone", customerData.phone);
-    customerDetails.append("categoryId", customerData.menuRef);
+      customerDetails.append("name", customerData.name);
+      customerDetails.append("phone", customerData.phone);
+      customerDetails.append("categoryId", customerData.menuRef);
 
-    const success = await getOrCreate(customerDetails);
+      const success = await getOrCreate(customerDetails);
 
-    if (success) {
-      const cust = Cookies.get("customer")
-        ? JSON.parse(Cookies.get("customer"))
-        : null;
-      router.push(`/customer/mainPage?table=${tableNumber}&CustomerId=${cust.id}&CustomerName=${cust.name}&CustomerPhone=${cust.phone}`);
-    }
+      if (success) {
+        const cust = Cookies.get("customer")
+          ? JSON.parse(Cookies.get("customer"))
+          : null;
+        router.push(
+          `/customer/mainPage?table=${tableNumber}&CustomerId=${cust.id}&CustomerName=${cust.name}&CustomerPhone=${cust.phone}`
+        );
+      }
     }
   };
 
-  const [phoneError, setPhoneError] = useState('');
+  const [phoneError, setPhoneError] = useState("");
   const validatePhone = (phone) => {
     const cleanPhone = phone.replace(/[\s-]/g, "");
     const phoneRegex = /^(?:\+?62|62|0)8[1-9]\d{6,10}$/;
 
-    if(!cleanPhone){
+    if (!cleanPhone) {
       return "Nomor telepon wajib diisi.";
     }
 
-    if(!phoneRegex.test(cleanPhone)){
+    if (!phoneRegex.test(cleanPhone)) {
       return "Nomor telepon tidak valid";
     }
-    return "";  
-  }
+    return "";
+  };
 
   const handlePhoneChange = (e) => {
     const value = e.target.value;
@@ -141,9 +150,9 @@ const CustomerForm = () => {
               id="phone"
               autoComplete="off"
               className={`w-full mt-1 p-2 rounded-lg border transition-all duration-200 outline-none ${
-                phoneError 
-                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200'
-                  : 'text-gray-500 border border-gray-300 block w-full rounded-md outline-none focus:outline-[rgb(245,208,254)] focus:border-white'
+                phoneError
+                  ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200"
+                  : "text-gray-500 border border-gray-300 block w-full rounded-md outline-none focus:outline-[rgb(245,208,254)] focus:border-white"
               }`}
               placeholder="Contoh: 081234567890"
             />
@@ -152,8 +161,9 @@ const CustomerForm = () => {
             )}
             <p className="text-xs sm:text-sm text-gray-500 mt-2">
               <i>
-                Catatan: Bantu kami merekomendasikan menu yang sesuai dengan preferensi Anda.
-                Mohon pilih salah satu kategori menu di bawah ini.
+                Catatan: Bantu kami merekomendasikan menu yang sesuai dengan
+                preferensi Anda. Mohon pilih salah satu kategori menu di bawah
+                ini.
               </i>
             </p>
           </div>
@@ -167,17 +177,18 @@ const CustomerForm = () => {
                 className="options text-gray-500 text-sm space-x-1 space-y-1 w-full flex flex-wrap items-baseline"
                 data-group="referensi"
               >
-                {loading && <p>Loading categories...</p>}
                 {errorGetAllCategory && <p>Error fetching categories.</p>}
                 {filteredCategories &&
                   filteredCategories.map((category) => (
                     <button
                       key={category.id}
                       type="button"
-                      onClick={() => setCustomerData(prev => ({
-                        ...prev,
-                        menuRef: category.id
-                      }))}
+                      onClick={() =>
+                        setCustomerData((prev) => ({
+                          ...prev,
+                          menuRef: category.id,
+                        }))
+                      }
                       className={`p-1 rounded-md border-2 ${
                         customerData.menuRef === category.id
                           ? "bg-[#754985] text-white border-[#754985]"
@@ -199,7 +210,7 @@ const CustomerForm = () => {
 
           <div className="relative mb-1 text-center">
             <button
-              disabled= {isLoading || !!phoneError}
+              disabled={isLoading || !!phoneError}
               type="button"
               onClick={handleSubmit}
               className="bg-[#754985] mt-2 hover:bg-[#a448c6] text-white p-2 rounded-md font-semibold w-full sm:w-auto sm:px-6"
@@ -232,6 +243,24 @@ const CustomerForm = () => {
           </div>
         </form>
       </section>
+
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-black/50 absolute inset-0" />
+          <div className="bg-none rounded-lg p-6 w-[90%] max-w-sm z-50">
+            {" "}
+            <div className="text-center space-y-1">
+              <Image
+                width={100}
+                height={100}
+                alt="Logo"
+                src="/images/Screenshot_2025-02-01_193154-removebg-preview.png"
+                className="w-20 h-20 object-contain mx-auto animate-bounce"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </CustomerLayout>
   );
 };

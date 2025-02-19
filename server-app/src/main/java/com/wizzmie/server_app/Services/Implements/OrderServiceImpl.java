@@ -1,15 +1,15 @@
 package com.wizzmie.server_app.Services.Implements;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
-import com.wizzmie.server_app.DTO.Respon.UserResponse;
 import com.wizzmie.server_app.Entity.Customer;
 import com.wizzmie.server_app.Entity.Menu;
 import com.wizzmie.server_app.Entity.OrderHistory;
@@ -74,6 +74,24 @@ public class OrderServiceImpl {
         Cart cart = (Cart) session.getAttribute(sessionKey);
         if (cart == null || cart.getCartItems().isEmpty()){
             throw new RuntimeException("Cart is Empty");
+        }
+
+        // Validasi ketersediaan menu
+        List<CartItem> itemsToRemove = new ArrayList<>();
+        for (CartItem item : cart.getCartItems()) {
+            Optional<Menu> menu = menuRepository.findById(item.getMenuId());
+            if (menu.isPresent() && !menu.get().getIsAvailable()) {
+                itemsToRemove.add(item);
+            }
+        }
+
+        // Jika ada item yang tidak tersedia
+        if (!itemsToRemove.isEmpty()) {
+            // Hapus item yang tidak tersedia dari cart
+            cart.getCartItems().removeAll(itemsToRemove);
+            // Update cart di session
+            session.setAttribute(sessionKey, cart);
+            throw new RuntimeException("Ada menu yang tidak tersedia, silahkan cek kembali pesanan Anda");
         }
 
         Orders order = new Orders();

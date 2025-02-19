@@ -105,7 +105,6 @@ const PaymentPage = () => {
       try {
         const res = await checkStatusPaid(orderId);
         if (!isSubscribed) return;
-        console.log("res : " + JSON.stringify(res, null, 2));
         if (res) {
           if (
             res?.transaction_status === "settlement" &&
@@ -144,17 +143,23 @@ const PaymentPage = () => {
 
   const qRCodeDownloader = (e) => {
     try {
-      const canvas = qrCodeRef.current?.querySelector("canvas");
+      const canvas = qrCodeRef.current;
       if (!canvas) {
         console.error("Canvas element not found");
         return;
       }
-
-      const image = canvas.toDataURL("image/png");
+  
+      const image = canvas.querySelector("canvas")?.toDataURL("image/png");
+      if (!image) {
+        console.error("Failed to generate image");
+        return;
+      }
+  
       const link = document.createElement("a");
       link.href = image;
       link.download = `QRIS-table-${tableNumber || "unknown"}.png`;
       link.click();
+      console.log("QR code download triggered.");
     } catch (error) {
       console.error("Error downloading QR code:", error);
     }
@@ -197,6 +202,7 @@ const PaymentPage = () => {
             ) : qrisUrl ? (
               <div ref={qrCodeRef}>
                 <QRCodeCanvas
+                   
                   value={qrisUrl}
                   size={250}
                   level="H"

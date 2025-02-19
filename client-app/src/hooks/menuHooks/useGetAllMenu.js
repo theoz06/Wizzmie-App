@@ -28,6 +28,7 @@ const useGetAllMenu = () => {
 
     return {
         menus,
+        setMenus,
         error, 
         isLoading,
         getAllMenu

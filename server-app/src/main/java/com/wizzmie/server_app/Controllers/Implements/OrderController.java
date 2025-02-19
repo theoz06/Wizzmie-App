@@ -49,17 +49,17 @@ public class OrderController {
 
     @PostMapping("/customer/create-order/{tableNumber}/{customerId}")
     public ResponseEntity<Map<String, Object>> createOrder(HttpSession session, @PathVariable Integer tableNumber, @PathVariable Integer customerId){
-        try {
-            Map<String, Object> res = new HashMap<>();
+
+        Map<String, Object> res = new HashMap<>();
+        try { 
             Orders orders = orderServiceImpl.createOrder(session, tableNumber, customerId);
             res.put("orders", orders);
             res.put("message", "Order Created");
             return new  ResponseEntity<>(res, HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("status_code", 400);
-            errorResponse.put("message", "Bad request: " + e.getMessage());
-            return new ResponseEntity<>(errorResponse, e.getStatus());
+        } catch (RuntimeException e) {
+            res.put("status_code", HttpStatus.BAD_REQUEST.value());
+            res.put("message", e.getMessage());
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
     }
 
