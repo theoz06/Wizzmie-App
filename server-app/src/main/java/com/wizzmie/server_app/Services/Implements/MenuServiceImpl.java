@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,10 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
 
     @Autowired
     private FileUploadServiceImpl fileUploadServiceImpl;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
 
 
     @Override
@@ -120,8 +125,12 @@ public class MenuServiceImpl implements GenericService<Menu, Integer>, OptionalG
         }
 
         Integer updateRow = menuRepository.updateMenuAvailablelity(isAvailable, id);
+        System.out.println(updateRow);
 
-        if(updateRow == 0){
+        if(updateRow == 1){
+            Menu menu  = menuRepository.findById(id).orElseThrow(()-> new RuntimeException("Menu Not Found"));
+            messagingTemplate.convertAndSend("/public/menu-update",menu);
+        }else{
             throw new RuntimeException("Menu Not Found");
         }
     } 

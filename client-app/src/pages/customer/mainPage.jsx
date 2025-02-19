@@ -1,12 +1,12 @@
 import CustomerLayout from "@/components/layout/CustomerLayout";
 import Image from "next/image";
-import React, { use, useEffect } from "react";
+import { useMemo } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlus } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
 import { useSearchParams } from "next/navigation";
 import useGetAllCategory from "@/hooks/categoryHooks/useGetAllCategory";
-import { useState } from "react";
 import useGetAllMenu from "@/hooks/menuHooks/useGetAllMenu";
 import useGetCartItems from "@/hooks/cartHooks/useGetCartItems";
 import useAddToCart from "@/hooks/cartHooks/useAddToCart";
@@ -15,6 +15,9 @@ import { useRef } from "react";
 import { FaExclamationCircle } from "react-icons/fa";
 import FlavorModal from "@/components/flavor";
 import LevelModal from "@/components/levelModal";
+import useWebsocketMenu from "@/hooks/websocketHooks/useWebsocketMenu";
+
+
 
 
 const MainPage = () => {
@@ -32,7 +35,28 @@ const MainPage = () => {
   const [totalItemAdded, setTotalItemAdded] = useState(0);
 
   const { categories } = useGetAllCategory();
-  const { menus, getAllMenu } = useGetAllMenu();
+  const { menus, getAllMenu, setMenus } = useGetAllMenu();
+  const {updatedMenu} = useWebsocketMenu();
+  
+  useEffect(() => {
+    if (updatedMenu) {
+      // Update menus state ketika ada perubahan dari websocket
+      const updatedMenus = menus.map(menu => 
+        menu.id === updatedMenu.id ? updatedMenu : menu
+      );
+      
+      // Update recommendation jika menu yang diupdate ada di dalamnya
+      if (recommendation) {
+        const updatedRecommendation = recommendation.map(menu =>
+          menu.id === updatedMenu.id ? updatedMenu : menu
+        );
+        setRecommendation(updatedRecommendation);
+      }
+      
+      // Update menus state
+      setMenus(updatedMenus); // Atau gunakan setter jika tersedia
+    }
+  }, [updatedMenu]);
 
   const tabs = [
     "Rekomendasi",
@@ -46,15 +70,16 @@ const MainPage = () => {
   //   (menu) => menu.category.description === activeTab
   // );
 
-  const menusFilteredByCategory = menus.filter((menu) => {
-    const categoryDesc = menu.category.description;
-
-    if (activeTab === "Mie") {
-      return categoryDesc === activeTab && menu.name.includes("Manja");
-    }
-
-    return categoryDesc === activeTab;
-  });
+  const menusFilteredByCategory = useMemo(() => 
+    menus.filter((menu) => {
+      const categoryDesc = menu.category.description;
+      if (activeTab === "Mie") {
+        return categoryDesc === activeTab && menu.name.includes("Manja");
+      }
+      return categoryDesc === activeTab;
+    }),
+    [menus, activeTab]
+  );
 
   const imagesUrl = {
     Rekomendasi: "/images/Screenshot_2025-02-01_193135-removebg-preview.png",
