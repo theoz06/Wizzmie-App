@@ -14,6 +14,8 @@ import useGetRecommendationMenu from "@/hooks/menuHooks/useGetRecommendationMenu
 import { useRef } from "react";
 import { FaExclamationCircle } from "react-icons/fa";
 import FlavorModal from "@/components/flavor";
+import LevelModal from "@/components/levelModal";
+
 
 const MainPage = () => {
   const router = useRouter();
@@ -40,19 +42,19 @@ const MainPage = () => {
   ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-  const menusFilteredByCategory = menus.filter(
-    (menu) => menu.category.description === activeTab
-  );  
+  // const menusFilteredByCategory = menus.filter(
+  //   (menu) => menu.category.description === activeTab
+  // );
 
-  // const menusFilteredByCategory = menus.filter((menu) => {
-  //   const categoryDesc = menu.category.description;
-    
-  //   if (activeTab === "Mie") {
-  //     return categoryDesc === activeTab && menu.name.includes("Manja");
-  //   }
-    
-  //   return categoryDesc === activeTab;
-  // });
+  const menusFilteredByCategory = menus.filter((menu) => {
+    const categoryDesc = menu.category.description;
+
+    if (activeTab === "Mie") {
+      return categoryDesc === activeTab && menu.name.includes("Manja");
+    }
+
+    return categoryDesc === activeTab;
+  });
 
   const imagesUrl = {
     Rekomendasi: "/images/Screenshot_2025-02-01_193135-removebg-preview.png",
@@ -122,6 +124,20 @@ const MainPage = () => {
     error: errorAddToCartMessage,
     setError: setErrorAddToCartMessage,
   } = useAddToCart();
+
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [selectedMenuType, setSelectedMenuType] = useState(null);
+
+const handleAddSpicyMenu = (menuType) => {
+  setSelectedMenuType(menuType);
+  setIsModalOpen(true);
+};
+
+const handleConfirm = (selectedMenu) => {
+  // Handle penambahan ke cart
+  console.log("Menu yang dipilih:", selectedMenu);
+  addToCartHandler(selectedMenu);
+};
 
   const [isFlavorModalOpen, setIsFlavorModalOpen] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
@@ -385,6 +401,75 @@ const MainPage = () => {
                 </div>
               </div>
             ))}
+        {activeTab === "Mie" && (
+          <>
+            <div className="container pr-3 bg-pink-500 text-[#B0B0B0] rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative">
+              <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                <div className="flex-shrink-0">
+                  <Image
+                    width={100}
+                    height={100}
+                    alt="Logo"
+                    src="/products/Mie Goyang.png"
+                    className="w-20 h-20 object-contain"
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0 py-2 px-3">
+                  <h3 className="font-bold text-md text-white mb-1 line-clamp-2">
+                    Mie Goyang
+                  </h3>
+                  <p className="text-gray-100 text-xs italic line-clamp-2">
+                    Mie pedas goreng kecap manis dengan pilihan level pedas.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0 ml-2">
+                <button
+                  type="button"
+                  onClick={()=>handleAddSpicyMenu("Mie Goyang")}
+                  className="bg-pink-700 hover:bg-pink-800` text-white p-2 rounded-full border-white border-2  transition-colors"
+                >
+                  <FaPlus />
+                </button>
+              </div>
+            </div>
+
+            <div className="container pr-3 bg-pink-500 text-[#B0B0B0] rounded-l-full rounded-r-md min-h-20 flex items-center shadow-lg relative">
+              <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                <div className="flex-shrink-0">
+                  <Image
+                    width={100}
+                    height={100}
+                    alt="Logo"
+                    src="/products/Mie Disko.png"
+                    className="w-20 h-20 object-contain"
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0 py-2 px-3">
+                  <h3 className="font-bold text-md text-white mb-1 line-clamp-2">
+                    Mie Disko
+                  </h3>
+                  <p className="text-gray-100 text-xs italic line-clamp-2">
+                    Mie pedas gurih dengan pilihan level pedas.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0 ml-2">
+                <button
+                  type="button"
+                  onClick={()=>handleAddSpicyMenu("Mie Disko")}
+                  className="bg-pink-700 hover:bg-pink-800` text-white p-2 rounded-full border-white border-2  transition-colors"
+                >
+                  <FaPlus />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </section>
       {totalItemAdded === 0 || isAtBottom ? (
         <></>
@@ -476,6 +561,17 @@ const MainPage = () => {
         onConfirm={(flavors) => addToCartHandler(selectedMenu, flavors)}
         menu={selectedMenu}
       />
+
+<LevelModal
+  isOpen={isModalOpen}
+  onClose={() => {
+    setIsModalOpen(false);
+    setSelectedMenuType(null);
+  }}
+  onConfirm={handleConfirm}
+  menuType={selectedMenuType}
+  menus={menus}
+/>
     </CustomerLayout>
   );
 };
