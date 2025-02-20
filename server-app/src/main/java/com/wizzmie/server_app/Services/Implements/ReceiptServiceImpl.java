@@ -2,7 +2,6 @@ package com.wizzmie.server_app.Services.Implements;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
