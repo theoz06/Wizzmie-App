@@ -17,9 +17,6 @@ import FlavorModal from "@/components/flavor";
 import LevelModal from "@/components/levelModal";
 import useWebsocketMenu from "@/hooks/websocketHooks/useWebsocketMenu";
 
-
-
-
 const MainPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,23 +33,23 @@ const MainPage = () => {
 
   const { categories } = useGetAllCategory();
   const { menus, getAllMenu, setMenus } = useGetAllMenu();
-  const {updatedMenu} = useWebsocketMenu();
-  
+  const { updatedMenu } = useWebsocketMenu();
+
   useEffect(() => {
     if (updatedMenu) {
       // Update menus state ketika ada perubahan dari websocket
-      const updatedMenus = menus.map(menu => 
+      const updatedMenus = menus.map((menu) =>
         menu.id === updatedMenu.id ? updatedMenu : menu
       );
-      
+
       // Update recommendation jika menu yang diupdate ada di dalamnya
       if (recommendation) {
-        const updatedRecommendation = recommendation.map(menu =>
+        const updatedRecommendation = recommendation.map((menu) =>
           menu.id === updatedMenu.id ? updatedMenu : menu
         );
         setRecommendation(updatedRecommendation);
       }
-      
+
       // Update menus state
       setMenus(updatedMenus); // Atau gunakan setter jika tersedia
     }
@@ -66,18 +63,15 @@ const MainPage = () => {
   ];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-  // const menusFilteredByCategory = menus.filter(
-  //   (menu) => menu.category.description === activeTab
-  // );
-
-  const menusFilteredByCategory = useMemo(() => 
-    menus.filter((menu) => {
-      const categoryDesc = menu.category.description;
-      if (activeTab === "Mie") {
-        return categoryDesc === activeTab && menu.name.includes("Manja");
-      }
-      return categoryDesc === activeTab;
-    }),
+  const menusFilteredByCategory = useMemo(
+    () =>
+      menus.filter((menu) => {
+        const categoryDesc = menu.category.description;
+        if (activeTab === "Mie") {
+          return categoryDesc === activeTab && menu.name.includes("Manja");
+        }
+        return categoryDesc === activeTab;
+      }),
     [menus, activeTab]
   );
 
@@ -150,19 +144,19 @@ const MainPage = () => {
     setError: setErrorAddToCartMessage,
   } = useAddToCart();
 
-const [isModalOpen, setIsModalOpen] = useState(false);
-const [selectedMenuType, setSelectedMenuType] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMenuType, setSelectedMenuType] = useState(null);
 
-const handleAddSpicyMenu = (menuType) => {
-  setSelectedMenuType(menuType);
-  setIsModalOpen(true);
-};
+  const handleAddSpicyMenu = (menuType) => {
+    setSelectedMenuType(menuType);
+    setIsModalOpen(true);
+  };
 
-const handleConfirm = (selectedMenu) => {
-  // Handle penambahan ke cart
-  console.log("Menu yang dipilih:", selectedMenu);
-  addToCartHandler(selectedMenu);
-};
+  const handleConfirm = (selectedMenu) => {
+    // Handle penambahan ke cart
+    console.log("Menu yang dipilih:", selectedMenu);
+    addToCartHandler(selectedMenu);
+  };
 
   const [isFlavorModalOpen, setIsFlavorModalOpen] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
@@ -282,6 +276,27 @@ const handleConfirm = (selectedMenu) => {
     setIsAtBottom(bottom);
   };
 
+  const [showDescriptionPopup, setShowDescriptionPopup] = useState(false);
+  const [selectedMenuDesc, setSelectedMenuDesc] = useState({
+    name: "",
+    description: "",
+    image: "",
+  });
+
+  const handleImageClick = (menu) => {
+    console.log("Menu yang diklik:", menu);
+    setSelectedMenuDesc({
+      name: menu.name,
+      description: menu.description || "Tidak ada deskripsi tersedia",
+      image: menu.image,
+    });
+    setShowDescriptionPopup(true);
+    // Otomatis hilangkan popup setelah 3 detik
+    setTimeout(() => {
+      setShowDescriptionPopup(false);
+    }, 3000);
+  };
+
   return (
     <CustomerLayout>
       <header className="fixed h-[150px] top-0 z-[2] left-0 bg-[#9c379a] p-4 flex justify-between items-center w-full border-2 border-[#9c379a]">
@@ -346,7 +361,8 @@ const handleConfirm = (selectedMenu) => {
                       height={100}
                       alt="Logo"
                       src={`${url}/images/${menu.image}`}
-                      className="w-20 h-20 object-contain"
+                      className="w-20 h-20 object-contain cursor-pointer"
+                      onClick={() => handleImageClick(menu)}
                     />
                   </div>
 
@@ -394,7 +410,8 @@ const handleConfirm = (selectedMenu) => {
                       height={100}
                       alt="Logo"
                       src={`${url}/images/${menu.image}`}
-                      className="w-20 h-20 object-contain"
+                      className="w-20 h-20 object-contain cursor-pointer"
+                      onClick={() => handleImageClick(menu)}
                     />
                   </div>
 
@@ -453,7 +470,7 @@ const handleConfirm = (selectedMenu) => {
               <div className="flex-shrink-0 ml-2">
                 <button
                   type="button"
-                  onClick={()=>handleAddSpicyMenu("Mie Goyang")}
+                  onClick={() => handleAddSpicyMenu("Mie Goyang")}
                   className="bg-pink-700 hover:bg-pink-800` text-white p-2 rounded-full border-white border-2  transition-colors"
                 >
                   <FaPlus />
@@ -486,7 +503,7 @@ const handleConfirm = (selectedMenu) => {
               <div className="flex-shrink-0 ml-2">
                 <button
                   type="button"
-                  onClick={()=>handleAddSpicyMenu("Mie Disko")}
+                  onClick={() => handleAddSpicyMenu("Mie Disko")}
                   className="bg-pink-700 hover:bg-pink-800` text-white p-2 rounded-full border-white border-2  transition-colors"
                 >
                   <FaPlus />
@@ -577,6 +594,30 @@ const handleConfirm = (selectedMenu) => {
         </div>
       )}
 
+      {showDescriptionPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="bg-black/70 absolute inset-0"
+            onClick={() => setShowDescriptionPopup(false)}
+          />
+          <div className="bg-white rounded-lg p-4 w-[80%] max-w-sm z-50 relative shadow-lg">
+            <div className="flex items-center gap-3 mb-2">
+              <Image
+                width={50}
+                height={50}
+                alt={selectedMenuDesc.name}
+                src={`${url}/images/${selectedMenuDesc.image}`}
+                className="w-12 h-12 object-contain"
+              />
+              <h3 className="font-bold text-lg text-pink-700">
+                {selectedMenuDesc.name}
+              </h3>
+            </div>
+            <p className="text-gray-700">{selectedMenuDesc.description}</p>
+          </div>
+        </div>
+      )}
+
       <FlavorModal
         isOpen={isFlavorModalOpen}
         onClose={() => {
@@ -587,16 +628,16 @@ const handleConfirm = (selectedMenu) => {
         menu={selectedMenu}
       />
 
-<LevelModal
-  isOpen={isModalOpen}
-  onClose={() => {
-    setIsModalOpen(false);
-    setSelectedMenuType(null);
-  }}
-  onConfirm={handleConfirm}
-  menuType={selectedMenuType}
-  menus={menus}
-/>
+      <LevelModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedMenuType(null);
+        }}
+        onConfirm={handleConfirm}
+        menuType={selectedMenuType}
+        menus={menus}
+      />
     </CustomerLayout>
   );
 };
