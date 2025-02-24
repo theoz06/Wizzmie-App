@@ -108,7 +108,7 @@ public class ReceiptServiceImpl {
             
             NumberFormat nf = NumberFormat.getInstance(new Locale(logoPath));
             
-                        // Order items with compact spacing
+
             Integer totalItem = 0;
             PdfPTable table = new PdfPTable(2);
             table.setWidthPercentage(100);
