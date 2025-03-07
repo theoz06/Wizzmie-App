@@ -24,6 +24,9 @@ export class WebSocketService {
                 case 'pelayan':
                     this.client.subscribe("/pelayan/ready-orders", this.handleMessage(onMessageReceived));
                     break;
+                    case 'menu':
+                        this.client.subscribe("/public/menu-update", this.handleMessage(onMessageReceived));
+                        break;
             }
         }, onError);
     }

@@ -1,11 +1,15 @@
 package com.wizzmie.server_app.Services.Implements;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import javax.imageio.ImageIO;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +40,24 @@ public class ReceiptServiceImpl {
     private String logoPath;
 
     public byte[] generateReceipt(Integer orderId) {
+        try {
+            byte[] pdfBytes = generatePdfReceipt(orderId);
+
+            PDDocument document = PDDocument.load(pdfBytes);
+            PDFRenderer pdfRenderer = new PDFRenderer(document);
+            BufferedImage image = pdfRenderer.renderImageWithDPI(0, 300);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "PNG", baos);
+            document.close();
+
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate receipt pdf to Image", e);
+        }
+    }
+
+    private byte[] generatePdfReceipt(Integer orderId) {
         try {
             Orders order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order Not Found"));
 
@@ -86,17 +108,43 @@ public class ReceiptServiceImpl {
             
             NumberFormat nf = NumberFormat.getInstance(new Locale(logoPath));
             
-            // Order items with compact spacing
+
             Integer totalItem = 0;
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(100);
+            // Atur lebar kolom (70% untuk nama, 30% untuk harga)
+            float[] columnWidths = {70f, 30f};
+            table.setWidths(columnWidths);
             for (OrderItem item : order.getOrderItems()) {
                 totalItem += item.getQuantity();
-                Paragraph itemParagraph = new Paragraph(
-                    item.getQuantity() + " " + item.getMenu().getName() + " " + 
-                    nf.format(item.getMenu().getPrice()), normalFont);
-                itemParagraph.setSpacingBefore(0);
-                itemParagraph.setSpacingAfter(0);
-                document.add(itemParagraph);
+
+                // Cell untuk nama item
+                PdfPCell nameCell = new PdfPCell(new Phrase(item.getQuantity() + " " + item.getMenu().getName(), normalFont));
+                nameCell.setBorder(Rectangle.NO_BORDER);
+                nameCell.setPaddingBottom(0);
+                nameCell.setPaddingTop(5);
+                
+                // Cell untuk harga
+                PdfPCell priceCell = new PdfPCell(new Phrase(nf.format(item.getMenu().getPrice()), normalFont));
+                priceCell.setBorder(Rectangle.NO_BORDER);
+                priceCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                priceCell.setPaddingBottom(0);
+                priceCell.setPaddingTop(5);
+                
+                table.addCell(nameCell);
+                table.addCell(priceCell);
+                
+                // Tambah baris untuk deskripsi jika ada
+                if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+                    PdfPCell descCell = new PdfPCell(new Phrase("    " + item.getDescription(), normalFont));
+                    descCell.setBorder(Rectangle.NO_BORDER);
+                    descCell.setColspan(2);
+                    descCell.setPaddingBottom(0);
+                    descCell.setPaddingTop(0);
+                    table.addCell(descCell);
+                }
             }
+            document.add(table);
             
             Double subtotal = order.getTotalAmount() - (order.getTotalAmount() * (10/100));
             Double pbi = order.getTotalAmount() * (10.0/100);
@@ -139,7 +187,7 @@ public class ReceiptServiceImpl {
             document.close();
             return baos.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate receipt", e);
+            throw new RuntimeException("Failed to generate PDF receipt", e);
         }
     }
     

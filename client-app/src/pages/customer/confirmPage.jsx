@@ -7,6 +7,7 @@ import { useState } from "react";
 import useGetCartItems from "@/hooks/cartHooks/useGetCartItems";
 import { FaChevronLeft } from "react-icons/fa";
 import useCreateOrder from "@/hooks/orderHooks/useCreateOrder";
+import { FaExclamationCircle } from "react-icons/fa";
 
 const ConfirmPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -24,7 +25,7 @@ const ConfirmPage = () => {
   const [ppnAmount, setPpnAmount] = useState(0);
 
   const { getCartItems } = useGetCartItems();
-  const { isLoading, error, createOrder } = useCreateOrder();
+  const { isLoading, error, setError, createOrder } = useCreateOrder();
 
   useEffect(() => {
     const initializeData = async () => {
@@ -61,7 +62,7 @@ const ConfirmPage = () => {
   const backHandler = () => {
     router.back();
   };
-  
+
   const confirmHandler = async () => {
     try {
       const res = await createOrder(tableNumber, custId);
@@ -73,6 +74,13 @@ const ConfirmPage = () => {
     } catch (error) {
       console.log("err: " + error);
     }
+  };
+
+  const onClose = async () => {
+    setError(null);
+    router.push(
+      `/customer/cartPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`
+    );
   };
 
   return (
@@ -100,10 +108,7 @@ const ConfirmPage = () => {
             Pesanan
           </h3>
           {cartData?.cartItems?.map((item, index) => (
-            <div
-              key={index}
-              className="container "
-            >
+            <div key={index} className="container ">
               <div className="flex mt-5 justify-between items-center">
                 <div className="flex items-center space-x-2">
                   <Image
@@ -169,6 +174,45 @@ const ConfirmPage = () => {
           Buat Pesanan
         </button>
       </footer>
+
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-black/50 absolute inset-0" />
+          <div className="bg-none rounded-lg p-6 w-[90%] max-w-sm z-50">
+            {" "}
+            <div className="text-center space-y-1">
+              <Image
+                width={100}
+                height={100}
+                alt="Logo"
+                src="/images/Screenshot_2025-02-01_193154-removebg-preview.png"
+                className="w-20 h-20 object-contain mx-auto animate-bounce"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-black/50 absolute inset-0" />
+          <div className="bg-white rounded-lg p-6 w-[90%] z-50 m-auto">
+            <div className="text-center space-y-4">
+              <FaExclamationCircle className="text-red-600 text-4xl mx-auto" />
+              <h3 className="font-bold text-lg">
+                Gagal membuat pesanan
+              </h3>
+              <p className="text-gray-600">{error}</p>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-pink-700 text-white rounded-md hover:bg-pink-800"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </CustomerLayout>
   );
 };

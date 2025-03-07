@@ -3,17 +3,17 @@ import { useState } from "react";
 
 const useCreateOrder = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [error, seterror] = useState(null);
+    const [error, setError] = useState(null);
 
     const createOrder = async (tableNUmber, customerId) => {
         setIsLoading(true);
-        seterror(null);
+        setError(null);
 
         try {
             return await orderService.createOrder(tableNUmber,customerId);
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err.message || "Create order Failed."
-            seterror(errorMessage);
+            setError(errorMessage);
             setIsLoading(false)
         }finally{
             setIsLoading(false);
@@ -23,6 +23,7 @@ const useCreateOrder = () => {
     return {
         isLoading,
         error,
+        setError,
         createOrder
     }
 

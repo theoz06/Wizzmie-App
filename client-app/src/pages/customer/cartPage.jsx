@@ -26,7 +26,7 @@ const CartPage = () => {
   const { clearCart } = useClearCart();
   const { updateCart } = useUpdateCart();
   const { removeCartItem } = useRemoveCartItem();
-  const { cartData, getCartItems } = useGetCartItems();
+  const { cartData, getCartItems, isLoading } = useGetCartItems();
   const [localCart, setLocalCart] = useState([]);
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -240,7 +240,9 @@ const CartPage = () => {
   };
 
   const backHandler = () => {
-    router.back();
+    router.push(
+      `/customer/mainPage?table=${tableNumber}&CustomerId=${custId}&CustomerName=${custName}&CustomerPhone=${custPhone}`
+    );
   };
 
   return (
@@ -365,6 +367,24 @@ const CartPage = () => {
         title={confirmationData.title}
         message={confirmationData.message}
       />
+
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-black/50 absolute inset-0" />
+          <div className="bg-none rounded-lg p-6 w-[90%] max-w-sm z-50">
+            {" "}
+            <div className="text-center space-y-1">
+              <Image
+                width={100}
+                height={100}
+                alt="Logo"
+                src="/images/Screenshot_2025-02-01_193154-removebg-preview.png"
+                className="w-20 h-20 object-contain mx-auto animate-bounce"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </CustomerLayout>
   );
 };

@@ -5,6 +5,7 @@ import com.midtrans.httpclient.CoreApi;
 import com.midtrans.httpclient.SnapApi;
 import com.midtrans.httpclient.error.MidtransError;
 import com.wizzmie.server_app.Config.MidtransConfig;
+import com.wizzmie.server_app.DTO.Request.MailRequest;
 import com.wizzmie.server_app.Entity.Orders;
 import com.wizzmie.server_app.Entity.Status;
 import com.wizzmie.server_app.Repository.OrderItemRepository;
@@ -50,6 +51,9 @@ public class PaymentServiceImpl {
 
     @Autowired
     private RatingServiceImpl ratingServiceImpl;
+
+    @Autowired
+    private MailServiceImpl mailServiceImpl;
 
 
     private String paymentType = "";
@@ -207,6 +211,7 @@ public class PaymentServiceImpl {
             }
 
             if(url !=null){
+                mailServiceImpl.sendMail( null, url);
                 return url;
             }
             return ("QRIS URL not found");

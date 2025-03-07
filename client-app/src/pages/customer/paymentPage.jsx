@@ -10,6 +10,7 @@ import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import useCheckStatusPaid from "@/hooks/paymentHooks/useCheckStatusPaid";
 import { AlertCircle } from "lucide-react";
 import PaymentSuccessWithReceipt from "@/components/paymentsuccess";
+import Cookies from "js-cookie";
 
 const PaymentPage = () => {
   const url = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -35,11 +36,27 @@ const PaymentPage = () => {
     const generateQrisCode = async () => {
       if (!orderId || qrisUrl || isGenerating) return;
 
+      const existQrisUrl = Cookies.get(`qrisUrl_${orderId}`);
+      if (existQrisUrl) {
+        if(isMounted){
+          console.log("Exist QRIS URL:", existQrisUrl);
+          setQrisUrl(existQrisUrl);
+          hasGenerated.current = true;
+        }
+        return;
+      }
+
       try {
         isGenerating = true;
         const data = await generateQRIS(orderId);
         if (isMounted && data) {
           console.log("Generated QRIS URL:", data);
+          Cookies.set(`qrisUrl_${orderId}`, data, {
+            expires: new Date(Date.now() + 15 * 60 * 1000),
+            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+            path: "/customer/paymentPage"
+          })
           setQrisUrl(data);
         }
       } catch (error) {
@@ -56,6 +73,13 @@ const PaymentPage = () => {
       isMounted = false;
     };
   }, [orderId, generateQRIS, qrisUrl]);
+
+  useEffect(() => {
+    if (paid === "settlement" || paid === "failure") {
+      Cookies.remove(`qris_${orderId}`, 
+        {path: "/customer/paymentPage"});
+    }
+  }, [paid, orderId]);
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -81,7 +105,6 @@ const PaymentPage = () => {
       try {
         const res = await checkStatusPaid(orderId);
         if (!isSubscribed) return;
-        console.log("res : " + JSON.stringify(res, null, 2));
         if (res) {
           if (
             res?.transaction_status === "settlement" &&
@@ -120,17 +143,23 @@ const PaymentPage = () => {
 
   const qRCodeDownloader = (e) => {
     try {
-      const canvas = qrCodeRef.current?.querySelector("canvas");
+      const canvas = qrCodeRef.current;
       if (!canvas) {
         console.error("Canvas element not found");
         return;
       }
-
-      const image = canvas.toDataURL("image/png");
+  
+      const image = canvas.querySelector("canvas")?.toDataURL("image/png");
+      if (!image) {
+        console.error("Failed to generate image");
+        return;
+      }
+  
       const link = document.createElement("a");
       link.href = image;
       link.download = `QRIS-table-${tableNumber || "unknown"}.png`;
       link.click();
+      console.log("QR code download triggered.");
     } catch (error) {
       console.error("Error downloading QR code:", error);
     }
@@ -149,6 +178,7 @@ const PaymentPage = () => {
 
   return (
     <CustomerLayout>
+      <div className="min-h-screen">
       {paid === "settlement" ? (
         <PaymentSuccessWithReceipt 
           orderId={orderId} 
@@ -172,6 +202,7 @@ const PaymentPage = () => {
             ) : qrisUrl ? (
               <div ref={qrCodeRef}>
                 <QRCodeCanvas
+                   
                   value={qrisUrl}
                   size={250}
                   level="H"
@@ -221,10 +252,11 @@ const PaymentPage = () => {
           </h2>
         </figure>
       )}
-      <footer className="fixed z-[1] bottom-0 left-0 max-h-20 w-full ">
+      </div>
+      <footer className={`fixed z-[1] bottom-0 left-0  w-full   ${paid === "settlement" && "bottom-0 justify-center items-center flex"}`}>
         <button
           type="button"
-          className="bg-[#9c379a] text-white text-2xl font-bold w-full p-4 rounded-md"
+          className={`bg-[#9c379a]  text-white text-2xl font-bold p-4 ${paid === "settlement" ? "animate-bounce rounded-lg" : "w-full"}`}
           onClick={
             paid === "settlement"
               ? checkStatusOrder
@@ -232,7 +264,7 @@ const PaymentPage = () => {
               ? qRCodeDownloader
               : backToFormPage
           }
-          disabled={isLoading || (!paid && !qrisUrl)}
+          disabled={isLoading }
         >
           {paid === "settlement"
             ? "Cek Status Pesanan"

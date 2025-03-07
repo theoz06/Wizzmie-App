@@ -58,7 +58,7 @@ const Navbar = () => {
         <Image 
           width="40" 
           height="40" 
-          src="/images/logo-wizzmie.webp" 
+          src="/images/Logo-wizzmie.png" 
           alt="logo"
           className="w-10 h-10" // Tetapkan ukuran yang fixed
         />

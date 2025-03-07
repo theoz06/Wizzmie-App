@@ -66,7 +66,6 @@ public class SecurityConfig {
                                 .antMatchers("/api/dashboard/metrics").permitAll()
                                 .antMatchers("/api/receipt/**").permitAll()
                                 .antMatchers("/ws/**").permitAll()
-                                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -108,8 +107,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList(
         "Authorization", "Content-Type"
-    ));
-        configuration.setAllowCredentials(true);
+        ));
     
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
